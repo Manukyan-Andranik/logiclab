@@ -1,14 +1,12 @@
 import os
-from bson import ObjectId
-from pymongo import MongoClient
+import hashlib
+# from bson import ObjectId
 from datetime import datetime
+from dotenv import load_dotenv
+from pymongo import MongoClient
 from urllib.parse import quote_plus
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
-from pymongo import MongoClient
-from datetime import datetime
-from bson import ObjectId
-import hashlib
-from dotenv import load_dotenv
+
 #   Dotenv setup
 dotenv_path = ".env"
 load_dotenv(dotenv_path=dotenv_path)
@@ -19,7 +17,6 @@ app.secret_key = os.urandom(24)
 # app.secret_key = 'your_secret_key_here'
 USER_NAME = os.getenv('MONGO_USERNAME')
 PASSWORD = os.getenv('MONGO_PASSWORD')
-print(USER_NAME, PASSWORD)
 escaped_username = quote_plus(USER_NAME)
 escaped_password = quote_plus(PASSWORD)
 uri = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?appName=Cluster0"
@@ -49,7 +46,6 @@ if admins.count_documents({}) == 0:
         "api_key": api_key,
         "created_at": datetime.now()
     })
-    print(f"Admin created. API Key: {api_key}")
 
 # Admin authentication decorator
 def admin_required(f):
@@ -77,8 +73,7 @@ def home():
         "machine_learning": courses[0],
         "3ds_max": courses[1],
         }
-    print(type(courses))
-    print(courses)
+
     return render_template('index.html', courses=courses)
 
 @app.route('/course/<course_id>')
@@ -193,16 +188,16 @@ def admin_students():
     all_courses = list(courses_collection.find())
     return render_template('admin/students.html', students=all_students, courses=all_courses)
 
-@app.route('/admin/student/<student_id>/update', methods=['POST'])
-@admin_required
-def admin_update_student(student_id):
-    new_status = request.form['status']
-    registrations.update_one(
-        {"_id": ObjectId(student_id)},
-        {"$set": {"status": new_status}}
-    )
-    flash('Student status updated', 'success')
-    return redirect(url_for('admin_students'))
+# @app.route('/admin/student/<student_id>/update', methods=['POST'])
+# @admin_required
+# def admin_update_student(student_id):
+#     new_status = request.form['status']
+#     registrations.update_one(
+#         {"_id": ObjectId(student_id)},
+#         {"$set": {"status": new_status}}
+#     )
+#     flash('Student status updated', 'success')
+#     return redirect(url_for('admin_students'))
 
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
