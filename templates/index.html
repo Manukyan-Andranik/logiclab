@@ -1,51 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hy">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML & 3DS Max Academy</title>
+    <title>ML և 3DS Max ակադեմիա</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
+<!-- Back to Top Button -->
+<button id="back-to-top" class="back-to-top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100,
+            delay: 100
+        });
+
+        // Hero title underline animation
+        const highlights = document.querySelectorAll('.highlight-title');
+        setTimeout(() => {
+            highlights.forEach(highlight => {
+                highlight.style.opacity = 1;
+            });
+        }, 500);
+
+        // Back to Top Button
+        const backToTopButton = document.getElementById('back-to-top');
+
+        // Show/hide button based on scroll position
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+
+        // Smooth scroll to top when clicked
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+</body>
+
+</html>
+
 <body>
     <header>
         <div class="container">
             <nav>
-                <div class="logo">
-                    <span class="highlight">Edu</span>Tech
-                </div>
                 <ul class="nav-links">
-                    <li><a href="#courses">Courses</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#courses">Դասընթացներ</a></li>
+                    <li><a href="#about">Մեր մասին</a></li>
+                    <li><a href="#contact">Կապ</a></li>
                 </ul>
             </nav>
-            <div class="hero">
-                <h1>Master <span class="highlight">Machine Learning</span> & <span class="highlight">3DS Max</span></h1>
-                <p>Join our professional courses taught by industry experts</p>
-                <a href="#courses" class="btn">Explore Courses</a>
+            <div class="hero" data-aos="fade-in">
+                <h1>View Box <span class="highlight-title"></span> <span class="highlight-title">&</span> Soul's Of
+                    Code</span></h1>
+                <p>Միացե՛ք մեր մասնագիտական դասընթացներին, որոնք անցկացնում են ոլորտի փորձագետները</p>
+                <a href="#courses" class="btn btn-pulse">Դիտել դասընթացները</a>
             </div>
         </div>
     </header>
 
     <section id="courses" class="courses-section">
         <div class="container">
-            <h2>Our <span class="highlight">Courses</span></h2>
+            <h2 data-aos="fade-up">Մեր <span class="highlight">Դասընթացները</span></h2>
             <div class="course-grid">
                 {% for course_id, course in courses.items() %}
-                <div class="course-card">
+                <div class="course-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
                     <div class="course-icon">
                         <i class="fas {{ 'fa-robot' if course_id == 'machine_learning' else 'fa-cube' }}"></i>
                     </div>
                     <h3>{{ course.title }}</h3>
                     <p>{{ course.description }}</p>
                     <div class="course-details">
-                        <p><i class="fas fa-calendar-alt"></i> Starts: {{ course.start_date }}</p>
-                        <p><i class="fas fa-clock"></i> {{ course.duration }}</p>
-                        <p><i class="fas fa-calendar-week"></i> {{ course.schedule }}</p>
+                        <p><i class="fas fa-calendar-alt"></i> Սկիզբ՝ {{ course.start_date }}</p>
+                        <p><i class="fas fa-clock"></i> Տևողություն՝ {{ course.duration }}</p>
+                        <p><i class="fas fa-calendar-week"></i> Ժամանակացույց՝ {{ course.schedule }}</p>
                     </div>
-                    <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Learn More</a>
+                    <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Իմանալ ավելին</a>
                 </div>
                 {% endfor %}
             </div>
@@ -54,18 +104,56 @@
 
     <section id="about" class="about-section">
         <div class="container">
-            <h2>About <span class="highlight">The Instructor</span></h2>
+            <h2 data-aos="fade-up">Մեր <span class="highlight">Դասախոսների մասին</span></h2>
+
+            <!-- Machine Learning Lecturer -->
             <div class="about-content">
-                <div class="about-text">
-                    <p>With over 10 years of experience in both machine learning and 3D design, I bring real-world expertise to the classroom. My teaching approach focuses on practical, hands-on learning that prepares students for industry challenges.</p>
+                <div class="about-text" data-aos="fade-right">
+                    <h3>Մեքենայական ուսուցման դասախոս</h3>
+                    <p>Ավելի քան 10 տարվա փորձ ունեցող մեր ML դասախոսը դասավանդում է իրական ոլորտային օրինակներով։
+                        Ուսուցման մոտեցումը կենտրոնացած է պրակտիկ, կիրառական գիտելիքների վրա՝ ուսանողներին պատրաստելով
+                        ոլորտի մարտահրավերներին։</p>
                     <ul>
-                        <li><i class="fas fa-check-circle"></i> Professional ML Engineer</li>
-                        <li><i class="fas fa-check-circle"></i> Certified 3DS Max Instructor</li>
-                        <li><i class="fas fa-check-circle"></i> 5+ years teaching experience</li>
+                        <li><i class="fas fa-check-circle"></i> Մասնագիտական ML ինժեներ</li>
+                        <li><i class="fas fa-check-circle"></i> 5+ տարվա դասավանդման փորձ</li>
                     </ul>
+                    <div class="lecturer-contacts">
+                        <a href="https://www.granat.am/vcard/it" target="_blank" class="contact-link">
+                            <i class="fas fa-globe"></i> WEB
+                        </a>
+                        <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank"
+                            class="contact-link">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                    </div>
                 </div>
-                <div class="about-image">
-                    <img src="https://via.placeholder.com/400x400" alt="Instructor">
+                <div class="about-image" data-aos="fade-left">
+                    <img src="{{ url_for('static', filename='images/ando.jpg') }}" alt="ML Դասախոս">
+                </div>
+            </div>
+
+            <!-- 3DS Max Lecturer -->
+            <div class="about-content">
+                <div class="about-text" data-aos="fade-left">
+                    <h3>3DS Max Դասախոս</h3>
+                    <p>Մեր 3D դիզայնի դասախոսը հավաստագրված մասնագետ է՝ ավելի քան տաս տարվա գործնական փորձով
+                        եռաչափ մոդելավորման, արտապատկերման և անիմացիայի ոլորտում։ Ուսանողները ստանում են ոլորտային
+                        պատկերացում և մասնագիտական հմտություններ։</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Հավաստագրված 3DS Max դասախոս</li>
+                        <li><i class="fas fa-check-circle"></i> 5+ տարվա դասավանդման փորձ</li>
+                    </ul>
+                    <div class="lecturer-contacts">
+                        <a href="https://www.linkedin.com/in/artsruni-khachatryan-79031724a" target="_blank" class="contact-link">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <a href="https://www.instagram.com/viewbox_visual?igsh=MThlcXZ4bm5qYmZzNA==" target="_blank" class="contact-link">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+                </div>
+                <div class="about-image" data-aos="fade-right">
+                    <img src="{{ url_for('static', filename='images/xcho.jpg') }}" alt="3DS Max Դասախոս">
                 </div>
             </div>
         </div>
@@ -73,21 +161,49 @@
 
     <section id="contact" class="contact-section">
         <div class="container">
-            <h2>Get in <span class="highlight">Touch</span></h2>
+            <h2 data-aos="fade-up"><span class="highlight">Կապվեք</span> մեզ հետ</h2>
             <div class="contact-grid">
-                <div class="contact-info">
-                    <h3>Contact Information</h3>
-                    <p><i class="fas fa-envelope"></i> info@edutech.com</p>
-                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                    <p><i class="fas fa-map-marker-alt"></i> 123 Education St, Tech City</p>
+                <div class="contact-info" data-aos="fade-right">
+                    <h3>Կոնտակտային տվյալներ</h3>
+                    <p><i class="fas fa-envelope"></i> manukyandranik@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +374 94 752662</p>
+                    <p><i class="fas fa-phone"></i> +374 98 367419</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան</p>
                 </div>
-                <div class="contact-form">
-                    <h3>Send us a Message</h3>
-                    <form>
-                        <input type="text" placeholder="Your Name" required>
-                        <input type="email" placeholder="Your Email" required>
-                        <textarea placeholder="Your Message" required></textarea>
-                        <button type="submit" class="btn">Send Message</button>
+                <div class="contact-form" data-aos="fade-left">
+                    <h3>Ուղարկե՛ք հաղորդագրություն</h3>
+                    <form method="POST" action="{{ url_for('contact') }}">
+                        <input type="text" name="name" placeholder="Ձեր անունը" required>
+                        <input type="email" name="email" placeholder="Ձեր էլ․ փոստը" required>
+                        <textarea name="message" placeholder="Ձեր հաղորդագրությունը" required></textarea>
+                        <button type="submit" class="btn btn-pulse">Ուղարկել հաղորդագրությունը</button>
                     </form>
                 </div>
-           
+            </div>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                offset: 100,
+                delay: 100
+            });
+
+            // Hero title underline animation
+            const highlights = document.querySelectorAll('.highlight-title');
+            setTimeout(() => {
+                highlights.forEach(highlight => {
+                    highlight.style.opacity = 1;
+                });
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>

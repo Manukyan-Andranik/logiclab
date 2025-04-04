@@ -1,24 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hy">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ course.title }} - EduTech</title>
+    <title>{{ course.title }} - ViewSOC</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="container">
             <nav>
                 <div class="logo">
-                    <span class="highlight">Edu</span>Tech
+                    <span class="highlight">Կրթական</span>Տեխնոլոգիաներ
                 </div>
                 <ul class="nav-links">
-                    <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('home') }}#courses">Courses</a></li>
-                    <li><a href="{{ url_for('home') }}#contact">Contact</a></li>
+                    <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
+                    <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
+                    <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
                 </ul>
             </nav>
         </div>
@@ -32,39 +34,40 @@
                     <div class="course-highlights">
                         <div class="highlight-item">
                             <i class="fas fa-calendar-alt"></i>
-                            <p>Start Date: {{ course.start_date }}</p>
+                            <p>Սկիզբ՝ {{ course.start_date }}</p>
                         </div>
                         <div class="highlight-item">
                             <i class="fas fa-clock"></i>
-                            <p>Duration: {{ course.duration }}</p>
+                            <p>Տևողություն՝ {{ course.duration }}</p>
                         </div>
                         <div class="highlight-item">
                             <i class="fas fa-calendar-week"></i>
-                            <p>Schedule: {{ course.schedule }}</p>
+                            <p>Ժամանակացույց՝ {{ course.schedule }}</p>
                         </div>
                     </div>
                     <div class="course-description">
-                        <h2>Course Description</h2>
+                        <h2>Դասընթացի նկարագրություն</h2>
                         <p>{{ course.description }}</p>
-                        <h3>What You'll Learn</h3>
+                        <h3>Ի՞նչ կսովորեք</h3>
                         <ul>
                             {% if course_id == 'machine_learning' %}
-                            <li><i class="fas fa-check"></i> Fundamentals of Machine Learning</li>
-                            <li><i class="fas fa-check"></i> Data preprocessing and visualization</li>
-                            <li><i class="fas fa-check"></i> Supervised and unsupervised learning</li>
-                            <li><i class="fas fa-check"></i> Model evaluation and deployment</li>
+                            <li><i class="fas fa-check"></i> Մեքենայական ուսուցման հիմունքներ</li>
+                            <li><i class="fas fa-check"></i> Տվյալների նախամշակում և վիզուալիզացիա</li>
+                            <li><i class="fas fa-check"></i> Վերահսկվող և չվերահսկվող ուսուցում</li>
+                            <li><i class="fas fa-check"></i> Մոդելի գնահատում և ներդնում</li>
                             {% else %}
-                            <li><i class="fas fa-check"></i> 3D modeling fundamentals</li>
-                            <li><i class="fas fa-check"></i> Texturing and lighting</li>
-                            <li><i class="fas fa-check"></i> Animation techniques</li>
-                            <li><i class="fas fa-check"></i> Rendering and post-production</li>
+                            <li><i class="fas fa-check"></i> 3D մոդելավորման հիմունքներ</li>
+                            <li><i class="fas fa-check"></i> Տեքստուրավորում և լուսավորություն</li>
+                            <li><i class="fas fa-check"></i> Անիմացիայի տեխնիկա</li>
+                            <li><i class="fas fa-check"></i> Ռենդեր և հետարտադրություն</li>
                             {% endif %}
                         </ul>
                     </div>
-                    <a href="{{ url_for('register', course_id=course_id) }}" class="btn btn-large">Register Now</a>
+                    <a href="{{ url_for('register', course_id=course_id) }}" class="btn btn-large">Գրանցվել հիմա</a>
                 </div>
                 <div class="course-detail-image">
-                    <img src="https://via.placeholder.com/500x300" alt="{{ course.title }}">
+                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}"
+                        alt="{{ course.title }}">
                 </div>
             </div>
         </div>
@@ -72,8 +75,9 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 EduTech Academy. All rights reserved.</p>
+            <p>&copy; 2025 ViewSOC Ակադեմիա. Բոլոր իրավունքները պաշտպանված են։</p>
         </div>
     </footer>
 </body>
+
 </html>

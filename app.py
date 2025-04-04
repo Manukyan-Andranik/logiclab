@@ -1,51 +1,33 @@
 import os
-import hashlib
 from bson import ObjectId
 from datetime import datetime
-from dotenv import load_dotenv
-from pymongo import MongoClient
 from urllib.parse import quote_plus
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask_mail import Mail, Message
 
-#   Dotenv setup
-dotenv_path = ".env"
-load_dotenv(dotenv_path=dotenv_path)
+from utils import setup_db, load_env
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER = load_env()
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 
+mail = Mail(app)
 # app.secret_key = 'your_secret_key_here'
 USER_NAME = os.getenv('MONGO_USERNAME')
 PASSWORD = os.getenv('MONGO_PASSWORD')
 escaped_username = quote_plus(USER_NAME)
 escaped_password = quote_plus(PASSWORD)
-uri = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?appName=Cluster0"
-
-# MongoDB Connection
-client = MongoClient(uri)
-db = client.education_platform
-courses_collection = db.courses
-registrations = db.registrations
-admins = db.admins
-
-# Generate a secure API key (run once to create admin)
-def generate_api_key():
-    return hashlib.sha256(os.urandom(32)).hexdigest()
+URI = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?appName=Cluster0"
 
 # Initialize data if empty
-if courses_collection.count_documents({}) == 0:
-    courses_collection.insert_many([
-
-    ])
-
-# Create admin if not exists (run once)
-if admins.count_documents({}) == 0:
-    api_key = generate_api_key()
-    admins.insert_one({
-        "username": "admin",
-        "api_key": api_key,
-        "created_at": datetime.now()
-    })
+courses_collection, registrations, admins = setup_db(URI)
 
 # Admin authentication decorator
 def admin_required(f):
@@ -229,5 +211,60 @@ def api_register():
     registrations.insert_one(registration_data)
     return jsonify({"message": "Registration successful"}), 201
 
+@app.route('/contact', methods=['POST'])
+def contact():
+    if request.method == 'POST':
+        print(request.form)
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+        
+        # Validate input
+        if not all([name, email, message]):
+            flash('Please fill all fields', 'error')
+            return redirect(url_for('home') + '#contact')
+        
+        try:
+            # Send email to admin
+            msg = Message(
+                subject=f"New message from {name} - EduTech Contact Form",
+                recipients=[os.getenv('ADMIN_EMAIL')],
+                body=f"""
+                Name: {name}
+                Email: {email}
+                Message: {message}
+                
+                Sent from EduTech contact form
+                """
+            )
+            mail.send(msg)
+            
+            # Send confirmation to user
+            confirmation_msg = Message(
+                subject="Thank you for contacting EduTech",
+                recipients=[email],
+                body=f"""
+                Dear {name},
+                
+                Thank you for reaching out to us. We have received your message and will get back to you shortly.
+                
+                Your message:
+                {message}
+                
+                Best regards,
+                EduTech Team
+                """
+            )
+            mail.send(confirmation_msg)
+            
+            flash('Your message has been sent successfully!', 'success')
+        except Exception as e:
+            app.logger.error(f"Failed to send email: {str(e)}")
+            flash('Failed to send your message. Please try again later.', 'error')
+        
+        return redirect(url_for('home') + '#contact')
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host = "0.0.0.0", port=5001,debug=True)
