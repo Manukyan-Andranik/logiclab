@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register for {{ course.title }} - EduTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="highlight">Edu</span>Tech
+                </div>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('home') }}#courses">Courses</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="register-section">
+        <div class="container">
+            <div class="register-form-container">
+                <h1>Register for <span class="highlight">{{ course.title }}</span></h1>
+                <p class="course-info">
+                    <i class="fas fa-calendar-alt"></i> Starts: {{ course.start_date }} | 
+                    <i class="fas fa-clock"></i> {{ course.duration }} | 
+                    <i class="fas fa-calendar-week"></i> {{ course.schedule }}
+                </p>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('register', course_id=course_id) }}">
+                    <div class="form-group">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <button type="submit" class="btn btn-large">Complete Registration</button>
+                </form>
+                
+                <p class="login-link">Already registered? <a href="#">Login</a></p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 EduTech Academy. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

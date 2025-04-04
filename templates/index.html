@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML & 3DS Max Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="highlight">Edu</span>Tech
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#courses">Courses</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hero">
+                <h1>Master <span class="highlight">Machine Learning</span> & <span class="highlight">3DS Max</span></h1>
+                <p>Join our professional courses taught by industry experts</p>
+                <a href="#courses" class="btn">Explore Courses</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="courses" class="courses-section">
+        <div class="container">
+            <h2>Our <span class="highlight">Courses</span></h2>
+            <div class="course-grid">
+                {% for course_id, course in courses.items() %}
+                <div class="course-card">
+                    <div class="course-icon">
+                        <i class="fas {{ 'fa-robot' if course_id == 'machine_learning' else 'fa-cube' }}"></i>
+                    </div>
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                    <div class="course-details">
+                        <p><i class="fas fa-calendar-alt"></i> Starts: {{ course.start_date }}</p>
+                        <p><i class="fas fa-clock"></i> {{ course.duration }}</p>
+                        <p><i class="fas fa-calendar-week"></i> {{ course.schedule }}</p>
+                    </div>
+                    <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Learn More</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2>About <span class="highlight">The Instructor</span></h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>With over 10 years of experience in both machine learning and 3D design, I bring real-world expertise to the classroom. My teaching approach focuses on practical, hands-on learning that prepares students for industry challenges.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Professional ML Engineer</li>
+                        <li><i class="fas fa-check-circle"></i> Certified 3DS Max Instructor</li>
+                        <li><i class="fas fa-check-circle"></i> 5+ years teaching experience</li>
+                    </ul>
+                </div>
+                <div class="about-image">
+                    <img src="https://via.placeholder.com/400x400" alt="Instructor">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>Get in <span class="highlight">Touch</span></h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <p><i class="fas fa-envelope"></i> info@edutech.com</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Education St, Tech City</p>
+                </div>
+                <div class="contact-form">
+                    <h3>Send us a Message</h3>
+                    <form>
+                        <input type="text" placeholder="Your Name" required>
+                        <input type="email" placeholder="Your Email" required>
+                        <textarea placeholder="Your Message" required></textarea>
+                        <button type="submit" class="btn">Send Message</button>
+                    </form>
+                </div>
+           

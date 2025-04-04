@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="admin-header">
+    <h1><i class="fas fa-users"></i> Student Registrations</h1>
+    <div>
+        <a href="{{ url_for('admin_courses') }}" class="btn btn-admin"><i class="fas fa-book"></i> Courses</a>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-admin"><i class="fas fa-home"></i> Dashboard</a>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <form method="GET" class="filter-form">
+        <div class="form-group">
+            <label for="course_id"><i class="fas fa-filter"></i> Filter by Course:</label>
+            <select id="course_id" name="course_id" onchange="this.form.submit()">
+                <option value="">All Courses</option>
+                {% for course in courses %}
+                <option value="{{ course._id }}" {{ 'selected' if request.args.get('course_id') == course._id }}>
+                    {{ course.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<div class="admin-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Course</th>
+                <th>Registration Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.phone }}</td>
+                <td>{{ student.course_title }}</td>
+                <td>{{ student.registration_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin_update_student', student_id=student._id) }}" class="status-form">
+                        <select name="status" onchange="this.form.submit()" class="status-select {{ student.status }}">
+                            <option value="pending" {{ 'selected' if student.status == 'pending' }}>Pending</option>
+                            <option value="confirmed" {{ 'selected' if student.status == 'confirmed' }}>Confirmed</option>
+                            <option value="rejected" {{ 'selected' if student.status == 'rejected' }}>Rejected</option>
+                            <option value="completed" {{ 'selected' if student.status == 'completed' }}>Completed</option>
+                        </select>
+                    </form>
+                </td>
+                <td>
+                    <a href="mailto:{{ student.email }}" class="btn btn-email">
+                        <i class="fas fa-envelope"></i> Email
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

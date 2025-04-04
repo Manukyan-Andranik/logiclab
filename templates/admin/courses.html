@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="admin-header">
+    <h1><i class="fas fa-book"></i> Course Management</h1>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-admin"><i class="fas fa-home"></i> Dashboard</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="admin-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Start Date</th>
+                <th>Duration</th>
+                <th>Instructor</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.title }}</td>
+                <td>{{ course.start_date }}</td>
+                <td>{{ course.duration }}</td>
+                <td>{{ course.instructor }}</td>
+                <td>${{ course.price }}</td>
+                <td>
+                    <span class="status-badge {{ 'active' if course.is_active else 'inactive' }}">
+                        {{ 'Active' if course.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td class="actions">
+                    <a href="{{ url_for('admin_edit_course', course_id=course._id) }}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{{ url_for('admin_students') }}?course_id={{ course._id }}" class="btn btn-view">
+                        <i class="fas fa-users"></i> Students
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
