@@ -1,6 +1,6 @@
 import os
 import hashlib
-# from bson import ObjectId
+from bson import ObjectId
 from datetime import datetime
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -186,18 +186,19 @@ def admin_students():
     
     all_students = list(registrations.find(query))
     all_courses = list(courses_collection.find())
+    print(all_courses)
     return render_template('admin/students.html', students=all_students, courses=all_courses)
 
-# @app.route('/admin/student/<student_id>/update', methods=['POST'])
-# @admin_required
-# def admin_update_student(student_id):
-#     new_status = request.form['status']
-#     registrations.update_one(
-#         {"_id": ObjectId(student_id)},
-#         {"$set": {"status": new_status}}
-#     )
-#     flash('Student status updated', 'success')
-#     return redirect(url_for('admin_students'))
+@app.route('/admin/student/<student_id>/update', methods=['POST'])
+@admin_required
+def admin_update_student(student_id):
+    new_status = request.form['status']
+    registrations.update_one(
+        {"_id": ObjectId(student_id)},
+        {"$set": {"status": new_status}}
+    )
+    flash('Student status updated', 'success')
+    return redirect(url_for('admin_students'))
 
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
