@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
 </head>
 <!-- Back to Top Button -->
 <button id="back-to-top" class="back-to-top">
@@ -105,7 +107,7 @@
     <section id="about" class="about-section">
         <div class="container">
             <h2 data-aos="fade-up">Մեր <span class="highlight">Դասախոսների մասին</span></h2>
-
+    
             <!-- Machine Learning Lecturer -->
             <div class="about-content">
                 <div class="about-text" data-aos="fade-right">
@@ -118,11 +120,13 @@
                         <li><i class="fas fa-check-circle"></i> 5+ տարվա դասավանդման փորձ</li>
                     </ul>
                     <div class="lecturer-contacts">
+                        <a href="tel:+37494752662" class="contact-link phone-link">
+                            <i class="fas fa-phone"></i> Անձնական
+                        </a>
                         <a href="https://www.granat.am/vcard/it" target="_blank" class="contact-link">
                             <i class="fas fa-globe"></i> WEB
                         </a>
-                        <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank"
-                            class="contact-link">
+                        <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank" class="contact-link">
                             <i class="fab fa-linkedin"></i> LinkedIn
                         </a>
                     </div>
@@ -131,7 +135,7 @@
                     <img src="{{ url_for('static', filename='images/ando.jpg') }}" alt="ML Դասախոս">
                 </div>
             </div>
-
+    
             <!-- 3DS Max Lecturer -->
             <div class="about-content">
                 <div class="about-text" data-aos="fade-left">
@@ -144,6 +148,9 @@
                         <li><i class="fas fa-check-circle"></i> 5+ տարվա դասավանդման փորձ</li>
                     </ul>
                     <div class="lecturer-contacts">
+                        <a href="tel:+37498367419" class="contact-link phone-link">
+                            <i class="fas fa-phone"></i> Անձնական
+                        </a>
                         <a href="https://www.linkedin.com/in/artsruni-khachatryan-79031724a" target="_blank" class="contact-link">
                             <i class="fab fa-linkedin"></i> LinkedIn
                         </a>
@@ -158,6 +165,7 @@
             </div>
         </div>
     </section>
+
 
     <section id="contact" class="contact-section">
         <div class="container">
