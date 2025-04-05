@@ -229,7 +229,7 @@ nav {
 }
 
 .about-image img {
-    width: 100%;
+    width: 40%;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
@@ -938,4 +938,64 @@ footer p {
     background-color: #e67e22; /* Darker yellow on hover */
 }
 
+.lecturers-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: center;
+}
 
+.lecturer-card {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 600px;
+}
+
+.lecturer-card img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 10px;
+}
+
+.lecturer-info {
+    flex: 1;
+}
+
+.lecturer-info p {
+    margin-top: 10px;
+}
+
+.lecturer-contacts {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.contact-link {
+    text-decoration: none;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .lecturer-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .lecturer-info {
+        align-items: center;
+    }
+
+    .lecturer-card img {
+        max-width: 200px;
+    }
+
+    .lecturer-contacts {
+        align-items: center;
+    }
+}
