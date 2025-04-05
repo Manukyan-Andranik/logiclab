@@ -9,45 +9,45 @@
 <form method="POST" class="admin-form">
     <div class="form-group">
         <label for="title">Course Title</label>
-        <input type="text" id="title" name="title" value="{{ course.title }}" required>
+        <input type="text" id="title" name="title" value="{{ course.title }}" >
     </div>
     
     <div class="form-row">
         <div class="form-group">
             <label for="start_date">Start Date</label>
-            <input type="date" id="start_date" name="start_date" value="{{ course.start_date }}" required>
+            <input type="date" id="start_date" name="start_date" value="{{ course.start_date }}" >
         </div>
         <div class="form-group">
             <label for="duration">Duration</label>
-            <input type="text" id="duration" name="duration" value="{{ course.duration }}" required>
+            <input type="text" id="duration" name="duration" value="{{ course.duration }}" >
         </div>
     </div>
     
     <div class="form-group">
         <label for="schedule">Schedule</label>
-        <input type="text" id="schedule" name="schedule" value="{{ course.schedule }}" required>
+        <input type="text" id="schedule" name="schedule" value="{{ course.schedule }}" >
     </div>
     
     <div class="form-group">
         <label for="description">Description</label>
-        <textarea id="description" name="description" required>{{ course.description }}</textarea>
+        <textarea id="description" name="description" >{{ course.description }}</textarea>
     </div>
     
     <div class="form-row">
         <div class="form-group">
             <label for="instructor">Instructor</label>
-            <input type="text" id="instructor" name="instructor" value="{{ course.instructor }}" required>
+            <input type="text" id="instructor" name="instructor" value="{{ course.instructor }}" >
         </div>
         <div class="form-group">
             <label for="price">Price ($)</label>
-            <input type="number" step="0.01" id="price" name="price" value="{{ course.price }}" required>
+            <input type="number" step="0.01" id="price" name="price" value="{{ course.price }}" >
         </div>
     </div>
     
     <div class="form-row">
         <div class="form-group">
             <label for="capacity">Capacity</label>
-            <input type="number" id="capacity" name="capacity" value="{{ course.capacity }}" required>
+            <input type="number" id="capacity" name="capacity" value="{{ course.capacity }}" >
         </div>
         <div class="form-group checkbox-group">
             <input type="checkbox" id="is_active" name="is_active" {{ 'checked' if course.is_active }}>

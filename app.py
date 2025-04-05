@@ -130,36 +130,44 @@ def admin_dashboard():
 @admin_required
 def admin_courses():
     all_courses = list(courses_collection.find())
-    print(all_courses)
     return render_template('admin/courses.html', courses=all_courses)
 
 @app.route('/admin/courses/edit/<course_id>', methods=['GET', 'POST'])
-@admin_required
 def admin_edit_course(course_id):
-    course = courses_collection.find_one({"_id": course_id})
+    course = courses_collection.find_one({'_id': course_id})
+    
     if not course:
         flash('Course not found', 'error')
         return redirect(url_for('admin_courses'))
     
     if request.method == 'POST':
-        update_data = {
-            "title": request.form['title'],
-            "duration": request.form['duration'],
-            "start_date": request.form['start_date'],
-            "schedule": request.form['schedule'],
-            "description": request.form['description'],
-            "price": float(request.form['price']),
-            "instructor": request.form['instructor'],
-            "capacity": int(request.form['capacity']),
-            "is_active": request.form.get('is_active') == 'on'
-        }
+        updates = {}
         
-        courses_collection.update_one(
-            {"_id": course_id},
-            {"$set": update_data}
-        )
-        flash('Course updated successfully', 'success')
-        return redirect(url_for('admin_courses'))
+        # Only update fields that were changed and provided
+        fields = ['title', 'duration', 'start_date', 'schedule', 
+                 'instructor', 'capacity', 'price', 'is_active']
+        
+        for field in fields:
+            if field in request.form:
+                if field == 'is_active':
+                    updates[field] = True if request.form.get(field) == 'on' else False
+                elif field in ['capacity']:
+                    if request.form[field]:
+                        updates[field] = int(request.form[field])
+                elif field == 'price':
+                    if request.form[field]:
+                        updates[field] = float(request.form[field])
+                else:
+                    updates[field] = request.form[field]
+        
+        if updates:
+            courses_collection.update_one(
+                {'_id': course_id},
+                {'$set': updates}
+            )
+            flash('Course updated successfully', 'success')
+        
+        return redirect(url_for('admin_edit_course', course_id=course_id))
     
     return render_template('admin/edit_course.html', course=course)
 
@@ -179,12 +187,71 @@ def admin_students():
 @admin_required
 def admin_update_student(student_id):
     new_status = request.form['status']
+    student = registrations.find_one({"_id": ObjectId(student_id)})
+    
+    if not student:
+        flash('Student not found', 'error')
+        return redirect(url_for('admin_students'))
+    
+    # Update status in database
     registrations.update_one(
         {"_id": ObjectId(student_id)},
         {"$set": {"status": new_status}}
     )
-    flash('Student status updated', 'success')
+    
+    # Send email notification
+    try:
+        send_status_email(student['email'], student['full_name'], student['course_title'], new_status)
+        flash('Student status updated and notification sent', 'success')
+    except Exception as e:
+        app.logger.error(f"Failed to send status email: {str(e)}")
+        flash('Status updated but failed to send notification', 'warning')
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True})
     return redirect(url_for('admin_students'))
+
+@app.route('/admin/student/<student_id>/delete', methods=['POST'])
+@admin_required
+def admin_delete_student(student_id):
+    student = registrations.find_one({"_id": ObjectId(student_id)})
+    if not student:
+        flash('Student not found', 'error')
+        return redirect(url_for('admin_students'))
+    
+    registrations.delete_one({"_id": ObjectId(student_id)})
+    flash('Student registration deleted successfully', 'success')
+    return redirect(url_for('admin_students'))
+
+def send_status_email(to_email, student_name, course_name, new_status):
+    subject = f"Your registration status for {course_name} has been updated"
+    
+    status_messages = {
+        'pending': "Your registration is being reviewed.",
+        'confirmed': "Your registration has been confirmed! Welcome to the course.",
+        'rejected': "We're sorry, but your registration could not be accepted at this time.",
+        'completed': "Congratulations on completing the course! Well done!"
+    }
+    
+    body = f"""
+    Dear {student_name},
+    
+    Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
+    
+    {status_messages.get(new_status, '')}
+    
+    If you have any questions, please don't hesitate to contact us.
+    
+    Best regards,
+    EduTech Team
+    """
+    
+    msg = Message(
+        subject=subject,
+        recipients=[to_email],
+        body=body
+    )
+    mail.send(msg)
 
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
@@ -266,8 +333,6 @@ def contact():
             flash('Failed to send your message. Please try again later.', 'error')
         
         return redirect(url_for('home') + '#contact')
-
-
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001,debug=True)
