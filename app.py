@@ -5,7 +5,7 @@ from urllib.parse import quote_plus
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_mail import Mail, Message
 
-from utils import setup_db, load_env
+from utils import setup_db, load_env, find_by_id
 
 
 app = Flask(__name__)
@@ -51,19 +51,23 @@ def admin_required(f):
 @app.route('/')
 def home():
     courses = list(courses_collection.find({"is_active": True}))
+
     courses = {
-        "machine_learning": courses[0],
-        "3ds_max": courses[1],
+        "machine_learning": find_by_id(courses, "machine_learning"),
+        "3ds_max": find_by_id(courses, "3ds_max"),
         }
 
     return render_template('index.html', courses=courses)
 
+
+# Course route
 @app.route('/course/<course_id>')
 def course_details(course_id):
     course = courses_collection.find_one({"_id": course_id})
     if not course:
         return redirect(url_for('home'))
     return render_template('course.html', course=course, course_id=course_id)
+
 
 @app.route('/register/<course_id>', methods=['GET', 'POST'])
 def register(course_id):
@@ -126,6 +130,7 @@ def admin_dashboard():
 @admin_required
 def admin_courses():
     all_courses = list(courses_collection.find())
+    print(all_courses)
     return render_template('admin/courses.html', courses=all_courses)
 
 @app.route('/admin/courses/edit/<course_id>', methods=['GET', 'POST'])
@@ -168,7 +173,6 @@ def admin_students():
     
     all_students = list(registrations.find(query))
     all_courses = list(courses_collection.find())
-    print(all_courses)
     return render_template('admin/students.html', students=all_students, courses=all_courses)
 
 @app.route('/admin/student/<student_id>/update', methods=['POST'])
@@ -214,7 +218,6 @@ def api_register():
 @app.route('/contact', methods=['POST'])
 def contact():
     if request.method == 'POST':
-        print(request.form)
         name = request.form['name']
         email = request.form['email']
         message = request.form['message']

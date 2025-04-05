@@ -31,6 +31,7 @@
     <section class="course-detail-section">
         <div class="container">
             <h1>{{ course.title }}</h1>
+
             <div class="course-detail-content">
                 <div class="course-detail-info">
                     <div class="course-highlights">
@@ -48,21 +49,37 @@
                         </div>
                     </div>
                     <div class="course-description">
-                        <h2>Դասընթացի նկարագրություն</h2>
-                        <p>{{ course.description }}</p>
-                        <h3>Ի՞նչ կսովորեք</h3>
+                        {% for chapter in course.chapters %}
+                        <h4>{{ chapter.title }}</h4>
+                        <h1>
+
+                
+                        </h1>
+                        {% for line in chapter.content %}
+                        <p>{{ line }}</p>
+                        {% endfor %}
+                        {% if chapter.sections %}
+                        {% for section in chapter.sections %}
+                        <h5>{{ section.section_title }}</h5>
                         <ul>
-                            {% if course_id == 'machine_learning' %}
-                            <li><i class="fas fa-check"></i> Մեքենայական ուսուցման հիմունքներ</li>
-                            <li><i class="fas fa-check"></i> Տվյալների նախամշակում և վիզուալիզացիա</li>
-                            <li><i class="fas fa-check"></i> Վերահսկվող և չվերահսկվող ուսուցում</li>
-                            <li><i class="fas fa-check"></i> Մոդելի գնահատում և ներդնում</li>
-                            {% else %}
-                            <li><i class="fas fa-check"></i> 3D մոդելավորման հիմունքներ</li>
-                            <li><i class="fas fa-check"></i> Տեքստուրավորում և լուսավորություն</li>
-                            <li><i class="fas fa-check"></i> Անիմացիայի տեխնիկա</li>
-                            <li><i class="fas fa-check"></i> Ռենդեր և հետարտադրություն</li>
-                            {% endif %}
+                            {% for lesson in section.lessons %}
+                                {% for ses_num, ses in lesson.items() %}
+                                    <b>{{ ses_num }}</b>
+                                    <p>{{ ses }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                            <li>{{ lesson }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endfor %}
+                        <h4>Դասընթացի արժեք՝</h4>
+                        <h1>
+
+                        </h1>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Ամսեկան վճար՝ {{ course.monthly_payment }} դրամ</li>
+                            <li><i class="fas fa-check"></i> Դասընթացի ընդհանուր արժեք՝ {{ course.total_payment }} ժամ</li>
                         </ul>
                     </div>
                     <a href="{{ url_for('register', course_id=course_id) }}" class="btn btn-large">Գրանցվել հիմա</a>

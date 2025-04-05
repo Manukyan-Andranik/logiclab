@@ -41,3 +41,16 @@ def chack_db(courses_collection, registrations, admins):
             "api_key": api_key,
             "created_at": datetime.now()
         })
+
+def find_by_id(data_list, target_id):
+    """
+    Find the first dictionary in the list where '_id' matches the target_id.
+
+    Parameters:
+        data_list (list): A list of dictionaries.
+        target_id (str): The value to search for in the '_id' field.
+
+    Returns:
+        dict or None: The matched dictionary or None if not found.
+    """
+    return next((item for item in data_list if item.get("_id") == target_id), None)

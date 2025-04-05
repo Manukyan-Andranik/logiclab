@@ -88,7 +88,10 @@
                 {% for course_id, course in courses.items() %}
                 <div class="course-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
                     <div class="course-icon">
-                        <i class="fas {{ 'fa-robot' if course_id == 'machine_learning' else 'fa-cube' }}"></i>
+                        <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}"
+                            class="icon-img" alt="Course Icon">
+
+
                     </div>
                     <h3>{{ course.title }}</h3>
                     <p>{{ course.description }}</p>
@@ -107,7 +110,7 @@
     <section id="about" class="about-section">
         <div class="container">
             <h2 data-aos="fade-up">Մեր <span class="highlight">Դասախոսների մասին</span></h2>
-    
+
             <!-- Machine Learning Lecturer -->
             <div class="about-content">
                 <div class="about-text" data-aos="fade-right">
@@ -126,7 +129,8 @@
                         <a href="https://www.granat.am/vcard/it" target="_blank" class="contact-link">
                             <i class="fas fa-globe"></i> WEB
                         </a>
-                        <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank" class="contact-link">
+                        <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank"
+                            class="contact-link">
                             <i class="fab fa-linkedin"></i> LinkedIn
                         </a>
                     </div>
@@ -135,7 +139,7 @@
                     <img src="{{ url_for('static', filename='images/ando.jpg') }}" alt="ML Դասախոս">
                 </div>
             </div>
-    
+
             <!-- 3DS Max Lecturer -->
             <div class="about-content">
                 <div class="about-text" data-aos="fade-left">
@@ -151,10 +155,12 @@
                         <a href="tel:+37498367419" class="contact-link phone-link">
                             <i class="fas fa-phone"></i> Անձնական
                         </a>
-                        <a href="https://www.linkedin.com/in/artsruni-khachatryan-79031724a" target="_blank" class="contact-link">
+                        <a href="https://www.linkedin.com/in/artsruni-khachatryan-79031724a" target="_blank"
+                            class="contact-link">
                             <i class="fab fa-linkedin"></i> LinkedIn
                         </a>
-                        <a href="https://www.instagram.com/viewbox_visual?igsh=MThlcXZ4bm5qYmZzNA==" target="_blank" class="contact-link">
+                        <a href="https://www.instagram.com/viewbox_visual?igsh=MThlcXZ4bm5qYmZzNA==" target="_blank"
+                            class="contact-link">
                             <i class="fab fa-instagram"></i> Instagram
                         </a>
                     </div>
