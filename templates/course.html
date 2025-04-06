@@ -9,29 +9,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
-
 </head>
 
 <body>
-    <header>
+    <header class="course-header">
         <div class="container">
             <nav>
-                <div class="logo">
-                    <span class="highlight">Կրթական</span>Տեխնոլոգիաներ
-                </div>
                 <ul class="nav-links">
                     <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
                     <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
                     <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
                 </ul>
             </nav>
+            
+            <div class="course-header-content">
+                <div class="course-header-text">
+                    <h1>{{ course.title }}</h1>
+                </div>
+                <div class="course-header-image">
+                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}" alt="{{ course.title }}">
+                </div>
+            </div>
         </div>
     </header>
 
     <section class="course-detail-section">
         <div class="container">
-            <h1>{{ course.title }}</h1>
-
             <div class="course-detail-content">
                 <div class="course-detail-info">
                     <div class="course-highlights">
@@ -51,10 +54,7 @@
                     <div class="course-description">
                         {% for chapter in course.chapters %}
                         <h4>{{ chapter.title }}</h4>
-                        <h1>
-
-                
-                        </h1>
+                        <h1></h1>
                         {% for line in chapter.content %}
                         <p>{{ line }}</p>
                         {% endfor %}
@@ -74,19 +74,13 @@
                         {% endif %}
                         {% endfor %}
                         <h4>Դասընթացի արժեք՝</h4>
-                        <h1>
-
-                        </h1>
+                        <h1></h1>
                         <ul>
                             <li><i class="fas fa-check"></i> Ամսեկան վճար՝ {{ course.monthly_payment }} դրամ</li>
                             <li><i class="fas fa-check"></i> Դասընթացի ընդհանուր արժեք՝ {{ course.total_payment }} ժամ</li>
                         </ul>
                     </div>
                     <a href="{{ url_for('register', course_id=course_id) }}" class="btn btn-large">Գրանցվել հիմա</a>
-                </div>
-                <div class="course-detail-image">
-                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}"
-                        alt="{{ course.title }}">
                 </div>
             </div>
         </div>
@@ -98,5 +92,4 @@
         </div>
     </footer>
 </body>
-
 </html>

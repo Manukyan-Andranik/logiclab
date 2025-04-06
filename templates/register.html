@@ -14,14 +14,19 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo">
-                    <span class="highlight">Կրթական</span>Տեխնոլոգիաներ
-                </div>
                 <ul class="nav-links">
                     <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
                     <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
                 </ul>
             </nav>
+            <div class="course-header-content">
+                <div class="course-header-text">
+                    <h1>{{ course.title }}</h1>
+                </div>
+                <div class="course-header-image">
+                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}" alt="{{ course.title }}">
+                </div>
+            </div>
         </div>
     </header>
 
