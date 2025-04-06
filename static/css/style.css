@@ -1009,3 +1009,37 @@ nav {
 .tab-indent {
     padding-left: 20px;
 }
+
+
+footer {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    padding: 1.5rem 0;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.footer-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.footer-content p {
+    margin: 0;
+    display: inline;
+}
+
+.footer-content a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.footer-content a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}

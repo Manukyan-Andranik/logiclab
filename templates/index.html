@@ -12,55 +12,6 @@
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 
 </head>
-<!-- Back to Top Button -->
-<button id="back-to-top" class="back-to-top">
-    <i class="fas fa-arrow-up"></i>
-</button>
-
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            offset: 100,
-            delay: 100
-        });
-
-        // Hero title underline animation
-        const highlights = document.querySelectorAll('.highlight-title');
-        setTimeout(() => {
-            highlights.forEach(highlight => {
-                highlight.style.opacity = 1;
-            });
-        }, 500);
-
-        // Back to Top Button
-        const backToTopButton = document.getElementById('back-to-top');
-
-        // Show/hide button based on scroll position
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTopButton.classList.add('show');
-            } else {
-                backToTopButton.classList.remove('show');
-            }
-        });
-
-        // Smooth scroll to top when clicked
-        backToTopButton.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    });
-</script>
-</body>
-
-</html>
 
 <body>
     <header>
@@ -183,6 +134,23 @@
         </div>
     </section>
 
+   
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <p>© Powered by</p>
+            <a href="#">Soul's of Code</a>
+            <p>&</p>
+            <a href="#">ViewBox</a>
+        </div>
+    </div>
+</footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -202,8 +170,27 @@
                     highlight.style.opacity = 1;
                 });
             }, 500);
+
+            // Back to Top Button
+            const backToTopButton = document.getElementById('back-to-top');
+
+            // Show/hide button based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+            });
+
+            // Smooth scroll to top when clicked
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
         });
     </script>
 </body>
-
 </html>

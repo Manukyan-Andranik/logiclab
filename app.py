@@ -56,6 +56,7 @@ def home():
         "3ds_max": find_by_id(instructors, "3ds_max_instructor"),
         }
     
+    
     courses = {
         "machine_learning": find_by_id(courses, "machine_learning"),
         "3ds_max": find_by_id(courses, "3ds_max"),
