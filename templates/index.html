@@ -98,15 +98,15 @@
                     <h3>{{ course.title }}</h3>
                     <p>{{ course.description }}</p>
                     <div class="course-details">
-                        <p><i class="fas fa-calendar-alt"></i> Սկիզբ՝ {{ course.start_date }}</p>
-                        <p><i class="fas fa-clock"></i> Տևողություն՝ {{ course.duration }}</p>
+                        <p><i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }}</p>
+                        <p><i class="fas fa-clock"></i> Տևողությունը՝ {{ course.duration }}</p>
                         <p><i class="fas fa-calendar-week"></i> Ժամանակացույց՝ {{ course.schedule }}</p>
                     </div>
                     <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Իմանալ ավելին</a>
                 </div>
                 {% endif %}
 
-                {% endfor %}
+                {% endfor %}`
             </div>
         </div>
     </section>
