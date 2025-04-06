@@ -2,3 +2,6 @@
 __pycache__
 vsoc_venv
 test.json
+ml_config.json
+3d_config.json
+.DS_Store
