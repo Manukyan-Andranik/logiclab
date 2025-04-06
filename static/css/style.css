@@ -201,8 +201,11 @@ nav {
 .course-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    gap: 20px;
+    justify-items: center; /* Center the items horizontally */
+    align-items: start; /* Align the items to the top */
 }
+
 
 .course-card {
     background: var(--white);
