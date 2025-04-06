@@ -51,11 +51,12 @@
             "Adobe Photoshop",
             "AutoCAD"
         ],
+        
         "contacts": 
         {
             "phone": "+37498367419",
-            "email": "andranik@gmail.com",
-            "linkedin": "https://www.linkedin.com/in/andranik-khachaturyan-3dmax-instructor/"
+            "linkedin": "https://www.linkedin.com/in/andranik-khachaturyan-3dmax-instructor/",
+            "web": "https://www.instagram.com/viewbox_visual/profilecard/?igsh=MThycHpwamFjb3B5eg=="
         }
 
     },
@@ -109,6 +110,13 @@
             "SkLearn",
             "Tensorflow",
             "Pytorch"
-        ]
+        ],
+        "contacts": 
+        {
+            "phone": "+37494752662",
+            "linkedin": "https://www.linkedin.com/in/manukyan-andranik-44bb4a250",
+            "web": "https://www.granat.am/vcard/it"
+        }
+
     }
 ]

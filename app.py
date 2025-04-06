@@ -58,13 +58,11 @@ def home():
         "machine_learning": find_by_id(instructors, "machine_learning_instructor"),
         "3ds_max": find_by_id(instructors, "3ds_max_instructor"),
         }
-    print(instructors)
     
     courses = {
         "machine_learning": find_by_id(courses, "machine_learning"),
         "3ds_max": find_by_id(courses, "3ds_max"),
         }
-    print(courses)
     return render_template('index.html', courses=courses, instructors=instructors)
 
 

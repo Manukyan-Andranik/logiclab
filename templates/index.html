@@ -130,13 +130,13 @@
                                 <li><i class="fas fa-check-circle"></i> Skills: {{ instructor.skills|join(', ') }}</li>
                             </ul>
                             <div class="lecturer-contacts">
-                                <a href="tel:+37494752662" class="contact-link phone-link">
+                                <a href="tel:{{ instructor.contacts.phone }}" class="contact-link phone-link">
                                     <i class="fas fa-phone"></i> Անձնական
                                 </a>
-                                <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank" class="contact-link">
+                                <a href="{{ instructor.contacts.linkedin }}" target="_blank" class="contact-link">
                                     <i class="fab fa-linkedin"></i> LinkedIn
                                 </a>
-                                <a href="https://www.granat.am/vcard/it" target="_blank" class="contact-link">
+                                <a href="{{ instructor.contacts.web }}" target="_blank" class="contact-link">
                                     <i class="fas fa-globe"></i> WEB
                                 </a>
                             </div>
