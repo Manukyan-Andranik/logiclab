@@ -60,15 +60,14 @@
                         {% endfor %}
                         {% if chapter.sections %}
                         {% for section in chapter.sections %}
-                        <h5>{{ section.section_title }}</h5>
-                        <ul>
-                            {% for lesson in section.lessons %}
-                                {% for ses_num, ses in lesson.items() %}
-                                    <b>{{ ses_num }}</b>
-                                    <p>{{ ses }}</p>
+                            <h5>{{ section.section_title }}</h5>
+                            <ul>
+                                {% for lesson in section.lessons %}
+                                    {% for ses_num, ses in lesson.items() %}
+                                        <b>{{ ses_num }}</b>
+                                        <p>{{ ses }}</p>
+                                    {% endfor %}
                                 {% endfor %}
-                            {% endfor %}
-                            <li>{{ lesson }}</li>
                             {% endfor %}
                         </ul>
                         {% endif %}

@@ -86,6 +86,8 @@
             <h2 data-aos="fade-up">Մեր <span class="highlight">Դասընթացները</span></h2>
             <div class="course-grid">
                 {% for course_id, course in courses.items() %}
+                {% if course.is_active == True %}
+
                 <div class="course-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
                     <div class="course-icon">
                         <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}"
@@ -102,6 +104,8 @@
                     </div>
                     <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Իմանալ ավելին</a>
                 </div>
+                {% endif %}
+
                 {% endfor %}
             </div>
         </div>

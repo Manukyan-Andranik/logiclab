@@ -4,6 +4,8 @@ from datetime import datetime
 from urllib.parse import quote_plus
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_mail import Mail, Message
+from bson import ObjectId
+import json
 
 from utils import setup_db, load_env, find_by_id
 
@@ -132,45 +134,105 @@ def admin_courses():
     all_courses = list(courses_collection.find())
     return render_template('admin/courses.html', courses=all_courses)
 
+
 @app.route('/admin/courses/edit/<course_id>', methods=['GET', 'POST'])
 def admin_edit_course(course_id):
-    course = courses_collection.find_one({'_id': course_id})
-    
-    if not course:
-        flash('Course not found', 'error')
-        return redirect(url_for('admin_courses'))
-    
-    if request.method == 'POST':
-        updates = {}
+    try:
+        # Convert to ObjectId if it's a valid string, otherwise use as-is
+        if isinstance(course_id, str) and ObjectId.is_valid(course_id):
+            course_id_obj = ObjectId(course_id)
+        else:
+            course_id_obj = course_id
+            
+        course = courses_collection.find_one({'_id': course_id_obj})
         
-        # Only update fields that were changed and provided
-        fields = ['title', 'duration', 'start_date', 'schedule', 
-                 'instructor', 'capacity', 'price', 'is_active']
+        if not course:
+            flash('Course not found', 'error')
+            return redirect(url_for('admin_courses'))
         
-        for field in fields:
-            if field in request.form:
-                if field == 'is_active':
-                    updates[field] = True if request.form.get(field) == 'on' else False
-                elif field in ['capacity']:
-                    if request.form[field]:
-                        updates[field] = int(request.form[field])
-                elif field == 'price':
-                    if request.form[field]:
-                        updates[field] = float(request.form[field])
-                else:
-                    updates[field] = request.form[field]
-        
-        if updates:
-            courses_collection.update_one(
-                {'_id': course_id},
-                {'$set': updates}
-            )
-            flash('Course updated successfully', 'success')
-        
-        return redirect(url_for('admin_edit_course', course_id=course_id))
-    
-    return render_template('admin/edit_course.html', course=course)
+        if request.method == 'POST':
+            # Validate required fields
+            required_fields = ['title', 'duration', 'start_date']
+            for field in required_fields:
+                if not request.form.get(field):
+                    flash(f'{field.capitalize()} is required', 'error')
+                    return redirect(url_for('admin_edit_course', course_id=course_id))
+            
+            try:
+                updates = {
+                    'title': request.form.get('title'),
+                    'duration': request.form.get('duration'),
+                    'start_date': request.form.get('start_date'),
+                    'schedule': request.form.get('schedule'),
+                    'instructor': request.form.get('instructor'),
+                    'capacity': int(request.form.get('capacity')) if request.form.get('capacity') else None,
+                    'monthly_payment': int(request.form.get('monthly_payment')) if request.form.get('monthly_payment') else None,
+                    'total_payment': int(request.form.get('total_payment')) if request.form.get('total_payment') else None,
+                    'is_active': request.form.get('is_active') == 'on',
+                    'chapters': []
+                }
 
+                # Process chapters
+                chapter_index = 0
+                while f'chapter_{chapter_index}_title' in request.form:
+                    chapter_title = request.form.get(f'chapter_{chapter_index}_title')
+                    if not chapter_title.strip():
+                        chapter_index += 1
+                        continue
+                        
+                    chapter_content = request.form.get(f'chapter_{chapter_index}_content', '')
+                    chapter_data = {
+                        'title': chapter_title,
+                        'content': [line for line in chapter_content.split('\n') if line.strip()],
+                        'sections': []
+                    }
+
+                    # Process sections
+                    section_index = 0
+                    while f'chapter_{chapter_index}_section_{section_index}_title' in request.form:
+                        section_title = request.form.get(f'chapter_{chapter_index}_section_{section_index}_title')
+                        if section_title.strip():  # Only add if title exists
+                            try:
+                                lessons = json.loads(request.form.get(
+                                    f'chapter_{chapter_index}_section_{section_index}_lessons', '[]'))
+                            except (json.JSONDecodeError, TypeError):
+                                lessons = []
+                            
+                            section_data = {
+                                'section_title': section_title,
+                                'lessons': lessons
+                            }
+                            chapter_data['sections'].append(section_data)
+                        section_index += 1
+
+                    updates['chapters'].append(chapter_data)
+                    chapter_index += 1
+                
+                # Update the course
+                result = courses_collection.update_one(
+                    {'_id': course['_id']},
+                    {'$set': updates}
+                )
+                
+                if result.modified_count > 0:
+                    flash('Course updated successfully', 'success')
+                else:
+                    flash('No changes were made', 'info')
+                    
+                return redirect(url_for('admin_edit_course', course_id=course_id))
+                
+            except ValueError as e:
+                flash(f'Invalid number input: {str(e)}', 'error')
+            except Exception as e:
+                flash(f'An error occurred: {str(e)}', 'error')
+                # Consider logging the actual error for debugging
+                # logger.error(f"Error updating course: {str(e)}")
+        
+        return render_template('admin/edit_course.html', course=course)
+        
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
+        return redirect(url_for('admin_courses'))
 @app.route('/admin/students')
 @admin_required
 def admin_students():

@@ -54,3 +54,41 @@ def find_by_id(data_list, target_id):
         dict or None: The matched dictionary or None if not found.
     """
     return next((item for item in data_list if item.get("_id") == target_id), None)
+
+
+
+def update_course_document(course_data, mongo_uri, db_name, collection_name):
+    """
+    Updates a course document in MongoDB based on its _id field.
+
+    :param course_data: dict, the full course JSON with the "_id" key
+    :param mongo_uri: str, MongoDB URI connection string
+    :param db_name: str, database name
+    :param collection_name: str, collection name
+    """
+    # Connect to MongoDB
+    client = MongoClient(mongo_uri)
+    db = client[db_name]
+    collection = db[collection_name]
+
+    # Ensure "_id" exists
+    if "_id" not in course_data:
+        raise ValueError("The provided data must contain an '_id' field.")
+
+    # Perform the update
+    result = collection.update_one(
+        {"_id": course_data["_id"]},
+        {"$set": course_data},
+        upsert=True  # Set to True if you want to insert if not found
+    )
+
+    # Feedback
+    if result.matched_count > 0:
+        print(f"Document with _id '{course_data['_id']}' successfully updated.")
+    elif result.upserted_id:
+        print(f"Document with _id '{course_data['_id']}' was not found and has been inserted.")
+    else:
+        print(f"No changes made to the document with _id '{course_data['_id']}'.")
+
+    # Close connection
+    client.close()

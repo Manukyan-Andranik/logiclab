@@ -1,60 +1,125 @@
+
 {% extends "admin/base.html" %}
 
 {% block content %}
 <div class="admin-header">
-    <h1><i class="fas fa-edit"></i> Edit Course</h1>
+    <h1><i class="fas fa-edit"></i> Edit Course: {{ course.title }}</h1>
     <a href="{{ url_for('admin_courses') }}" class="btn btn-admin"><i class="fas fa-arrow-left"></i> Back to Courses</a>
 </div>
 
 <form method="POST" class="admin-form">
     <div class="form-group">
         <label for="title">Course Title</label>
-        <input type="text" id="title" name="title" value="{{ course.title }}" >
+        <input type="text" id="title" name="title" value="{{ course.title }}">
     </div>
     
     <div class="form-row">
         <div class="form-group">
             <label for="start_date">Start Date</label>
-            <input type="date" id="start_date" name="start_date" value="{{ course.start_date }}" >
+            <input type="date" id="start_date" name="start_date" value="{{ course.start_date }}">
         </div>
         <div class="form-group">
             <label for="duration">Duration</label>
-            <input type="text" id="duration" name="duration" value="{{ course.duration }}" >
+            <input type="text" id="duration" name="duration" value="{{ course.duration }}">
         </div>
     </div>
     
     <div class="form-group">
         <label for="schedule">Schedule</label>
-        <input type="text" id="schedule" name="schedule" value="{{ course.schedule }}" >
-    </div>
-    
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" >{{ course.description }}</textarea>
+        <input type="text" id="schedule" name="schedule" value="{{ course.schedule }}">
     </div>
     
     <div class="form-row">
         <div class="form-group">
             <label for="instructor">Instructor</label>
-            <input type="text" id="instructor" name="instructor" value="{{ course.instructor }}" >
+            <input type="text" id="instructor" name="instructor" value="{{ course.instructor }}">
         </div>
         <div class="form-group">
-            <label for="price">Price ($)</label>
-            <input type="number" step="0.01" id="price" name="price" value="{{ course.price }}" >
+            <label for="capacity">Capacity</label>
+            <input type="number" id="capacity" name="capacity" value="{{ course.capacity }}">
         </div>
     </div>
     
     <div class="form-row">
         <div class="form-group">
-            <label for="capacity">Capacity</label>
-            <input type="number" id="capacity" name="capacity" value="{{ course.capacity }}" >
+            <label for="monthly_payment">Monthly Payment</label>
+            <input type="number" id="monthly_payment" name="monthly_payment" value="{{ course.monthly_payment }}">
         </div>
-        <div class="form-group checkbox-group">
-            <input type="checkbox" id="is_active" name="is_active" {{ 'checked' if course.is_active }}>
-            <label for="is_active">Active Course</label>
+        <div class="form-group">
+            <label for="total_payment">Total Payment</label>
+            <input type="number" id="total_payment" name="total_payment" value="{{ course.total_payment }}">
         </div>
     </div>
     
+    <div class="form-group checkbox-group">
+        <input type="checkbox" id="is_active" name="is_active" {{ 'checked' if course.is_active }}>
+        <label for="is_active">Active Course</label>
+    </div>
+    
+    <h3>Chapters</h3>
+    <div id="chapters-container">
+        {% for chapter in course.chapters %}
+        <div class="chapter-section" data-chapter-index="{{ loop.index0 }}">
+            <div class="form-group">
+                <label>Chapter Title</label>
+                <input type="text" name="chapter_{{ loop.index0 }}_title" value="{{ chapter.title }}">
+            </div>
+
+            <div class="form-group">
+                <label>Content (one per line)</label>
+                <textarea name="chapter_{{ loop.index0 }}_content">{{ chapter.content|join('\n') }}</textarea>
+            </div>
+
+            {% if chapter.sections %}
+            <h4>Sections</h4>
+            <div class="sections-container">
+                {% for section in chapter.sections %}
+                <div class="section-item" data-section-index="{{ loop.index0 }}">
+                    <div class="form-group">
+                        <label>Section Title</label>
+                        <input type="text" name="chapter_{{ loop.index0 }}_section_{{ loop.index0 }}_title"
+                            value="{{ section.section_title }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lessons (one per line, format)</label>
+                        <textarea name="chapter_{{ loop.index0 }}_section_{{ loop.index0 }}_lessons">
+                            {% if section.lessons %}
+                                {% for lesson in section.lessons[0] %}
+{{ lesson }}: {{ section.lessons[0][lesson] }}
+                                {% endfor %}
+                            {% endif %}
+                        </textarea>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <hr>
+        </div>
+        {% endfor %}
+    </div>
+
     <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Save Changes</button>
 </form>
+
+<style>
+    .chapter-section,
+    .section-item {
+        background: #f5f5f5;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+    .sections-container {
+        margin-left: 20px;
+    }
+
+    textarea {
+        min-height: 100px;
+        white-space: pre;
+    }
+</style>
 {% endblock %}
