@@ -84,15 +84,209 @@ p { font-size: 1rem; margin-bottom: 1.25rem; }
 
 /* Header Styles */
 header {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: var(--secondary-color);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--dark-color), var(--secondary-color), var(--dark-color));
+    color: var(--white);
+    padding: 2rem 0;
     min-height: 100vh;
     display: flex;
     align-items: center;
-    position: relative;
-    overflow: hidden;
 }
 
+.header-animations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* AI Animation Styles */
+.ai-animation {
+    position: absolute;
+    width: 30%;
+    height: 50%;
+    top: 10%;
+    left: 5%;
+}
+
+.node {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    animation: pulse 2s infinite alternate;
+}
+
+.connecting-line {
+    position: absolute;
+    height: 2px;
+    background: var(--primary-color);
+    opacity: 0.4;
+    transform-origin: left center;
+    animation: connectPulse 3s infinite;
+}
+
+/* ML Animation Styles */
+.ml-animation {
+    position: absolute;
+    width: 25%;
+    height: 40%;
+    bottom: 10%;
+    right: 10%;
+}
+
+.data-point {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--white);
+    border-radius: 50%;
+    animation: float 4s infinite ease-in-out;
+}
+
+.regression-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: var(--white);
+    opacity: 0.5;
+    top: 50%;
+    transform: rotate(-5deg);
+    animation: linePulse 5s infinite;
+}
+
+/* 3D Animation Styles */
+.d3-animation {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 50%;
+    right: 15%;
+    transform-style: preserve-3d;
+    animation: rotate 12s infinite linear;
+}
+
+.cube {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--primary-dark);
+    opacity: 0.7;
+}
+
+.front {
+    transform: rotateY(0deg) translateZ(50px);
+}
+
+.back {
+    transform: rotateY(180deg) translateZ(50px);
+}
+
+.left {
+    transform: rotateY(-90deg) translateZ(50px);
+}
+
+.right {
+    transform: rotateY(90deg) translateZ(50px);
+}
+
+.top {
+    transform: rotateX(90deg) translateZ(50px);
+}
+
+.bottom {
+    transform: rotateX(-90deg) translateZ(50px);
+}
+
+/* Tech Tags */
+.tech-tags {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.tech-tag {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    animation: floatUp 3s infinite ease-in-out;
+    color: var(--dark-color);
+}
+
+.ai-tag {
+    background: rgba(255, 215, 0, 0.3);
+    border: 1px solid var(--primary-color);
+    animation-delay: 0s;
+}
+
+.ml-tag {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--white);
+    animation-delay: 0.5s;
+}
+
+.d3-tag {
+    background: rgba(255, 192, 0, 0.3);
+    border: 1px solid var(--primary-dark);
+    animation-delay: 1s;
+}
+
+/* Hero Text */
+.hero {
+    text-align: center;
+    padding-top: 6rem;
+    width: 100%;
+}
+
+.hero h1 {
+    color: var(--primary-color);
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.highlight-title {
+    color: var(--white);
+    position: relative;
+    display: inline-block;
+}
+
+.highlight-title::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--white);
+}
+
+.hero p {
+    color: var(--light-color);
+    font-size: 1.25rem;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+}
+
+/* Ensure content is above animations */
+.container>*:not(.header-animations) {
+    position: relative;
+    z-index: 1;
+}
+
+/* Nav Styles */
 nav {
     position: fixed;
     top: 0;
@@ -101,8 +295,7 @@ nav {
     padding: 1.5rem 0;
     z-index: 1000;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: #333;
 }
 
 .nav-links {
@@ -117,7 +310,7 @@ nav {
 }
 
 .nav-links a {
-    color: var(--secondary-color);
+    color: var(--white);
     text-decoration: none;
     font-size: 1rem;
     font-weight: 600;
@@ -139,40 +332,6 @@ nav {
 
 .nav-links a:hover::after {
     width: 100%;
-}
-
-.hero {
-    text-align: center;
-    padding-top: 6rem;
-    width: 100%;
-}
-
-.hero h1 {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.2;
-}
-
-.hero p {
-    font-size: 1.25rem;
-    max-width: 800px;
-    margin: 0 auto 2rem;
-}
-
-.highlight-title {
-    color: var(--white);
-    position: relative;
-    display: inline-block;
-}
-
-.highlight-title::after {
-    content: '';
-    position: absolute;
-    bottom: -0.5rem;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: var(--white);
 }
 
 /* Courses Section */
@@ -202,10 +361,9 @@ nav {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-    justify-items: center; /* Center the items horizontally */
-    align-items: start; /* Align the items to the top */
+    justify-items: center;
+    align-items: start;
 }
-
 
 .course-card {
     background: var(--white);
@@ -350,47 +508,8 @@ nav {
     gap: 0.8rem;
 }
 .company-item {
-    color: var(--secondary-color); /* Bootstrap primary blue, or use any hex color you like */
-}
-.contact-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background: var(--gray-100);
     color: var(--secondary-color);
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
 }
-
-.contact-link:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.contact-link i {
-    margin-right: 0.5rem;
-}
-
-.phone-link {
-    background: var(--success-color);
-    color: white;
-}
-
-@media (max-width: 768px) {
-    .lecturer-cards-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .lecturer-card {
-        flex-direction: column;
-    }
-    
-    .lecturer-image {
-        height: 200px;
-    }}
 .contact-link {
     display: inline-flex;
     align-items: center;
@@ -533,7 +652,51 @@ nav {
     transform: translateY(-5px);
 }
 
+/* Additional Animations */
+@keyframes connectPulse {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
 
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes linePulse {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotateY(0) rotateX(20deg);
+    }
+    100% {
+        transform: rotateY(360deg) rotateX(20deg);
+    }
+}
+
+@keyframes floatUp {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
 
 @media (max-width: 768px) {
     section {
@@ -659,50 +822,6 @@ nav {
     margin-top: -5rem;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-    .course-header-content {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .course-header-text h1 {
-        font-size: 2.5rem;
-    }
-    
-    .course-header-image {
-        max-width: 100%;
-    }
-    
-    .course-detail-content {
-        margin-top: -3rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .course-header {
-        padding: 1.5rem 0 3rem;
-    }
-    
-    .course-header-text h1 {
-        font-size: 2rem;
-    }
-    
-    .course-detail-content {
-        padding: 2rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .course-header-text h1 {
-        font-size: 1.75rem;
-    }
-    
-    .course-detail-content {
-        padding: 1.5rem;
-        margin-top: -2rem;
-    }
-}
 /* Course Description Styles */
 .course-description {
     margin-bottom: 30px;
@@ -802,48 +921,6 @@ nav {
     border-left: 3px solid var(--primary-color);
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .course-description h1 {
-        font-size: 2rem;
-    }
-    
-    .course-description h2 {
-        font-size: 1.75rem;
-    }
-    
-    .course-description h3 {
-        font-size: 1.5rem;
-    }
-    
-    .course-description h4 {
-        font-size: 1.3rem;
-    }
-    
-    .course-description h5 {
-        font-size: 1.15rem;
-    }
-    
-    .course-description li {
-        padding-left: 25px;
-    }
-}
-
-@media (max-width: 576px) {
-    .course-description h1 {
-        font-size: 1.8rem;
-    }
-    
-    .course-description h2 {
-        font-size: 1.5rem;
-        padding-left: 10px;
-    }
-    
-    .course-description li {
-        font-size: 1rem;
-    }
-}
-
 /* Registration Page Styles */
 .register-section {
     padding: 4rem 0;
@@ -856,7 +933,7 @@ nav {
     background: var(--white);
     padding: 3rem;
     border-radius: 10px;
-    box-shadow: var(--box-shadow);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .register-form-container h1 {
@@ -972,44 +1049,9 @@ nav {
     border: 1px solid var(--error-color);
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .register-form-container {
-        padding: 2rem;
-    }
-    
-    .register-form-container h1 {
-        font-size: 1.8rem;
-    }
-    
-    .course-info {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .register-form-container {
-        padding: 1.5rem;
-    }
-    
-    .register-form-container h1 {
-        font-size: 1.5rem;
-    }
-    
-    .form-group label {
-        font-size: 1rem;
-    }
-    
-    .form-group input {
-        padding: 0.8rem;
-    }
-}
 .tab-indent {
     padding-left: 20px;
 }
-
 
 footer {
     background-color: var(--secondary-color);
@@ -1042,4 +1084,108 @@ footer {
 .footer-content a:hover {
     color: var(--primary-dark);
     text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .course-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .course-header-text h1 {
+        font-size: 2.5rem;
+    }
+    
+    .course-header-image {
+        max-width: 100%;
+    }
+    
+    .course-detail-content {
+        margin-top: -3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .course-header {
+        padding: 1.5rem 0 3rem;
+    }
+    
+    .register-form-container {
+        padding: 2rem;
+    }
+    
+    .register-form-container h1 {
+        font-size: 1.8rem;
+    }
+    
+    .course-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .course-description h1 {
+        font-size: 2rem;
+    }
+    
+    .course-description h2 {
+        font-size: 1.75rem;
+    }
+    
+    .course-description h3 {
+        font-size: 1.5rem;
+    }
+    
+    .course-description h4 {
+        font-size: 1.3rem;
+    }
+    
+    .course-description h5 {
+        font-size: 1.15rem;
+    }
+    
+    .course-description li {
+        padding-left: 25px;
+    }
+}
+
+@media (max-width: 576px) {
+    .course-header-text h1 {
+        font-size: 1.75rem;
+    }
+    
+    .course-detail-content {
+        padding: 1.5rem;
+        margin-top: -2rem;
+    }
+    
+    .register-form-container {
+        padding: 1.5rem;
+    }
+    
+    .register-form-container h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-group label {
+        font-size: 1rem;
+    }
+    
+    .form-group input {
+        padding: 0.8rem;
+    }
+    
+    .course-description h1 {
+        font-size: 1.8rem;
+    }
+    
+    .course-description h2 {
+        font-size: 1.5rem;
+        padding-left: 10px;
+    }
+    
+    .course-description li {
+        font-size: 1rem;
+    }
 }

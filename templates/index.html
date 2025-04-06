@@ -16,6 +16,41 @@
 <body>
     <header>
         <div class="container">
+            <!-- Animated background elements -->
+            <div class="header-animations">
+                <!-- AI animation - floating neural network nodes -->
+                <div class="ai-animation">
+                    <div class="neural-network">
+                        <div class="node" style="top:20%; left:10%"></div>
+                        <div class="node" style="top:30%; left:25%"></div>
+                        <div class="node" style="top:40%; left:15%"></div>
+                        <div class="node" style="top:50%; left:30%"></div>
+                        <div class="connecting-line" style="width:15%; top:25%; left:10%"></div>
+                        <div class="connecting-line" style="width:10%; top:35%; left:20%"></div>
+                    </div>
+                </div>
+
+                <!-- Machine Learning animation - floating data points -->
+                <div class="ml-animation">
+                    <div class="data-point" style="top:60%; left:80%"></div>
+                    <div class="data-point" style="top:70%; left:75%"></div>
+                    <div class="data-point" style="top:65%; left:85%"></div>
+                    <div class="regression-line"></div>
+                </div>
+
+                <!-- 3D Visualization animation - rotating cube -->
+                <div class="d3-animation">
+                    <div class="cube">
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face left"></div>
+                        <div class="face right"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                    </div>
+                </div>
+            </div>
+
             <nav>
                 <ul class="nav-links">
                     <li><a href="#courses">Դասընթացներ</a></li>
@@ -24,13 +59,19 @@
                 </ul>
             </nav>
             <div class="hero" data-aos="fade-in">
-                <h1>View Box <span class="highlight-title"></span> <span class="highlight-title">&</span> Soul's Of
-                    Code</span></h1>
+                <h1>Logic <span class="highlight-title">Lab</span></h1>
                 <p>Միացե՛ք մեր մասնագիտական դասընթացներին, որոնք անցկացնում են ոլորտի փորձագետները</p>
+                <div class="tech-tags">
+                    <span class="tech-tag ai-tag">AI</span>
+                    <span class="tech-tag ml-tag">Machine Learning</span>
+                    <span class="tech-tag d3-tag">3D Visualisation</span>
+                </div>
                 <a href="#courses" class="btn btn-pulse">Դիտել դասընթացները</a>
             </div>
         </div>
     </header>
+
+
 
     <section id="courses" class="courses-section">
         <div class="container">
@@ -68,28 +109,31 @@
                 <div class="lecturer-cards-container">
                     {% for instructor_id, instructor in instructors.items() %}
                     <div class="lecturer-card" data-aos="fade-up">
-                        <img src="{{ url_for('static', filename='images/' ~ instructor.photo) }}" 
-                             alt="{{ instructor.specialization }}" 
-                             class="lecturer-image">
+                        <img src="{{ url_for('static', filename='images/' ~ instructor.photo) }}"
+                            alt="{{ instructor.specialization }}" class="lecturer-image">
                         <div class="lecturer-info">
                             <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
                             <h4>{{ instructor.specialization }}</h4>
                             <p>{{ instructor.profession }}</p>
                             <ul>
                                 <li><i class="fas fa-check-circle"></i> {{ instructor.workExperience }}+ տարվա փորձ</li>
-                                <li><i class="fas fa-check-circle"></i> Կրթություն: {{ instructor.education.degree }} | {{ instructor.education.fieldOfStudy }} | {{ instructor.education.institution }}</li>
+                                <li><i class="fas fa-check-circle"></i> Կրթություն: {{ instructor.education.degree }} |
+                                    {{ instructor.education.fieldOfStudy }} | {{ instructor.education.institution }}
+                                </li>
                                 <li><i class="fas fa-check-circle"></i> Աշխատանքային փորձ</li>
                                 <div style="padding-left: 20px;">
                                     <ul>
                                         {% for company in instructor.companies %}
-                                        <li class="company-item"><i class="fas fa-building"></i> {{ company.company }} | {{ company.type }} | {{ company.role }}</li>
+                                        <li class="company-item"><i class="fas fa-building"></i> {{ company.company }} |
+                                            {{ company.type }} | {{ company.role }}</li>
                                         {% endfor %}
                                     </ul>
                                 </div>
-                                
-                                <li><i class="fas fa-check-circle"></i> Հմտություններ: {{ instructor.skills|join(', ') }}</li>
+
+                                <li><i class="fas fa-check-circle"></i> Հմտություններ: {{ instructor.skills|join(', ')
+                                    }}</li>
                             </ul>
-                            
+
                             <div class="lecturer-contacts">
                                 <a href="tel:{{ instructor.contacts.phone }}" class="contact-link phone-link">
                                     <i class="fas fa-phone"></i> Անձնական
@@ -134,17 +178,17 @@
         </div>
     </section>
 
-   
-<footer>
-    <div class="container">
-        <div class="footer-content">
-            <p>© Powered by</p>
-            <a href="#">Soul's of Code</a>
-            <p>&</p>
-            <a href="#">ViewBox</a>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© Powered by</p>
+                <a href="#">Soul's of Code</a>
+                <p>&</p>
+                <a href="#">ViewBox</a>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- Back to Top Button -->
     <button id="back-to-top" class="back-to-top">
@@ -193,4 +237,5 @@
         });
     </script>
 </body>
+
 </html>
