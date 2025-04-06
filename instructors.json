@@ -1,0 +1,114 @@
+[
+    {
+        "_id": "3ds_max_instructor",
+        "photo": "3ds_max_instructor.jpg",
+        "firstName": "Արծրունի",
+        "lastName": "Խաչատրյան",
+        "education": {
+            "institution": "Հայաստանի Գեղարվեստի Պետական Ակադեմիա",
+            "degree": "Բակալավր",
+            "fieldOfStudy": "Դիզայն"
+        },
+        "profession": "Դիզայներ",
+        "specialization": "3ds Max Instructor",
+        "workExperience": 4,
+        "collaborations": [
+            {
+                "company": "Kulthome",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            },
+            {
+                "company": "Karpet",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            },
+            {
+                "company": "Tutto",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            },
+            {
+                "company": "Armat",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            }
+        ],
+        "skills": [
+            "3D Modeling",
+            "3D Visualization",
+            "Texturing",
+            "Lighting",
+            "Rendering",
+            "Architectural Design",
+            "Interior Design",
+            "Exterior Design"
+        ],
+        "softwareProficiency": [
+            "Autodesk 3ds Max",
+            "V-Ray",
+            "Corona Renderer",
+            "Adobe Photoshop",
+            "AutoCAD"
+        ],
+        "contacts": 
+        {
+            "phone": "+37498367419",
+            "email": "andranik@gmail.com",
+            "linkedin": "https://www.linkedin.com/in/andranik-khachaturyan-3dmax-instructor/"
+        }
+
+    },
+    {
+        "_id": "machine_learning_instructor",
+        "photo": "machine_learning_instructor.jpg",
+        "firstName": "Անդրանիկ",
+        "lastName": "Մանուկյան",
+        "education": {
+            "institution": "Հայաստանի Ազգային Պոլիտեխնիկական համալսարան, FAST Foundation, Armenian Code Academy",
+            "degree": "Բակալավր",
+            "fieldOfStudy": "Machine Learning Advenced, ML & DL, Տեղեկատվական անվտանգություն:"
+        },
+        "profession": "Machine Learning Engineer",
+        "specialization": "Machine Learning Instructor",
+        "workExperience": 4,
+        "collaborations": [
+            {
+                "company": "Maton Solutions",
+                "type": "ML and Back end Engineering",
+                "role": "ML and Back end Engineer"
+            },
+            {
+                "company": "FAST Foundation",
+                "type": "Artifical Intelligence instructor",
+                "role": "Artifical Intelligence instructor"
+            },
+            {
+                "company": "Granat Digital Agency",
+                "type": "IT Department Manager",
+                "role": "IT Department Manager, ML and Back end Engineer"
+            }
+        ],
+        "skills": [
+            "Team Building",
+            "Project Management",
+            "Programing",
+            "OOP",
+            "Python",
+            "C++",
+            "Git/Github",
+            "Mathematics",
+            "Algorithms",
+            "Graph Theory",
+            "API"
+        ],
+        "softwareProficiency": [
+            "Python",
+            "C++",
+            "Git/Github",
+            "SkLearn",
+            "Tensorflow",
+            "Pytorch"
+        ]
+    }
+]

@@ -114,63 +114,40 @@
     <section id="about" class="about-section">
         <section class="lecturers-section">
             <div class="lecturers-wrapper">
-                <!-- ML Instructor -->
-                <div class="lecturer-card" data-aos="fade-left">
-                    <img src="{{ url_for('static', filename='images/ando.jpg') }}" alt="ML Դասախոս">
-                    <div class="lecturer-info">
-                        <h3>ML Դասախոս</h3>
-                        <p>Ավելի քան 10 տարվա փորձ ունեցող մեր ML դասախոսը դասավանդում է իրական ոլորտային օրինակներով։
-                            Ուսուցման մոտեցումը կենտրոնացած է պրակտիկ, կիրառական գիտելիքների վրա՝ ուսանողներին պատրաստելով
-                            ոլորտի մարտահրավերներին։</p>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> 10+ տարվա փորձ</li>
-                            <li><i class="fas fa-check-circle"></i> Իրական օրինակներով ուսուցում</li>
-                        </ul>
-                        <div class="lecturer-contacts">
-                            <a href="tel:+37494752662" class="contact-link phone-link">
-                                <i class="fas fa-phone"></i> Անձնական
-                            </a>
-                            <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank"
-                                class="contact-link">
-                                <i class="fab fa-linkedin"></i> LinkedIn
-                            </a>
-                            <a href="https://www.granat.am/vcard/it" target="_blank" class="contact-link">
-                                <i class="fas fa-globe"></i> WEB
-                            </a>
+                <div class="lecturer-cards-container">
+                    {% for instructor_id, instructor in instructors.items() %}
+                    <div class="lecturer-card" data-aos="fade-up">
+                        <img src="{{ url_for('static', filename='images/' ~ instructor.photo) }}" 
+                             alt="{{ instructor.specialization }}" 
+                             class="lecturer-image">
+                        <div class="lecturer-info">
+                            <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
+                            <h4>{{ instructor.specialization }}</h4>
+                            <p>{{ instructor.profession }} with {{ instructor.workExperience }} years of experience teaching with real-world examples. The teaching approach focuses on practical, applicable knowledge to prepare students for industry challenges.</p>
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> {{ instructor.workExperience }}+ տարվա փորձ</li>
+                                <li><i class="fas fa-check-circle"></i> Education: {{ instructor.education.degree }} in {{ instructor.education.fieldOfStudy }} from {{ instructor.education.institution }}</li>
+                                <li><i class="fas fa-check-circle"></i> Skills: {{ instructor.skills|join(', ') }}</li>
+                            </ul>
+                            <div class="lecturer-contacts">
+                                <a href="tel:+37494752662" class="contact-link phone-link">
+                                    <i class="fas fa-phone"></i> Անձնական
+                                </a>
+                                <a href="https://www.linkedin.com/in/manukyan-andranik-44bb4a250" target="_blank" class="contact-link">
+                                    <i class="fab fa-linkedin"></i> LinkedIn
+                                </a>
+                                <a href="https://www.granat.am/vcard/it" target="_blank" class="contact-link">
+                                    <i class="fas fa-globe"></i> WEB
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-        
-                <!-- 3DS Max Instructor -->
-                <div class="lecturer-card" data-aos="fade-left">
-                    <img src="{{ url_for('static', filename='images/xcho.jpg') }}" alt="3DS Max Դասախոս">
-                    <div class="lecturer-info">
-                        <h3>3DS Max Դասախոս</h3>
-                        <p>Մեր 3D դիզայնի դասախոսը հավաստագրված մասնագետ է՝ ավելի քան տաս տարվա գործնական փորձով
-                            եռաչափ մոդելավորման, արտապատկերման և անիմացիայի ոլորտում։ Ուսանողները ստանում են ոլորտային
-                            պատկերացում և մասնագիտական հմտություններ։</p>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> Հավաստագրված 3DS Max դասախոս</li>
-                            <li><i class="fas fa-check-circle"></i> 5+ տարվա դասավանդման փորձ</li>
-                        </ul>
-                        <div class="lecturer-contacts">
-                            <a href="tel:+37498367419" class="contact-link phone-link">
-                                <i class="fas fa-phone"></i> Անձնական
-                            </a>
-                            <a href="https://www.linkedin.com/in/artsruni-khachatryan-79031724a" target="_blank"
-                                class="contact-link">
-                                <i class="fab fa-linkedin"></i> LinkedIn
-                            </a>
-                            <a href="https://www.instagram.com/viewbox_visual?igsh=MThlcXZ4bm5qYmZzNA==" target="_blank"
-                                class="contact-link">
-                                <i class="fab fa-instagram"></i> Instagram
-                            </a>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </section>
-        
+    </section>
+
 
     <section id="contact" class="contact-section">
         <div class="container">

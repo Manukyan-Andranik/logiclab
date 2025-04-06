@@ -27,7 +27,8 @@ def setup_db(uri):
     courses_collection = db.courses
     registrations = db.registrations
     admins = db.admins
-    return courses_collection, registrations, admins
+    instructors = db.instructors
+    return courses_collection, registrations, admins, instructors
 
 def chack_db(courses_collection, registrations, admins):
     if courses_collection.count_documents({}) == 0:

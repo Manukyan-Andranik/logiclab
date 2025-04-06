@@ -29,7 +29,7 @@ escaped_password = quote_plus(PASSWORD)
 URI = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?appName=Cluster0"
 
 # Initialize data if empty
-courses_collection, registrations, admins = setup_db(URI)
+courses_collection, registrations, admins, instructors_collection = setup_db(URI)
 
 # Admin authentication decorator
 def admin_required(f):
@@ -53,13 +53,19 @@ def admin_required(f):
 @app.route('/')
 def home():
     courses = list(courses_collection.find({"is_active": True}))
-
+    instructors = list(instructors_collection.find())
+    instructors = {
+        "machine_learning": find_by_id(instructors, "machine_learning_instructor"),
+        "3ds_max": find_by_id(instructors, "3ds_max_instructor"),
+        }
+    print(instructors)
+    
     courses = {
         "machine_learning": find_by_id(courses, "machine_learning"),
         "3ds_max": find_by_id(courses, "3ds_max"),
         }
-
-    return render_template('index.html', courses=courses)
+    print(courses)
+    return render_template('index.html', courses=courses, instructors=instructors)
 
 
 # Course route

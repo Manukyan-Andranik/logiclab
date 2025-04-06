@@ -258,60 +258,134 @@ nav {
 /* Lecturers Section */
 .lecturers-section {
     background: var(--white);
+    padding: 4rem 0;
 }
 
 .lecturers-wrapper {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.lecturer-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
 }
 
 .lecturer-card {
-    display: flex;
-    background: var(--light-color);
-    border-radius: 0.5rem;
+    background: var(--white);
+    border-radius: 1rem;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
-.lecturer-card img {
-    width: 250px;
-    height: 100%;
+.lecturer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+}
+
+.lecturer-image {
+    max-width: 150px;
+    height: 200px;
     object-fit: cover;
+    border-bottom: 4px solid var(--primary-color);
 }
 
 .lecturer-info {
     padding: 2rem;
-    flex: 1;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .lecturer-info h3 {
-    color: var(--primary-dark);
+    font-size: 1.5rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.lecturer-info h4 {
+    font-size: 1rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.lecturer-info p {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
 }
 
 .lecturer-info ul {
+    margin-bottom: 1.5rem;
+    padding-left: 0;
     list-style: none;
-    margin: 1.5rem 0;
 }
 
 .lecturer-info li {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.8rem;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
 
-.lecturer-info i {
-    color: var(--primary-color);
-    margin-right: 0.75rem;
+.lecturer-info li i {
+    color: var(--success-color);
+    margin-right: 0.8rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
 }
 
 .lecturer-contacts {
+    margin-top: auto;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+    gap: 0.8rem;
 }
 
+.contact-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--gray-100);
+    color: var(--secondary-color);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.contact-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.contact-link i {
+    margin-right: 0.5rem;
+}
+
+.phone-link {
+    background: var(--success-color);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .lecturer-cards-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .lecturer-card {
+        flex-direction: column;
+    }
+    
+    .lecturer-image {
+        height: 200px;
+    }}
 .contact-link {
     display: inline-flex;
     align-items: center;
@@ -454,22 +528,7 @@ nav {
     transform: translateY(-5px);
 }
 
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-    .lecturer-card {
-        flex-direction: column;
-    }
-    
-    .lecturer-card img {
-        max-width: 150px;
-        height: auto;
-        border-radius: 10px;
-    }
-    
-    h1 { font-size: 2.25rem; }
-    h2 { font-size: 1.75rem; }
-    .hero p { font-size: 1.1rem; }
-}
+
 
 @media (max-width: 768px) {
     section {
