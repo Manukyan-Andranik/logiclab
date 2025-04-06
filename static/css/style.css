@@ -427,7 +427,6 @@ nav {
     margin: 0 auto;
     padding: 0 2rem;
 }
-
 .lecturer-cards-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -442,6 +441,8 @@ nav {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
+    align-items: center; /* Centers content horizontally */
+    padding: 1.5rem; /* Adds some inner spacing */
 }
 
 .lecturer-card:hover {
@@ -449,9 +450,11 @@ nav {
     box-shadow: 0 15px 35px rgba(0,0,0,0.12);
 }
 
+
+
 .lecturer-image {
-    max-width: 150px;
-    height: 200px;
+    max-width: 300px;
+    height: 300px;
     object-fit: cover;
     border-bottom: 4px solid var(--primary-color);
 }
