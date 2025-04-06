@@ -1,9 +1,8 @@
 import os
 import hashlib
 from datetime import datetime
-from pymongo import MongoClient
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from pymongo import MongoClient
 
 load_dotenv(dotenv_path=".env")
 

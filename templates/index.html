@@ -123,12 +123,22 @@
                         <div class="lecturer-info">
                             <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
                             <h4>{{ instructor.specialization }}</h4>
-                            <p>{{ instructor.profession }} with {{ instructor.workExperience }} years of experience teaching with real-world examples. The teaching approach focuses on practical, applicable knowledge to prepare students for industry challenges.</p>
+                            <p>{{ instructor.profession }}</p>
                             <ul>
                                 <li><i class="fas fa-check-circle"></i> {{ instructor.workExperience }}+ տարվա փորձ</li>
-                                <li><i class="fas fa-check-circle"></i> Education: {{ instructor.education.degree }} in {{ instructor.education.fieldOfStudy }} from {{ instructor.education.institution }}</li>
-                                <li><i class="fas fa-check-circle"></i> Skills: {{ instructor.skills|join(', ') }}</li>
+                                <li><i class="fas fa-check-circle"></i> Կրթություն: {{ instructor.education.degree }} | {{ instructor.education.fieldOfStudy }} | {{ instructor.education.institution }}</li>
+                                <li><i class="fas fa-check-circle"></i> Աշխատանքային փորձ</li>
+                                <div style="padding-left: 20px;">
+                                    <ul>
+                                        {% for company in instructor.companies %}
+                                        <li class="company-item"><i class="fas fa-building"></i> {{ company.company }} | {{ company.type }} | {{ company.role }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                
+                                <li><i class="fas fa-check-circle"></i> Հմտություններ: {{ instructor.skills|join(', ') }}</li>
                             </ul>
+                            
                             <div class="lecturer-contacts">
                                 <a href="tel:{{ instructor.contacts.phone }}" class="contact-link phone-link">
                                     <i class="fas fa-phone"></i> Անձնական

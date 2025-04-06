@@ -55,7 +55,7 @@
         "contacts": 
         {
             "phone": "+37498367419",
-            "linkedin": "https://www.linkedin.com/in/andranik-khachaturyan-3dmax-instructor/",
+            "linkedin": "https://www.linkedin.com/in/andranik-khachaturyan-3dmax-instructor",
             "web": "https://www.instagram.com/viewbox_visual/profilecard/?igsh=MThycHpwamFjb3B5eg=="
         }
 
@@ -73,7 +73,7 @@
         "profession": "Machine Learning Engineer",
         "specialization": "Machine Learning Instructor",
         "workExperience": 4,
-        "collaborations": [
+        "companies": [
             {
                 "company": "Maton Solutions",
                 "type": "ML and Back end Engineering",

@@ -1,14 +1,12 @@
 import os
+import json
 from bson import ObjectId
 from datetime import datetime
 from urllib.parse import quote_plus
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_mail import Mail, Message
-from bson import ObjectId
-import json
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
 from utils import setup_db, load_env, find_by_id
-
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -21,7 +19,6 @@ app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 
 mail = Mail(app)
-# app.secret_key = 'your_secret_key_here'
 USER_NAME = os.getenv('MONGO_USERNAME')
 PASSWORD = os.getenv('MONGO_PASSWORD')
 escaped_username = quote_plus(USER_NAME)
@@ -229,8 +226,6 @@ def admin_edit_course(course_id):
                 flash(f'Invalid number input: {str(e)}', 'error')
             except Exception as e:
                 flash(f'An error occurred: {str(e)}', 'error')
-                # Consider logging the actual error for debugging
-                # logger.error(f"Error updating course: {str(e)}")
         
         return render_template('admin/edit_course.html', course=course)
         

@@ -346,7 +346,9 @@ nav {
     flex-wrap: wrap;
     gap: 0.8rem;
 }
-
+.company-item {
+    color: var(--secondary-color); /* Bootstrap primary blue, or use any hex color you like */
+}
 .contact-link {
     display: inline-flex;
     align-items: center;
@@ -1000,4 +1002,7 @@ nav {
     .form-group input {
         padding: 0.8rem;
     }
+}
+.tab-indent {
+    padding-left: 20px;
 }
