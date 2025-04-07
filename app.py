@@ -299,33 +299,6 @@ def admin_students():
     all_courses = list(courses_collection.find())
     return render_template('admin/students.html', students=all_students, courses=all_courses)
 
-# @app.route('/admin/student/<student_id>/update', methods=['POST'])
-# @admin_required
-# def admin_update_student(student_id):
-#     new_status = request.form['status']
-#     student = registrations.find_one({"_id": ObjectId(student_id)})
-    
-#     if not student:
-#         flash('Student not found', 'error')
-#         return redirect(url_for('admin_students'))
-    
-#     # Update status in database
-#     registrations.update_one(
-#         {"_id": ObjectId(student_id)},
-#         {"$set": {"status": new_status}}
-#     )
-    
-#     # Send email notification
-#     try:
-#         send_status_email(student['email'], student['full_name'], student['course_title'], new_status)
-#         flash('Student status updated and notification sent', 'success')
-#     except Exception as e:
-#         app.logger.error(f"Failed to send status email: {str(e)}")
-#         flash('Status updated but failed to send notification', 'warning')
-    
-#     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-#         return jsonify({'success': True})
-#     return redirect(url_for('admin_students'))
 
 @app.route('/admin/student/<student_id>/delete', methods=['POST'])
 @admin_required
@@ -340,8 +313,6 @@ def admin_delete_student(student_id):
     flash('Student registration deleted successfully', 'success')
     return redirect(url_for('admin_students'))
 
-
-# Add these new routes to app.py
 
 @app.route('/admin/instructors')
 @admin_required
@@ -440,7 +411,7 @@ def send_status_email(to_email, student_name, course_name, new_status):
         If you have any questions, please don't hesitate to contact us.
         
         Best regards,
-        ViewSOC Team
+        LogicLab Team
         """
         
         msg = Message(
@@ -636,35 +607,35 @@ def admin_add_instructor():
     return render_template('admin/add_instructor.html')
 
 
-def send_status_email(to_email, student_name, course_name, new_status):
-    subject = f"Your registration status for {course_name} has been updated"
+# def send_status_email(to_email, student_name, course_name, new_status):
+#     subject = f"Your registration status for {course_name} has been updated"
     
-    status_messages = {
-        'pending': "Your registration is being reviewed.",
-        'confirmed': "Your registration has been confirmed! Welcome to the course.",
-        'rejected': "We're sorry, but your registration could not be accepted at this time.",
-        'completed': "Congratulations on completing the course! Well done!"
-    }
+#     status_messages = {
+#         'pending': "Your registration is being reviewed.",
+#         'confirmed': "Your registration has been confirmed! Welcome to the course.",
+#         'rejected': "We're sorry, but your registration could not be accepted at this time.",
+#         'completed': "Congratulations on completing the course! Well done!"
+#     }
     
-    body = f"""
-    Dear {student_name},
+#     body = f"""
+#     Dear {student_name},
     
-    Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
+#     Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
     
-    {status_messages.get(new_status, '')}
+#     {status_messages.get(new_status, '')}
     
-    If you have any questions, please don't hesitate to contact us.
+#     If you have any questions, please don't hesitate to contact us.
     
-    Best regards,
-    EduTech Team
-    """
+#     Best regards,
+#     LogicLab Team
+#     """
     
-    msg = Message(
-        subject=subject,
-        recipients=[to_email],
-        body=body
-    )
-    mail.send(msg)
+#     msg = Message(
+#         subject=subject,
+#         recipients=[to_email],
+#         body=body
+#     )
+#     mail.send(msg)
 
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
@@ -712,42 +683,38 @@ def contact():
         try:
             # Send email to admin
             msg = Message(
-                subject=f"New message from {name} - EduTech Contact Form",
+                subject=f"New message from {name} - LogicLab Contact Form",
                 recipients=[os.getenv('ADMIN_EMAIL')],
                 body=f"""
                 Name: {name}
                 Email: {email}
                 Message: {message}
                 
-                Sent from EduTech contact form
+                Sent from LogicLab contact form
                 """
             )
             mail.send(msg)
-            
-            # Send confirmation to user
-            confirmation_msg = Message(
-                subject="Thank you for contacting EduTech",
-                recipients=[email],
-                body=f"""
-                Dear {name},
-                
-                Thank you for reaching out to us. We have received your message and will get back to you shortly.
-                
-                Your message:
-                {message}
-                
-                Best regards,
-                EduTech Team
-                """
-            )
-            mail.send(confirmation_msg)
-            
             flash('Your message has been sent successfully!', 'success')
+            
         except Exception as e:
             app.logger.error(f"Failed to send email: {str(e)}")
             flash('Failed to send your message. Please try again later.', 'error')
         
         return redirect(url_for('home') + '#contact')
+
+@app.route('/test-email')
+def test_email():
+    try:
+        msg = Message(
+            subject="Test Email from Flask",
+            recipients=["recipient@example.com"],
+            body="This is a test email from your Flask app."
+        )
+        mail.send(msg)
+        return "Email sent successfully!"
+    except Exception as e:
+        return f"Failed to send email: {str(e)}"
+
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001, debug=True)
