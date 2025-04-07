@@ -116,13 +116,13 @@
                     
                     <div class="form-group">
                         <label>Section Title</label>
-                        <input type="text" name="chapter_{{ loop.parentloop.index0 }}_section_{{ loop.index0 }}_title"
+                        <input type="text" name="chapter_{{ loop.index0 }}_section_{{ loop.index0 }}_title"
                             value="{{ section.section_title }}">
                     </div>
 
                     <div class="form-group">
                         <label>Lessons (one per line, format)</label>
-                        <textarea name="chapter_{{ loop.parentloop.index0 }}_section_{{ loop.index0 }}_lessons">
+                        <textarea name="chapter_{{ loop.index0 }}_section_{{ loop.index0 }}_lessons">
                             {% if section.lessons %}
                                 {% for lesson in section.lessons[0] %}
 {{ lesson }}: {{ section.lessons[0][lesson] }}
