@@ -3,10 +3,17 @@
 {% block content %}
 <div class="admin-header">
     <h1><i class="fas fa-edit"></i> Edit Instructor: {{ instructor.firstName }} {{ instructor.lastName }}</h1>
-    <a href="{{ url_for('admin_instructors') }}" class="btn btn-admin"><i class="fas fa-arrow-left"></i> Back to Instructors</a>
+    <div>
+        <a href="{{ url_for('admin_instructors') }}" class="btn btn-admin"><i class="fas fa-arrow-left"></i> Back to Instructors</a>
+        <form method="POST" action="{{ url_for('admin_delete_instructor', instructor_id=instructor._id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this instructor? This action cannot be undone.')">
+                <i class="fas fa-trash-alt"></i> Delete Instructor
+            </button>
+        </form>
+    </div>
 </div>
 
-<form method="POST" class="admin-form">
+<form method="POST" class="admin-form" enctype="multipart/form-data">
     <div class="form-section">
         <h2><i class="fas fa-user"></i> Basic Information</h2>
         <div class="form-row">
@@ -37,8 +44,11 @@
                 <input type="number" id="workExperience" name="workExperience" value="{{ instructor.workExperience }}" required>
             </div>
             <div class="form-group">
-                <label for="photo">Photo Filename</label>
-                <input type="text" id="photo" name="photo" value="{{ instructor.photo }}">
+                <label for="photo">Photo</label>
+                    {% if instructor.photo %}
+                    <img src="{{ url_for('static', filename='images/' + instructor.photo) }}" class="current-photo">
+                    {% endif %}
+                    <input type="text" id="photo" name="photo" value="{{ instructor.photo }}" required>
             </div>
         </div>
     </div>
@@ -67,62 +77,68 @@
     <div class="form-section">
         <h2><i class="fas fa-code"></i> Skills & Software</h2>
         <div class="form-group">
-            <label for="skills">Skills (comma separated)</label>
-            <textarea id="skills" name="skills">{{ instructor.skills|join(', ') }}</textarea>
+            <label for="skills">Skills (one per line)*</label>
+            <textarea id="skills" name="skills" rows="5" required>{% for skill in instructor.skills %}{{ skill }}{% if not loop.last %}{{ '\n' }}{% endif %}{% endfor %}</textarea>
+            <small class="form-text">Enter each skill on a new line</small>
         </div>
         <div class="form-group">
-            <label for="softwareProficiency">Software Proficiency (comma separated)</label>
-            <textarea id="softwareProficiency" name="softwareProficiency">{{ instructor.softwareProficiency|join(', ') }}</textarea>
+            <label for="softwareProficiency">Software Proficiency (one per line)*</label>
+            <textarea id="softwareProficiency" name="softwareProficiency" rows="5" required>{% for software in instructor.softwareProficiency %}{{ software }}{% if not loop.last %}{{ '\n' }}{% endif %}{% endfor %}</textarea>
+            <small class="form-text">Enter each software on a new line</small>
         </div>
     </div>
 
     <div class="form-section">
-        <h2><i class="fas fa-briefcase"></i> 
-            {% if 'companies' in instructor %}Work Experience{% else %}Collaborations{% endif %}
-        </h2>
+        <h2><i class="fas fa-briefcase"></i> Professional Experience</h2>
         <div id="experience-container">
             {% if 'companies' in instructor %}
                 {% for company in instructor.companies %}
-                <div class="experience-item">
+                <div class="experience-item" data-index="{{ loop.index0 }}">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Company Name</label>
-                            <input type="text" name="company_{{ loop.index0 }}_name" value="{{ company.company }}">
+                            <label>Company Name*</label>
+                            <input type="text" name="company_{{ loop.index0 }}_name" value="{{ company.company }}" required>
                         </div>
                         <div class="form-group">
-                            <label>Type</label>
-                            <input type="text" name="company_{{ loop.index0 }}_type" value="{{ company.type }}">
+                            <label>Type*</label>
+                            <input type="text" name="company_{{ loop.index0 }}_type" value="{{ company.type }}" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
-                        <input type="text" name="company_{{ loop.index0 }}_role" value="{{ company.role }}">
+                        <label>Role*</label>
+                        <input type="text" name="company_{{ loop.index0 }}_role" value="{{ company.role }}" required>
                     </div>
+                    <button type="button" class="btn btn-delete btn-delete-experience">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
                 </div>
                 {% endfor %}
             {% else %}
                 {% for collab in instructor.collaborations %}
-                <div class="experience-item">
+                <div class="experience-item" data-index="{{ loop.index0 }}">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Company</label>
-                            <input type="text" name="collab_{{ loop.index0 }}_company" value="{{ collab.company }}">
+                            <label>Company*</label>
+                            <input type="text" name="collab_{{ loop.index0 }}_company" value="{{ collab.company }}" required>
                         </div>
                         <div class="form-group">
-                            <label>Type</label>
-                            <input type="text" name="collab_{{ loop.index0 }}_type" value="{{ collab.type }}">
+                            <label>Type*</label>
+                            <input type="text" name="collab_{{ loop.index0 }}_type" value="{{ collab.type }}" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
-                        <input type="text" name="collab_{{ loop.index0 }}_role" value="{{ collab.role }}">
+                        <label>Role*</label>
+                        <input type="text" name="collab_{{ loop.index0 }}_role" value="{{ collab.role }}" required>
                     </div>
+                    <button type="button" class="btn btn-delete btn-delete-experience">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
                 </div>
                 {% endfor %}
             {% endif %}
         </div>
         <button type="button" class="btn btn-add" id="add-experience">
-            <i class="fas fa-plus"></i> Add Another
+            <i class="fas fa-plus"></i> Add Experience
         </button>
     </div>
 
@@ -147,93 +163,196 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Save Changes</button>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Save Changes</button>
+    </div>
 </form>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('experience-container');
     const addBtn = document.getElementById('add-experience');
+    const isCompanies = container.innerHTML.includes('company_');
     let itemCount = container.children.length;
     
+    // Add Experience
     addBtn.addEventListener('click', function() {
-        const isCompanies = container.innerHTML.includes('company_');
         const index = itemCount++;
-        
         const newItem = document.createElement('div');
         newItem.className = 'experience-item';
-        newItem.innerHTML = `
-            <div class="form-row">
-                <div class="form-group">
-                    <label>${isCompanies ? 'Company Name' : 'Company'}</label>
-                    <input type="text" name="${isCompanies ? 'company' : 'collab'}_${index}_${isCompanies ? 'name' : 'company'}">
+        newItem.dataset.index = index;
+        
+        if (isCompanies) {
+            newItem.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company Name*</label>
+                        <input type="text" name="company_${index}_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type*</label>
+                        <input type="text" name="company_${index}_type" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Type</label>
-                    <input type="text" name="${isCompanies ? 'company' : 'collab'}_${index}_type">
+                    <label>Role*</label>
+                    <input type="text" name="company_${index}_role" required>
                 </div>
-            </div>
-            <div class="form-group">
-                <label>Role</label>
-                <input type="text" name="${isCompanies ? 'company' : 'collab'}_${index}_role">
-            </div>
-        `;
+                <button type="button" class="btn btn-delete btn-delete-experience">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            `;
+        } else {
+            newItem.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company*</label>
+                        <input type="text" name="collab_${index}_company" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type*</label>
+                        <input type="text" name="collab_${index}_type" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Role*</label>
+                    <input type="text" name="collab_${index}_role" required>
+                </div>
+                <button type="button" class="btn btn-delete btn-delete-experience">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            `;
+        }
         
         container.appendChild(newItem);
+    });
+
+    // Delete Experience
+    container.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-delete-experience')) {
+            if (confirm('Are you sure you want to delete this experience item?')) {
+                e.target.closest('.experience-item').remove();
+                // Reindex remaining items
+                const items = container.querySelectorAll('.experience-item');
+                items.forEach((item, index) => {
+                    item.dataset.index = index;
+                    const inputs = item.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        if (isCompanies) {
+                            input.name = input.name.replace(/company_\d+/, `company_${index}`);
+                        } else {
+                            input.name = input.name.replace(/collab_\d+/, `collab_${index}`);
+                        }
+                    });
+                });
+                itemCount = items.length;
+            }
+        }
     });
 });
 </script>
 
 <style>
-.form-section {
-    background: #f5f5f5;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-}
+    .form-section {
+        background: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
 
-.form-section h2 {
-    margin-top: 0;
-    font-size: 1.2rem;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+    .form-section h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-.experience-item {
-    background: #fff;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
+    .experience-item {
+        background: #fff;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        position: relative;
+    }
 
-.btn-add {
-    background-color: #f0f7ff;
-    color: #1a73e8;
-    border: 1px solid #d2e3fc;
-    padding: 8px 15px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.2s;
-}
+    .btn-add {
+        background-color: #f0f7ff;
+        color: #1a73e8;
+        border: 1px solid #d2e3fc;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
 
-.btn-add:hover {
-    background-color: #e1edfd;
-}
+    .btn-add:hover {
+        background-color: #e1edfd;
+    }
 
-textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
-}
+    .btn-delete {
+        background-color: #f5e8e8;
+        color: #d92525;
+        border: 1px solid #f5c6cb;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background-color: #f1d4d7;
+    }
+
+    .btn-delete-experience {
+        margin-top: 10px;
+    }
+
+    .btn-save {
+        background-color: #e6f7ee;
+        color: #10b759;
+        border: 1px solid #c6f6d5;
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    .btn-save:hover {
+        background-color: #d4f1e1;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+    }
+
+    .photo-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .current-photo {
+        max-width: 100px;
+        max-height: 100px;
+        border-radius: 5px;
+    }
 </style>
 {% endblock %}

@@ -1,42 +1,55 @@
-
 {% extends "admin/base.html" %}
 
 {% block content %}
 <div class="admin-header">
     <h1><i class="fas fa-edit"></i> Edit Course: {{ course.title }}</h1>
-    <a href="{{ url_for('admin_courses') }}" class="btn btn-admin"><i class="fas fa-arrow-left"></i> Back to Courses</a>
+    <div>
+        <a href="{{ url_for('admin_courses') }}" class="btn btn-admin"><i class="fas fa-arrow-left"></i> Back to Courses</a>
+        <form method="POST" action="{{ url_for('admin_delete_course', course_id=course._id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.')">
+                <i class="fas fa-trash-alt"></i> Delete Course
+            </button>
+        </form>
+    </div>
 </div>
 
 <form method="POST" class="admin-form">
     <div class="form-group">
-        <label for="title">Course Title</label>
-        <input type="text" id="title" name="title" value="{{ course.title }}">
+        <label for="title">Course Title*</label>
+        <input type="text" id="title" name="title" value="{{ course.title }}" required>
     </div>
     
     <div class="form-row">
         <div class="form-group">
-            <label for="start_date">Start Date</label>
-            <input type="date" id="start_date" name="start_date" value="{{ course.start_date }}">
+            <label for="start_date">Start Date*</label>
+            <input type="date" id="start_date" name="start_date" value="{{ course.start_date }}" required>
         </div>
         <div class="form-group">
-            <label for="duration">Duration</label>
-            <input type="text" id="duration" name="duration" value="{{ course.duration }}">
+            <label for="duration">Duration*</label>
+            <input type="text" id="duration" name="duration" value="{{ course.duration }}" required>
         </div>
     </div>
     
     <div class="form-group">
-        <label for="schedule">Schedule</label>
-        <input type="text" id="schedule" name="schedule" value="{{ course.schedule }}">
+        <label for="schedule">Schedule*</label>
+        <input type="text" id="schedule" name="schedule" value="{{ course.schedule }}" required>
     </div>
     
     <div class="form-row">
         <div class="form-group">
-            <label for="instructor">Instructor</label>
-            <input type="text" id="instructor" name="instructor" value="{{ course.instructor }}">
+            <label for="instructor">Instructor*</label>
+            <select id="instructor" name="instructor" required>
+                {% for inst in instructors %}
+                <option value="{{ inst.firstName }} {{ inst.lastName }}" 
+                    {{ 'selected' if course.instructor == inst.firstName + ' ' + inst.lastName }}>
+                    {{ inst.firstName }} {{ inst.lastName }} ({{ inst.specialization }})
+                </option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
-            <label for="capacity">Capacity</label>
-            <input type="number" id="capacity" name="capacity" value="{{ course.capacity }}">
+            <label for="capacity">Capacity*</label>
+            <input type="number" id="capacity" name="capacity" value="{{ course.capacity }}" required min="1">
         </div>
     </div>
     
@@ -56,34 +69,60 @@
         <label for="is_active">Active Course</label>
     </div>
     
-    <h3>Chapters</h3>
+    <div class="form-header">
+        <h3>Chapters</h3>
+        <button type="button" id="add-chapter" class="btn btn-add">
+            <i class="fas fa-plus"></i> Add Chapter
+        </button>
+    </div>
+    
     <div id="chapters-container">
         {% for chapter in course.chapters %}
         <div class="chapter-section" data-chapter-index="{{ loop.index0 }}">
+            <div class="chapter-header">
+                <h4>Chapter {{ loop.index }}</h4>
+                <button type="button" class="btn btn-delete btn-delete-chapter">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+            
             <div class="form-group">
-                <label>Chapter Title</label>
-                <input type="text" name="chapter_{{ loop.index0 }}_title" value="{{ chapter.title }}">
+                <label>Chapter Title*</label>
+                <input type="text" name="chapter_{{ loop.index0 }}_title" value="{{ chapter.title }}" required>
             </div>
 
             <div class="form-group">
-                <label>Content (one per line)</label>
-                <textarea name="chapter_{{ loop.index0 }}_content">{{ chapter.content|join('\n') }}</textarea>
+                <label>Content (one per line)*</label>
+                <textarea name="chapter_{{ loop.index0 }}_content" required>{{ chapter.content|join('\n') }}</textarea>
             </div>
 
             {% if chapter.sections %}
-            <h4>Sections</h4>
+            <div class="form-header">
+                <h4>Sections</h4>
+                <button type="button" class="btn btn-add btn-add-section" data-chapter-index="{{ loop.index0 }}">
+                    <i class="fas fa-plus"></i> Add Section
+                </button>
+            </div>
+            
             <div class="sections-container">
                 {% for section in chapter.sections %}
                 <div class="section-item" data-section-index="{{ loop.index0 }}">
+                    <div class="section-header">
+                        <h5>Section {{ loop.index }}</h5>
+                        <button type="button" class="btn btn-delete btn-delete-section">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                    
                     <div class="form-group">
                         <label>Section Title</label>
-                        <input type="text" name="chapter_{{ loop.index0 }}_section_{{ loop.index0 }}_title"
+                        <input type="text" name="chapter_{{ loop.parentloop.index0 }}_section_{{ loop.index0 }}_title"
                             value="{{ section.section_title }}">
                     </div>
 
                     <div class="form-group">
                         <label>Lessons (one per line, format)</label>
-                        <textarea name="chapter_{{ loop.index0 }}_section_{{ loop.index0 }}_lessons">
+                        <textarea name="chapter_{{ loop.parentloop.index0 }}_section_{{ loop.index0 }}_lessons">
                             {% if section.lessons %}
                                 {% for lesson in section.lessons[0] %}
 {{ lesson }}: {{ section.lessons[0][lesson] }}
@@ -95,14 +134,142 @@
                 {% endfor %}
             </div>
             {% endif %}
-
-            <hr>
         </div>
         {% endfor %}
     </div>
 
-    <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Save Changes</button>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Save Changes</button>
+    </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Chapter
+    document.getElementById('add-chapter').addEventListener('click', function() {
+        const container = document.getElementById('chapters-container');
+        const chapterIndex = container.children.length;
+        
+        const newChapter = document.createElement('div');
+        newChapter.className = 'chapter-section';
+        newChapter.dataset.chapterIndex = chapterIndex;
+        newChapter.innerHTML = `
+            <div class="chapter-header">
+                <h4>New Chapter</h4>
+                <button type="button" class="btn btn-delete btn-delete-chapter">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>Chapter Title*</label>
+                <input type="text" name="chapter_${chapterIndex}_title" required>
+            </div>
+
+            <div class="form-group">
+                <label>Content (one per line)*</label>
+                <textarea name="chapter_${chapterIndex}_content" required></textarea>
+            </div>
+        `;
+        
+        container.appendChild(newChapter);
+    });
+
+    // Delete Chapter
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete-chapter')) {
+            const chapterSection = e.target.closest('.chapter-section');
+            if (confirm('Are you sure you want to delete this chapter and all its sections?')) {
+                chapterSection.remove();
+                // Reindex remaining chapters
+                const chapters = document.querySelectorAll('.chapter-section');
+                chapters.forEach((chapter, index) => {
+                    chapter.dataset.chapterIndex = index;
+                    const inputs = chapter.querySelectorAll('[name^="chapter_"]');
+                    inputs.forEach(input => {
+                        input.name = input.name.replace(/chapter_\d+/, `chapter_${index}`);
+                    });
+                });
+            }
+        }
+    });
+
+    // Add Section
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-add-section')) {
+            const chapterIndex = e.target.closest('.btn-add-section').dataset.chapterIndex;
+            const chapterSection = e.target.closest('.chapter-section');
+            let sectionsContainer = chapterSection.querySelector('.sections-container');
+            
+            if (!sectionsContainer) {
+                sectionsContainer = document.createElement('div');
+                sectionsContainer.className = 'sections-container';
+                chapterSection.appendChild(sectionsContainer);
+                
+                // Remove the add section button from its current position
+                const addButton = chapterSection.querySelector('.btn-add-section');
+                if (addButton) addButton.remove();
+                
+                // Create a new header with the add button
+                const header = document.createElement('div');
+                header.className = 'form-header';
+                header.innerHTML = `
+                    <h4>Sections</h4>
+                    <button type="button" class="btn btn-add btn-add-section" data-chapter-index="${chapterIndex}">
+                        <i class="fas fa-plus"></i> Add Section
+                    </button>
+                `;
+                chapterSection.insertBefore(header, sectionsContainer);
+            }
+            
+            const sectionIndex = sectionsContainer.children.length;
+            const newSection = document.createElement('div');
+            newSection.className = 'section-item';
+            newSection.dataset.sectionIndex = sectionIndex;
+            newSection.innerHTML = `
+                <div class="section-header">
+                    <h5>New Section</h5>
+                    <button type="button" class="btn btn-delete btn-delete-section">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Section Title</label>
+                    <input type="text" name="chapter_${chapterIndex}_section_${sectionIndex}_title">
+                </div>
+
+                <div class="form-group">
+                    <label>Lessons (one per line, format)</label>
+                    <textarea name="chapter_${chapterIndex}_section_${sectionIndex}_lessons"></textarea>
+                </div>
+            `;
+            
+            sectionsContainer.appendChild(newSection);
+        }
+    });
+
+    // Delete Section
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-delete-section')) {
+            const sectionItem = e.target.closest('.section-item');
+            if (confirm('Are you sure you want to delete this section?')) {
+                sectionItem.remove();
+                // Reindex remaining sections in this chapter
+                const chapterSection = sectionItem.closest('.chapter-section');
+                const sections = chapterSection.querySelectorAll('.section-item');
+                sections.forEach((section, index) => {
+                    section.dataset.sectionIndex = index;
+                    const inputs = section.querySelectorAll('[name^="chapter_"]');
+                    inputs.forEach(input => {
+                        input.name = input.name.replace(/section_\d+/, `section_${index}`);
+                    });
+                });
+            }
+        }
+    });
+});
+</script>
 
 <style>
     .chapter-section,
@@ -111,6 +278,21 @@
         padding: 15px;
         margin-bottom: 20px;
         border-radius: 5px;
+        position: relative;
+    }
+
+    .chapter-header, .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0 10px;
     }
 
     .sections-container {
@@ -120,6 +302,55 @@
     textarea {
         min-height: 100px;
         white-space: pre;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-add {
+        background-color: #f0f7ff;
+        color: #1a73e8;
+        border: 1px solid #d2e3fc;
+    }
+
+    .btn-add:hover {
+        background-color: #e1edfd;
+    }
+
+    .btn-delete {
+        background-color: #f5e8e8;
+        color: #d92525;
+        border: 1px solid #f5c6cb;
+    }
+
+    .btn-delete:hover {
+        background-color: #f1d4d7;
+    }
+
+    .btn-save {
+        background-color: #e6f7ee;
+        color: #10b759;
+        border: 1px solid #c6f6d5;
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    .btn-save:hover {
+        background-color: #d4f1e1;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        text-align: right;
     }
 </style>
 {% endblock %}

@@ -3,7 +3,12 @@
 {% block content %}
 <div class="admin-header">
     <h1><i class="fas fa-chalkboard-teacher"></i> Instructor Management</h1>
-    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-admin"><i class="fas fa-home"></i> Dashboard</a>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-admin"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{{ url_for('admin_add_instructor') }}" class="btn btn-add">
+            <i class="fas fa-plus"></i> Add Instructor
+        </a>
+    </div>
 </div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -69,6 +74,11 @@
             <a href="{{ url_for('admin_edit_instructor', instructor_id=instructor._id) }}" class="btn btn-edit">
                 <i class="fas fa-edit"></i> Edit Instructor
             </a>
+            <form method="POST" action="{{ url_for('admin_delete_instructor', instructor_id=instructor._id) }}" class="delete-form">
+                <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this instructor?')">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </form>
         </div>
     </div>
     {% endfor %}
@@ -155,9 +165,20 @@
     .instructor-actions {
         display: flex;
         justify-content: center;
+        gap: 10px;
         margin-top: auto;
         padding-top: 15px;
         border-top: 1px solid #eee;
+    }
+
+    .btn-add {
+        background-color: #e6f7ee;
+        color: #10b759;
+        border: 1px solid #c6f6d5;
+    }
+
+    .btn-add:hover {
+        background-color: #d4f1e1;
     }
 
     .btn-edit {
@@ -176,6 +197,28 @@
 
     .btn-edit:hover {
         background-color: #e1edfd;
+    }
+
+    .btn-delete {
+        background-color: #f5e8e8;
+        color: #d92525;
+        border: 1px solid #f5c6cb;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background-color: #f1d4d7;
+    }
+
+    .delete-form {
+        display: inline;
     }
 </style>
 {% endblock %}

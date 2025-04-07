@@ -64,6 +64,49 @@ def home():
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
 
 
+@app.route('/admin/courses/delete/<course_id>', methods=['POST'])
+@admin_required
+def admin_delete_course(course_id):
+    try:
+        # Check if there are any students registered for this course
+        student_count = registrations.count_documents({"course_id": course_id})
+        if student_count > 0:
+            flash('Cannot delete course with registered students', 'error')
+            return redirect(url_for('admin_courses'))
+
+        result = courses_collection.delete_one({"_id": course_id})
+        if result.deleted_count == 1:
+            flash('Course deleted successfully', 'success')
+        else:
+            flash('Course not found', 'error')
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_courses'))
+
+@app.route('/admin/instructors/delete/<instructor_id>', methods=['POST'])
+@admin_required
+def admin_delete_instructor(instructor_id):
+    try:
+        # Check if this instructor is assigned to any courses
+        course_count = courses_collection.count_documents({
+            "instructor": {"$regex": instructor_id.split('_')[0], "$options": "i"}
+        })
+        
+        if course_count > 0:
+            flash('Cannot delete instructor assigned to courses', 'error')
+            return redirect(url_for('admin_instructors'))
+
+        result = instructors_collection.delete_one({"_id": instructor_id})
+        if result.deleted_count == 1:
+            flash('Instructor deleted successfully', 'success')
+        else:
+            flash('Instructor not found', 'error')
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_instructors'))
+
 # Course route
 @app.route('/course/<course_id>')
 def course_details(course_id):
@@ -288,6 +331,19 @@ def admin_edit_instructor(instructor_id):
 
     if request.method == 'POST':
         try:
+            companies = []
+            i = 0
+            while f'company_{i}_name' in request.form:
+                company = {
+                    'company': request.form.get(f'company_{i}_name'),
+                    'type': request.form.get(f'company_{i}_type'),
+                    'role': request.form.get(f'company_{i}_role')
+                }
+                companies.append(company)
+                i += 1
+
+            # Save to instructor object
+            instructor['companies'] = companies
             # Basic info
             updates = {
                 "firstName": request.form.get("firstName"),
@@ -305,9 +361,11 @@ def admin_edit_instructor(instructor_id):
                     "phone": request.form.get("contact_phone"),
                     "linkedin": request.form.get("contact_linkedin"),
                     "web": request.form.get("contact_web")
-                }
+                },
+                'companies': companies,
             }
-
+            print("____________")
+            print(updates["photo"])
             # Process skills
             skills = request.form.get("skills", "")
             updates["skills"] = [skill.strip() for skill in skills.split(",") if skill.strip()]
@@ -315,34 +373,6 @@ def admin_edit_instructor(instructor_id):
             # Process software
             software = request.form.get("softwareProficiency", "")
             updates["softwareProficiency"] = [s.strip() for s in software.split(",") if s.strip()]
-
-            # Process collaborations/companies
-            if "machine_learning" in instructor_id:
-                companies = []
-                i = 0
-                while f"company_{i}_name" in request.form:
-                    company_name = request.form.get(f"company_{i}_name")
-                    if company_name:
-                        companies.append({
-                            "company": company_name,
-                            "type": request.form.get(f"company_{i}_type", ""),
-                            "role": request.form.get(f"company_{i}_role", "")
-                        })
-                    i += 1
-                updates["companies"] = companies
-            else:
-                collaborations = []
-                i = 0
-                while f"collab_{i}_company" in request.form:
-                    company = request.form.get(f"collab_{i}_company")
-                    if company:
-                        collaborations.append({
-                            "company": company,
-                            "type": request.form.get(f"collab_{i}_type", ""),
-                            "role": request.form.get(f"collab_{i}_role", "")
-                        })
-                    i += 1
-                updates["collaborations"] = collaborations
 
             # Update the instructor
             instructors_collection.update_one(
@@ -433,6 +463,143 @@ def admin_update_student(student_id):
         flash('Status updated but failed to send notification', 'warning')
     
     return redirect(url_for('admin_students'))
+
+@app.route('/admin/courses/add', methods=['GET', 'POST'])
+@admin_required
+def admin_add_course():
+    if request.method == 'POST':
+        try:
+            # Validate required fields
+            required_fields = ['course_id', 'title', 'duration', 'start_date', 'schedule', 
+                             'instructor', 'capacity', 'monthly_payment', 'total_payment']
+            for field in required_fields:
+                if not request.form.get(field):
+                    flash(f'{field.replace("_", " ").capitalize()} is required', 'error')
+                    return redirect(url_for('admin_add_course'))
+
+            # Process chapters
+            chapters = []
+            chapter_index = 0
+            while True:
+                chapter_title = request.form.get(f'chapter_{chapter_index}_title')
+                if not chapter_title:
+                    break
+                
+                chapter_content = request.form.get(f'chapter_{chapter_index}_content', '')
+                lessons = [line.strip() for line in chapter_content.split('\n') if line.strip()]
+                
+                chapters.append({
+                    'title': chapter_title,
+                    'content': lessons
+                })
+                chapter_index += 1
+
+            if not chapters:
+                flash('At least one chapter is required', 'error')
+                return redirect(url_for('admin_add_course'))
+
+            new_course = {
+                '_id': request.form['course_id'].lower().replace(' ', '_'),
+                'title': request.form['title'],
+                'duration': request.form['duration'],
+                'start_date': request.form['start_date'],
+                'schedule': request.form['schedule'],
+                'instructor': request.form['instructor'],
+                'capacity': int(request.form['capacity']),
+                'monthly_payment': int(request.form['monthly_payment']),
+                'total_payment': int(request.form['total_payment']),
+                'is_active': request.form.get('is_active') == 'on',
+                'chapters': chapters
+            }
+
+            # Check if course ID already exists
+            if courses_collection.find_one({'_id': new_course['_id']}):
+                flash('Course ID already exists', 'error')
+                return redirect(url_for('admin_add_course'))
+
+            # Insert the new course
+            courses_collection.insert_one(new_course)
+            flash('Course added successfully', 'success')
+            return redirect(url_for('admin_courses'))
+            
+        except ValueError as e:
+            flash(f'Invalid number input: {str(e)}', 'error')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+            return redirect(url_for('admin_add_course'))
+    
+    instructors = list(instructors_collection.find())
+    return render_template('admin/add_course.html', instructors=instructors)
+
+@app.route('/admin/instructors/add', methods=['GET', 'POST'])
+@admin_required
+def admin_add_instructor():
+    if request.method == 'POST':
+        try:
+            # Validate required fields
+            required_fields = ['firstName', 'lastName', 'profession', 'specialization', 
+                             'workExperience', 'education_institution', 'education_degree',
+                             'education_fieldOfStudy', 'contact_phone']
+            
+            for field in required_fields:
+                if not request.form.get(field):
+                    flash(f'{" ".join(field.split("_")).capitalize()} is required', 'error')
+                    return redirect(url_for('admin_add_instructor'))
+
+           # First, extract companies dynamically
+            companies = []
+            i = 0
+            while True:
+                name = request.form.get(f'company_{i}_name')
+                company_type = request.form.get(f'company_{i}_type')
+                role = request.form.get(f'company_{i}_role')
+                
+                # Break the loop if name is not provided (assuming name is required)
+                if not name:
+                    break
+
+                companies.append({
+                    'company': name,
+                    'type': company_type,
+                    'role': role
+                })
+                i += 1
+            # Now construct the instructor object
+            new_instructor = {
+                '_id': f"{request.form.get('specialization').lower().replace(' ', '_')}_instructor",
+                'photo': request.form.get('photo', 'default_instructor.jpg'),
+                'firstName': request.form.get('firstName'),
+                'lastName': request.form.get('lastName'),
+                'education': {
+                    'institution': request.form.get('education_institution'),
+                    'degree': request.form.get('education_degree'),
+                    'fieldOfStudy': request.form.get('education_fieldOfStudy')
+                },
+                'profession': request.form.get('profession'),
+                'specialization': request.form.get('specialization'),
+                'workExperience': int(request.form.get('workExperience')),
+                'companies': companies,
+                'contacts': {
+                    'phone': request.form.get('contact_phone'),
+                    'linkedin': request.form.get('contact_linkedin', ''),
+                    'web': request.form.get('contact_web', '')
+                },
+                'skills': [skill.strip() for skill in request.form.get('skills', '').split(',') if skill.strip()],
+                'softwareProficiency': [software.strip() for software in request.form.get('softwareProficiency', '').split(',') if software.strip()]
+            }
+
+            # Insert the new instructor
+            instructors_collection.insert_one(new_instructor)
+            flash('Instructor added successfully', 'success')
+            return redirect(url_for('admin_instructors'))
+            
+        except ValueError as e:
+            flash(f'Invalid number input: {str(e)}', 'error')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+    
+    return render_template('admin/add_instructor.html')
+
 
 def send_status_email(to_email, student_name, course_name, new_status):
     subject = f"Your registration status for {course_name} has been updated"
