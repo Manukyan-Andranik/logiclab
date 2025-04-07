@@ -1,11 +1,10 @@
 import os
-import json
 from bson import ObjectId
 from datetime import datetime
+from pymongo import MongoClient
 from urllib.parse import quote_plus
 from flask_mail import Mail, Message
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
-from pymongo import MongoClient
 
 from utils import get_ids, find_by_id, load_env
 app = Flask(__name__)
@@ -30,6 +29,7 @@ escaped_password = quote_plus(PASSWORD)
 URI = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 app.config['MONGO_URI'] = URI
 
+# Methods
 def get_db():
     """Get MongoDB database connection"""
     client = MongoClient(current_app.config['MONGO_URI'])
@@ -45,6 +45,41 @@ def get_collections():
         db.admins,
         db.instructors
     )
+
+def send_status_email(to_email, student_name, course_name, new_status):
+    try:
+        subject = f"Your registration status for {course_name} has been updated"
+        
+        status_messages = {
+            'pending': "Your registration is being reviewed.",
+            'confirmed': "Your registration has been confirmed! Welcome to the course.",
+            'rejected': "We're sorry, but your registration could not be accepted at this time.",
+            'completed': "Congratulations on completing the course! Well done!"
+        }
+        
+        body = f"""
+        Dear {student_name},
+        
+        Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
+        
+        {status_messages.get(new_status, '')}
+        
+        If you have any questions, please don't hesitate to contact us.
+        
+        Best regards,
+        LogicLab Team
+        """
+        
+        msg = Message(
+            subject=subject,
+            recipients=[to_email],
+            body=body
+        )
+        mail.send(msg)
+        return True
+    except Exception as e:
+        app.logger.error(f"Failed to send status email: {str(e)}")
+        return False
 
 # Admin authentication decorator
 def admin_required(f):
@@ -66,6 +101,7 @@ def admin_required(f):
     wrapper.__name__ = f.__name__
     return wrapper
 
+# APP ROUTES
 @app.route('/')
 def home():
     courses_collection, _, _, instructors_collection = get_collections()
@@ -82,6 +118,12 @@ def home():
         all_courses[id] = find_by_id(courses, id)
 
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
+
+# Admin routes
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    return redirect(url_for('admin_courses'))
 
 @app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
@@ -102,8 +144,6 @@ def admin_delete_course(course_id):
         flash(f'An error occurred: {str(e)}', 'error')
     
     return redirect(url_for('admin_courses'))
-
-
 
 @app.route('/admin/instructors/delete/<instructor_id>', methods=['POST'])
 @admin_required
@@ -128,52 +168,6 @@ def admin_delete_instructor(instructor_id):
     
     return redirect(url_for('admin_instructors'))
 
-# Course route
-@app.route('/course/<course_id>')
-def course_details(course_id):
-    courses_collection, _, _, _ = get_collections()
-    course = courses_collection.find_one({"_id": course_id})
-    if not course:
-        return redirect(url_for('home'))
-    return render_template('course.html', course=course, course_id=course_id)
-
-
-@app.route('/register/<course_id>', methods=['GET', 'POST'])
-def register(course_id):
-    courses_collection, registrations, _, _ = get_collections()
-    course = courses_collection.find_one({"_id": course_id})
-    if not course:
-        return redirect(url_for('home'))
-    
-    if request.method == 'POST':
-        full_name = request.form['full_name']
-        email = request.form['email']
-        phone = request.form['phone']
-        
-        if not all([full_name, email, phone]):
-            flash('Please fill all fields', 'error')
-            return redirect(url_for('register', course_id=course_id))
-        
-        if registrations.find_one({'email': email, 'course_id': course_id}):
-            flash('This email is already registered for the course', 'error')
-            return redirect(url_for('register', course_id=course_id))
-        
-        registrations.insert_one({
-            'full_name': full_name,
-            'email': email,
-            'phone': phone,
-            'course_id': course_id,
-            'course_title': course['title'],
-            'registration_date': datetime.now(),
-            'status': 'pending'
-        })
-        
-        flash('Registration successful! We will contact you soon.', 'success')
-        return redirect(url_for('course_details', course_id=course_id))
-    
-    return render_template('register.html', course=course, course_id=course_id)
-
-# Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     _, _, admins, _ = get_collections()
@@ -192,18 +186,12 @@ def admin_logout():
     session.clear()
     return redirect(url_for('admin_login'))
 
-@app.route('/admin')
-@admin_required
-def admin_dashboard():
-    return redirect(url_for('admin_courses'))
-
 @app.route('/admin/courses')
 @admin_required
 def admin_courses():
     courses_collection, _, _, instructors_collection = get_collections()
     all_courses = list(courses_collection.find())
     return render_template('admin/courses.html', courses=all_courses)
-
 
 @app.route('/admin/courses/edit/<course_id>', methods=['GET', 'POST'])
 @admin_required
@@ -286,6 +274,7 @@ def admin_edit_course(course_id):
     except Exception as e:
         flash(f'An error occurred: {str(e)}', 'error')
         return redirect(url_for('admin_courses'))
+    
 @app.route('/admin/students')
 @admin_required
 def admin_students():
@@ -299,7 +288,6 @@ def admin_students():
     all_courses = list(courses_collection.find())
     return render_template('admin/students.html', students=all_students, courses=all_courses)
 
-
 @app.route('/admin/student/<student_id>/delete', methods=['POST'])
 @admin_required
 def admin_delete_student(student_id):
@@ -312,7 +300,6 @@ def admin_delete_student(student_id):
     registrations.delete_one({"_id": ObjectId(student_id)})
     flash('Student registration deleted successfully', 'success')
     return redirect(url_for('admin_students'))
-
 
 @app.route('/admin/instructors')
 @admin_required
@@ -389,43 +376,6 @@ def admin_edit_instructor(instructor_id):
 
     return render_template('admin/edit_instructor.html', instructor=instructor)
 
-# Update the send_status_email function to be more robust
-def send_status_email(to_email, student_name, course_name, new_status):
-    try:
-        subject = f"Your registration status for {course_name} has been updated"
-        
-        status_messages = {
-            'pending': "Your registration is being reviewed.",
-            'confirmed': "Your registration has been confirmed! Welcome to the course.",
-            'rejected': "We're sorry, but your registration could not be accepted at this time.",
-            'completed': "Congratulations on completing the course! Well done!"
-        }
-        
-        body = f"""
-        Dear {student_name},
-        
-        Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
-        
-        {status_messages.get(new_status, '')}
-        
-        If you have any questions, please don't hesitate to contact us.
-        
-        Best regards,
-        LogicLab Team
-        """
-        
-        msg = Message(
-            subject=subject,
-            recipients=[to_email],
-            body=body
-        )
-        mail.send(msg)
-        return True
-    except Exception as e:
-        app.logger.error(f"Failed to send status email: {str(e)}")
-        return False
-
-# Update the admin_update_student route
 @app.route('/admin/student/<student_id>/update', methods=['POST'])
 @admin_required
 def admin_update_student(student_id):
@@ -606,36 +556,49 @@ def admin_add_instructor():
     
     return render_template('admin/add_instructor.html')
 
+# Course route
+@app.route('/course/<course_id>')
+def course_details(course_id):
+    courses_collection, _, _, _ = get_collections()
+    course = courses_collection.find_one({"_id": course_id})
+    if not course:
+        return redirect(url_for('home'))
+    return render_template('course.html', course=course, course_id=course_id)
 
-# def send_status_email(to_email, student_name, course_name, new_status):
-#     subject = f"Your registration status for {course_name} has been updated"
+@app.route('/register/<course_id>', methods=['GET', 'POST'])
+def register(course_id):
+    courses_collection, registrations, _, _ = get_collections()
+    course = courses_collection.find_one({"_id": course_id})
+    if not course:
+        return redirect(url_for('home'))
     
-#     status_messages = {
-#         'pending': "Your registration is being reviewed.",
-#         'confirmed': "Your registration has been confirmed! Welcome to the course.",
-#         'rejected': "We're sorry, but your registration could not be accepted at this time.",
-#         'completed': "Congratulations on completing the course! Well done!"
-#     }
+    if request.method == 'POST':
+        full_name = request.form['full_name']
+        email = request.form['email']
+        phone = request.form['phone']
+        
+        if not all([full_name, email, phone]):
+            flash('Please fill all fields', 'error')
+            return redirect(url_for('register', course_id=course_id))
+        
+        if registrations.find_one({'email': email, 'course_id': course_id}):
+            flash('This email is already registered for the course', 'error')
+            return redirect(url_for('register', course_id=course_id))
+        
+        registrations.insert_one({
+            'full_name': full_name,
+            'email': email,
+            'phone': phone,
+            'course_id': course_id,
+            'course_title': course['title'],
+            'registration_date': datetime.now(),
+            'status': 'pending'
+        })
+        
+        flash('Registration successful! We will contact you soon.', 'success')
+        return redirect(url_for('course_details', course_id=course_id))
     
-#     body = f"""
-#     Dear {student_name},
-    
-#     Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
-    
-#     {status_messages.get(new_status, '')}
-    
-#     If you have any questions, please don't hesitate to contact us.
-    
-#     Best regards,
-#     LogicLab Team
-#     """
-    
-#     msg = Message(
-#         subject=subject,
-#         recipients=[to_email],
-#         body=body
-#     )
-#     mail.send(msg)
+    return render_template('register.html', course=course, course_id=course_id)
 
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
@@ -701,20 +664,6 @@ def contact():
             flash('Failed to send your message. Please try again later.', 'error')
         
         return redirect(url_for('home') + '#contact')
-
-@app.route('/test-email')
-def test_email():
-    try:
-        msg = Message(
-            subject="Test Email from Flask",
-            recipients=["recipient@example.com"],
-            body="This is a test email from your Flask app."
-        )
-        mail.send(msg)
-        return "Email sent successfully!"
-    except Exception as e:
-        return f"Failed to send email: {str(e)}"
-
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001, debug=True)
