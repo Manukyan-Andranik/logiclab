@@ -501,6 +501,7 @@ def admin_add_course():
             new_course = {
                 '_id': request.form['course_id'].lower().replace(' ', '_'),
                 'title': request.form['title'],
+                'portfolio': request.form['portfolio'],
                 'duration': request.form['duration'],
                 'start_date': request.form['start_date'],
                 'schedule': request.form['schedule'],

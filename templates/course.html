@@ -25,6 +25,9 @@
             <div class="course-header-content">
                 <div class="course-header-text">
                     <h1>{{ course.title }}</h1>
+                    <a href="{{ course.portfolio }}" target="_blank" class="portfolio-link">Portfolio</a>
+
+
                 </div>
                 <div class="course-header-image">
                     <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}" alt="{{ course.title }}">
