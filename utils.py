@@ -55,7 +55,9 @@ def find_by_id(data_list, target_id):
     """
     return next((item for item in data_list if item.get("_id") == target_id), None)
 
-
+def get_ids(data_list):
+    res = [item.get("_id") for item in data_list]
+    return res
 
 def update_course_document(course_data, mongo_uri, db_name, collection_name):
     """

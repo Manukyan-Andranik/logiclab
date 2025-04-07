@@ -1,0 +1,239 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="admin-header">
+    <h1><i class="fas fa-edit"></i> Edit Instructor: {{ instructor.firstName }} {{ instructor.lastName }}</h1>
+    <a href="{{ url_for('admin_instructors') }}" class="btn btn-admin"><i class="fas fa-arrow-left"></i> Back to Instructors</a>
+</div>
+
+<form method="POST" class="admin-form">
+    <div class="form-section">
+        <h2><i class="fas fa-user"></i> Basic Information</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="firstName">First Name*</label>
+                <input type="text" id="firstName" name="firstName" value="{{ instructor.firstName }}" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name*</label>
+                <input type="text" id="lastName" name="lastName" value="{{ instructor.lastName }}" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="profession">Profession*</label>
+                <input type="text" id="profession" name="profession" value="{{ instructor.profession }}" required>
+            </div>
+            <div class="form-group">
+                <label for="specialization">Specialization*</label>
+                <input type="text" id="specialization" name="specialization" value="{{ instructor.specialization }}" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="workExperience">Work Experience (years)*</label>
+                <input type="number" id="workExperience" name="workExperience" value="{{ instructor.workExperience }}" required>
+            </div>
+            <div class="form-group">
+                <label for="photo">Photo Filename</label>
+                <input type="text" id="photo" name="photo" value="{{ instructor.photo }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="education_institution">Institution*</label>
+                <input type="text" id="education_institution" name="education_institution" 
+                       value="{{ instructor.education.institution }}" required>
+            </div>
+            <div class="form-group">
+                <label for="education_degree">Degree*</label>
+                <input type="text" id="education_degree" name="education_degree" 
+                       value="{{ instructor.education.degree }}" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="education_fieldOfStudy">Field of Study*</label>
+            <input type="text" id="education_fieldOfStudy" name="education_fieldOfStudy" 
+                   value="{{ instructor.education.fieldOfStudy }}" required>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-code"></i> Skills & Software</h2>
+        <div class="form-group">
+            <label for="skills">Skills (comma separated)</label>
+            <textarea id="skills" name="skills">{{ instructor.skills|join(', ') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="softwareProficiency">Software Proficiency (comma separated)</label>
+            <textarea id="softwareProficiency" name="softwareProficiency">{{ instructor.softwareProficiency|join(', ') }}</textarea>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-briefcase"></i> 
+            {% if 'companies' in instructor %}Work Experience{% else %}Collaborations{% endif %}
+        </h2>
+        <div id="experience-container">
+            {% if 'companies' in instructor %}
+                {% for company in instructor.companies %}
+                <div class="experience-item">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" name="company_{{ loop.index0 }}_name" value="{{ company.company }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <input type="text" name="company_{{ loop.index0 }}_type" value="{{ company.type }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" name="company_{{ loop.index0 }}_role" value="{{ company.role }}">
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                {% for collab in instructor.collaborations %}
+                <div class="experience-item">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Company</label>
+                            <input type="text" name="collab_{{ loop.index0 }}_company" value="{{ collab.company }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <input type="text" name="collab_{{ loop.index0 }}_type" value="{{ collab.type }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" name="collab_{{ loop.index0 }}_role" value="{{ collab.role }}">
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <button type="button" class="btn btn-add" id="add-experience">
+            <i class="fas fa-plus"></i> Add Another
+        </button>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-address-book"></i> Contact Information</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="contact_phone">Phone*</label>
+                <input type="text" id="contact_phone" name="contact_phone" 
+                       value="{{ instructor.contacts.phone }}" required>
+            </div>
+            <div class="form-group">
+                <label for="contact_linkedin">LinkedIn URL</label>
+                <input type="url" id="contact_linkedin" name="contact_linkedin" 
+                       value="{{ instructor.contacts.linkedin }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="contact_web">Website URL</label>
+            <input type="url" id="contact_web" name="contact_web" 
+                   value="{{ instructor.contacts.web }}">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Save Changes</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('experience-container');
+    const addBtn = document.getElementById('add-experience');
+    let itemCount = container.children.length;
+    
+    addBtn.addEventListener('click', function() {
+        const isCompanies = container.innerHTML.includes('company_');
+        const index = itemCount++;
+        
+        const newItem = document.createElement('div');
+        newItem.className = 'experience-item';
+        newItem.innerHTML = `
+            <div class="form-row">
+                <div class="form-group">
+                    <label>${isCompanies ? 'Company Name' : 'Company'}</label>
+                    <input type="text" name="${isCompanies ? 'company' : 'collab'}_${index}_${isCompanies ? 'name' : 'company'}">
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <input type="text" name="${isCompanies ? 'company' : 'collab'}_${index}_type">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <input type="text" name="${isCompanies ? 'company' : 'collab'}_${index}_role">
+            </div>
+        `;
+        
+        container.appendChild(newItem);
+    });
+});
+</script>
+
+<style>
+.form-section {
+    background: #f5f5f5;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.form-section h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.experience-item {
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.btn-add {
+    background-color: #f0f7ff;
+    color: #1a73e8;
+    border: 1px solid #d2e3fc;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-add:hover {
+    background-color: #e1edfd;
+}
+
+textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+</style>
+{% endblock %}
