@@ -4,12 +4,14 @@ from bson import ObjectId
 from datetime import datetime
 from urllib.parse import quote_plus
 from flask_mail import Mail, Message
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
+from pymongo import MongoClient
 
-from utils import setup_db, load_env, find_by_id, get_ids
-
+from utils import get_ids, find_by_id, load_env
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# Load environment variables
 MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER = load_env()
 app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
@@ -19,14 +21,30 @@ app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 
 mail = Mail(app)
+
+# MongoDB configuration
 USER_NAME = os.getenv('MONGO_USERNAME')
 PASSWORD = os.getenv('MONGO_PASSWORD')
 escaped_username = quote_plus(USER_NAME)
 escaped_password = quote_plus(PASSWORD)
-URI = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?appName=Cluster0"
+URI = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+app.config['MONGO_URI'] = URI
 
-# Initialize data if empty
-courses_collection, registrations, admins, instructors_collection = setup_db(URI)
+def get_db():
+    """Get MongoDB database connection"""
+    client = MongoClient(current_app.config['MONGO_URI'])
+    db = client.education_platform
+    return db
+
+def get_collections():
+    """Get all required collections"""
+    db = get_db()
+    return (
+        db.courses,
+        db.registrations,
+        db.admins,
+        db.instructors
+    )
 
 # Admin authentication decorator
 def admin_required(f):
@@ -36,6 +54,7 @@ def admin_required(f):
             if not provided_key:
                 return redirect(url_for('admin_login'))
             
+            admins = get_db().admins
             admin = admins.find_one({"api_key": provided_key})
             if not admin:
                 flash('Invalid API key', 'error')
@@ -49,6 +68,7 @@ def admin_required(f):
 
 @app.route('/')
 def home():
+    courses_collection, _, _, instructors_collection = get_collections()
     courses = list(courses_collection.find({"is_active": True}))
     instructors = list(instructors_collection.find())
     instructor_ids = get_ids(instructors)
@@ -63,12 +83,11 @@ def home():
 
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
 
-
 @app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
 def admin_delete_course(course_id):
+    courses_collection, registrations, _, _ = get_collections()
     try:
-        # Check if there are any students registered for this course
         student_count = registrations.count_documents({"course_id": course_id})
         if student_count > 0:
             flash('Cannot delete course with registered students', 'error')
@@ -84,11 +103,13 @@ def admin_delete_course(course_id):
     
     return redirect(url_for('admin_courses'))
 
+
+
 @app.route('/admin/instructors/delete/<instructor_id>', methods=['POST'])
 @admin_required
 def admin_delete_instructor(instructor_id):
+    courses_collection, _, _, instructors_collection = get_collections()
     try:
-        # Check if this instructor is assigned to any courses
         course_count = courses_collection.count_documents({
             "instructor": {"$regex": instructor_id.split('_')[0], "$options": "i"}
         })
@@ -110,6 +131,7 @@ def admin_delete_instructor(instructor_id):
 # Course route
 @app.route('/course/<course_id>')
 def course_details(course_id):
+    courses_collection, _, _, _ = get_collections()
     course = courses_collection.find_one({"_id": course_id})
     if not course:
         return redirect(url_for('home'))
@@ -118,6 +140,7 @@ def course_details(course_id):
 
 @app.route('/register/<course_id>', methods=['GET', 'POST'])
 def register(course_id):
+    courses_collection, registrations, _, _ = get_collections()
     course = courses_collection.find_one({"_id": course_id})
     if not course:
         return redirect(url_for('home'))
@@ -153,6 +176,7 @@ def register(course_id):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
+    _, _, admins, _ = get_collections()
     if request.method == 'POST':
         api_key = request.form.get('api_key')
         admin = admins.find_one({"api_key": api_key})
@@ -176,6 +200,7 @@ def admin_dashboard():
 @app.route('/admin/courses')
 @admin_required
 def admin_courses():
+    courses_collection, _, _, instructors_collection = get_collections()
     all_courses = list(courses_collection.find())
     return render_template('admin/courses.html', courses=all_courses)
 
@@ -184,6 +209,7 @@ def admin_courses():
 @admin_required
 def admin_edit_course(course_id):
     try:
+        courses_collection, _, _, instructors_collection = get_collections()
         course = courses_collection.find_one({'_id': course_id})
         if not course:
             flash('Course not found', 'error')
@@ -263,6 +289,7 @@ def admin_edit_course(course_id):
 @app.route('/admin/students')
 @admin_required
 def admin_students():
+    courses_collection, registrations, _, _ = get_collections()
     course_filter = request.args.get('course_id')
     query = {}
     if course_filter:
@@ -303,6 +330,7 @@ def admin_students():
 @app.route('/admin/student/<student_id>/delete', methods=['POST'])
 @admin_required
 def admin_delete_student(student_id):
+    _, registrations, _, _ = get_collections()
     student = registrations.find_one({"_id": ObjectId(student_id)})
     if not student:
         flash('Student not found', 'error')
@@ -318,12 +346,15 @@ def admin_delete_student(student_id):
 @app.route('/admin/instructors')
 @admin_required
 def admin_instructors():
+    _, _, _, instructors_collection = get_collections()
     all_instructors = list(instructors_collection.find())
     return render_template('admin/instructors.html', instructors=all_instructors)
 
 @app.route('/admin/instructors/edit/<instructor_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_edit_instructor(instructor_id):
+    _, _, _, instructors_collection = get_collections()
+    
     instructor = instructors_collection.find_one({"_id": instructor_id})
     if not instructor:
         flash('Instructor not found', 'error')
@@ -427,6 +458,7 @@ def send_status_email(to_email, student_name, course_name, new_status):
 @app.route('/admin/student/<student_id>/update', methods=['POST'])
 @admin_required
 def admin_update_student(student_id):
+    _, registrations, _, _ = get_collections()
     new_status = request.form['status']
     student = registrations.find_one({"_id": ObjectId(student_id)})
     
@@ -467,6 +499,7 @@ def admin_update_student(student_id):
 @app.route('/admin/courses/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_course():
+    courses_collection, _, _, instructors_collection = get_collections()
     if request.method == 'POST':
         try:
             # Validate required fields
@@ -535,6 +568,7 @@ def admin_add_course():
 @app.route('/admin/instructors/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_instructor():
+    _, _, _, instructors_collection = get_collections()
     if request.method == 'POST':
         try:
             # Validate required fields
@@ -635,11 +669,13 @@ def send_status_email(to_email, student_name, course_name, new_status):
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
 def api_courses():
+    courses_collection, _, _, _ = get_collections()
     courses = list(courses_collection.find({"is_active": True}, {'_id': 0}))
     return jsonify(courses)
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
+    courses_collection, registrations, _, _ = get_collections()
     data = request.json
     course_id = data.get('course_id')
     if not courses_collection.find_one({"_id": course_id, "is_active": True}):

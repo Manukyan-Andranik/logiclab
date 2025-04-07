@@ -61,6 +61,15 @@
                     {% endfor %}
                 </div>
             </div>
+            <div class="detail-section">
+                <h3><i class="fas fa-laptop-code"></i> Work Experience</h3>
+                <ul>
+                    {% for company in instructor.companies %}
+                    <li class="company-item"><i class="fas fa-building"></i> {{ company.company }} |
+                        {{ company.type }} | {{ company.role }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
 
             <div class="detail-section">
                 <h3><i class="fas fa-address-book"></i> Contacts</h3>

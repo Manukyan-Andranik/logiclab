@@ -24,6 +24,9 @@
                     <li class="{{ 'active' if request.endpoint == 'admin_courses' }}">
                         <a href="{{ url_for('admin_courses') }}"><i class="fas fa-book"></i> Courses</a>
                     </li>
+                    <li class="{{ 'active' if request.endpoint == 'admin_instructors' }}">
+                        <a href="{{ url_for('admin_instructors') }}"><i class="fas fa-chalkboard-teacher"></i> Instructors</a>
+                    </li>
                     <li class="{{ 'active' if request.endpoint == 'admin_students' }}">
                         <a href="{{ url_for('admin_students') }}"><i class="fas fa-users"></i> Students</a>
                     </li>
@@ -31,9 +34,6 @@
                         <a href="{{ url_for('admin_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </li>
                 </ul>
-                <li class="{{ 'active' if request.endpoint == 'admin_instructors' }}">
-                    <a href="{{ url_for('admin_instructors') }}"><i class="fas fa-chalkboard-teacher"></i> Instructors</a>
-                </li>
             </nav>
         </aside>
         
