@@ -4,27 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Գրանցում {{ course.title }} դասընթացի համար - LogicLab</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register_style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
-
 </head>
 <body>
+    <nav>
+        <div class="nav-container">
+            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
+                <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
+                <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <header>
         <div class="container">
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
-                    <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
-                </ul>
-            </nav>
             <div class="course-header-content">
                 <div class="course-header-text">
                     <h1>{{ course.title }}</h1>
-                </div>
-                <div class="course-header-image">
-                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}" alt="{{ course.title }}">
+                    <p>Լրացրե՛ք ձեր տվյալները դասընթացին գրանցվելու համար</p>
                 </div>
             </div>
         </div>
@@ -34,9 +36,10 @@
         <div class="container">
             <div class="register-form-container">
                 <h1>Գրանցում՝ <span class="highlight">{{ course.title }}</span> դասընթացի համար</h1>
+                
                 <p class="course-info">
-                    <i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }} | 
-                    <i class="fas fa-clock"></i> {{ course.duration }} | 
+                    <i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }}
+                    <i class="fas fa-clock"></i> {{ course.duration }}
                     <i class="fas fa-calendar-week"></i> {{ course.schedule }}
                 </p>
                 
@@ -52,33 +55,69 @@
                 
                 <form method="POST" action="{{ url_for('register', course_id=course_id) }}">
                     <div class="form-group">
-                        <label for="full_name">Անուն Ազգանուն</label>
-                        <input type="text" id="full_name" name="full_name" required>
+                        <label for="full_name"><i class="fas fa-user"></i> Անուն Ազգանուն</label>
+                        <input type="text" id="full_name" name="full_name" placeholder="Մուտքագրեք ձեր անունը և ազգանունը" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">Էլ. հասցե</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="email"><i class="fas fa-envelope"></i> Էլ. հասցե</label>
+                        <input type="email" id="email" name="email" placeholder="Մուտքագրեք ձեր էլ. փոստը" required>
                     </div>
                     <div class="form-group">
-                        <label for="phone">Հեռախոսահամար</label>
-                        <input type="tel" id="phone" name="phone" required>
+                        <label for="phone"><i class="fas fa-phone"></i> Հեռախոսահամար</label>
+                        <input type="tel" id="phone" name="phone" placeholder="Մուտքագրեք ձեր հեռախոսահամարը" required>
                     </div>
-                    <button type="submit" class="btn btn-large">Ուղարկել հայտը</button>
+                    <button type="submit" class="btn btn-large">
+                        <i class="fas fa-paper-plane"></i> Ուղարկել հայտը
+                    </button>
                 </form>
             </div>
         </div>
     </section>
 
- 
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <p>© Powered by</p>
-                <a href="#">Soul's of Code</a>
-                <p>&</p>
-                <a href="#">ViewBox</a>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>LogicLab</h3>
+                    <p>Մասնագիտական դասընթացներ AI, Machine Learning և 3D-ի ոլորտներում</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Կապ</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան</p>
+                    <p><i class="fas fa-phone"></i> +374 94 752662</p>
+                    <p><i class="fas fa-envelope"></i> info.logic.laboratory@gmail.com</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Հետևեք մեզ</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 LogicLab. Բոլոր իրավունքները պաշտպանված են</p>
+                <div class="footer-credits">
+                    <p>Powered by <a href="#">Soul's of Code</a> & <a href="#">ViewBox</a></p>
+                </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Mobile navigation toggle
+        document.querySelector('.nav-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('show');
+        });
+
+        // Form input validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const phone = document.getElementById('phone').value;
+            if (!/^\+?\d{8,15}$/.test(phone)) {
+                alert('Խնդրում ենք մուտքագրել վավեր հեռախոսահամար');
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>

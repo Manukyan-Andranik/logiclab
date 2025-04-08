@@ -2,23 +2,34 @@
 <html lang="hy">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML և 3DS Max ակադեմիա</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <title>ML և 3DS Max ակադեմիա</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
 </head>
 
 <body>
-    <header>
+    <nav>
+        <div class="nav-container">
+            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
+                <li><a href="#courses">Դասընթացներ</a></li>
+                <li><a href="#about">Մեր մասին</a></li>
+                <li><a href="#contact">Կապ</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hello-section">
         <div class="container">
-            <!-- Animated background elements -->
             <div class="header-animations">
-                <!-- AI animation - floating neural network nodes -->
+                <!-- AI animation -->
                 <div class="ai-animation">
                     <div class="neural-network">
                         <div class="node" style="top:20%; left:10%"></div>
@@ -30,7 +41,7 @@
                     </div>
                 </div>
 
-                <!-- Machine Learning animation - floating data points -->
+                <!-- ML animation -->
                 <div class="ml-animation">
                     <div class="data-point" style="top:60%; left:80%"></div>
                     <div class="data-point" style="top:70%; left:75%"></div>
@@ -38,7 +49,7 @@
                     <div class="regression-line"></div>
                 </div>
 
-                <!-- 3D Visualization animation - rotating cube -->
+                <!-- 3D animation -->
                 <div class="d3-animation">
                     <div class="cube">
                         <div class="face front"></div>
@@ -51,13 +62,6 @@
                 </div>
             </div>
 
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="#courses">Դասընթացներ</a></li>
-                    <li><a href="#about">Մեր մասին</a></li>
-                    <li><a href="#contact">Կապ</a></li>
-                </ul>
-            </nav>
             <div class="hero" data-aos="fade-in">
                 <h1>Logic <span class="highlight-title">Lab</span></h1>
                 <p>Միացե՛ք մեր մասնագիտական դասընթացներին, որոնք անցկացնում են ոլորտի փորձագետները</p>
@@ -69,45 +73,38 @@
                 <a href="#courses" class="btn btn-pulse">Դիտել դասընթացները</a>
             </div>
         </div>
-    </header>
-
-
+    </section>
 
     <section id="courses" class="courses-section">
         <div class="container">
             <h2 data-aos="fade-up">Մեր <span class="highlight">Դասընթացները</span></h2>
             <div class="course-grid">
                 {% for course_id, course in courses.items() %}
-                {% if course.is_active == True %}
-
-                <div class="course-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
-                    <div class="course-icon">
-                        <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}"
-                            class="icon-img" alt="Course Icon">
-
-
-                    </div>
-                    <h3>{{ course.title }}</h3>
-                    <p>{{ course.description }}</p>
-                    <div class="course-details">
-                        <p><i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }}</p>
-                        <p><i class="fas fa-clock"></i> Տևողությունը՝ {{ course.duration }}</p>
-                        <p><i class="fas fa-calendar-week"></i> Ժամանակացույց՝ {{ course.schedule }}</p>
-                    </div>
-                    <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Իմանալ ավելին</a>
-                </div>
-                {% endif %}
-
+                    {% if course.is_active %}
+                        <div class="course-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                            <div class="course-icon">
+                                <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}"
+                                    class="icon-img" alt="Course Icon">
+                            </div>
+                            <h3>{{ course.title }}</h3>
+                            <p>{{ course.description }}</p>
+                            <div class="course-details">
+                                <p><i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }}</p>
+                                <p><i class="fas fa-clock"></i> Տևողությունը՝ {{ course.duration }}</p>
+                                <p><i class="fas fa-calendar-week"></i> Ժամանակացույց՝ {{ course.schedule }}</p>
+                            </div>
+                            <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Իմանալ ավելին</a>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
     </section>
 
     <section id="about" class="about-section">
-        <section class="lecturers-section">
-            <div class="lecturers-wrapper">
-                <div class="lecturer-cards-container">
-                    {% for instructor_id, instructor in instructors.items() %}
+        <div class="lecturers-wrapper">
+            <div class="lecturer-cards-container">
+                {% for instructor_id, instructor in instructors.items() %}
                     <div class="lecturer-card" data-aos="fade-up">
                         <img src="{{ url_for('static', filename='images/' ~ instructor.photo) }}"
                             alt="{{ instructor.specialization }}" class="lecturer-image">
@@ -121,19 +118,14 @@
                                     {{ instructor.education.fieldOfStudy }} | {{ instructor.education.institution }}
                                 </li>
                                 <li><i class="fas fa-check-circle"></i> Աշխատանքային փորձ</li>
-                                <div style="padding-left: 20px;">
-                                    <ul>
-                                        {% for company in instructor.companies %}
+                                <ul style="padding-left: 20px;">
+                                    {% for company in instructor.companies %}
                                         <li class="company-item"><i class="fas fa-building"></i> {{ company.company }} |
                                             {{ company.type }} | {{ company.role }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-
-                                <li><i class="fas fa-check-circle"></i> Հմտություններ: {{ instructor.skills|join(', ')
-                                    }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <li><i class="fas fa-check-circle"></i> Հմտություններ: {{ instructor.skills|join(', ') }}</li>
                             </ul>
-
                             <div class="lecturer-contacts">
                                 <a href="tel:{{ instructor.contacts.phone }}" class="contact-link phone-link">
                                     <i class="fas fa-phone"></i> Անձնական
@@ -147,17 +139,14 @@
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
+                {% endfor %}
             </div>
-        </section>
+        </div>
     </section>
-
 
     <section id="contact" class="contact-section">
         <div class="container">
             <h2 data-aos="fade-up"><span class="highlight">Կապվեք</span> մեզ հետ</h2>
-    
             <div class="contact-grid">
                 <div class="contact-info" data-aos="fade-right">
                     <h3>Կոնտակտային տվյալներ</h3>
@@ -181,13 +170,11 @@
             </div>
         </div>
     </section>
-    
-
 
     <footer>
         <div class="container">
             <div class="footer-content">
-                <p>© Powered by</p>
+                <p>© 2025 Powered by</p>
                 <a href="#">Soul's of Code</a>
                 <p>&</p>
                 <a href="#">ViewBox</a>
@@ -195,15 +182,14 @@
         </div>
     </footer>
 
-    <!-- Back to Top Button -->
     <button id="back-to-top" class="back-to-top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
+    <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize AOS
             AOS.init({
                 duration: 800,
                 easing: 'ease-in-out',
@@ -212,7 +198,7 @@
                 delay: 100
             });
 
-            // Hero title underline animation
+            // Hero highlight
             const highlights = document.querySelectorAll('.highlight-title');
             setTimeout(() => {
                 highlights.forEach(highlight => {
@@ -220,10 +206,8 @@
                 });
             }, 500);
 
-            // Back to Top Button
+            // Back to Top
             const backToTopButton = document.getElementById('back-to-top');
-
-            // Show/hide button based on scroll position
             window.addEventListener('scroll', () => {
                 if (window.pageYOffset > 300) {
                     backToTopButton.classList.add('show');
@@ -231,13 +215,18 @@
                     backToTopButton.classList.remove('show');
                 }
             });
-
-            // Smooth scroll to top when clicked
             backToTopButton.addEventListener('click', () => {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
+            });
+
+            // Nav toggle
+            const toggle = document.querySelector('.nav-toggle');
+            const links = document.querySelector('.nav-links');
+            toggle.addEventListener('click', () => {
+                links.classList.toggle('show');
             });
         });
     </script>

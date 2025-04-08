@@ -9,6 +9,7 @@
     --error-color: #dc3545;
 }
 
+
 /* Base Styles */
 * {
     margin: 0;
@@ -93,6 +94,18 @@ header {
     display: flex;
     align-items: center;
 }
+
+.hello-section {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--dark-color), var(--secondary-color), var(--dark-color));
+    color: var(--white);
+    padding: 2rem 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
 
 .header-animations {
     position: absolute;
@@ -311,7 +324,7 @@ header {
     z-index: 1;
 }
 
-/* Nav Styles */
+/* Base Nav Styles */
 nav {
     position: fixed;
     top: 0;
@@ -323,15 +336,24 @@ nav {
     background: #333;
 }
 
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
 .nav-links {
     display: flex;
     justify-content: center;
     list-style: none;
-    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .nav-links li {
-    margin: 0 1rem;
+    margin: 0;
 }
 
 .nav-links a {
@@ -358,6 +380,40 @@ nav {
 .nav-links a:hover::after {
     width: 100%;
 }
+
+/* Mobile Nav Toggle Button */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--white);
+    cursor: pointer;
+}
+
+/* Responsive Rules */
+@media (max-width: 768px) {
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #333;
+        flex-direction: column;
+        align-items: center;
+        display: none;
+        padding: 1rem 0;
+    }
+
+    .nav-links.show {
+        display: flex;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+}
+
 
 /* Courses Section */
 .courses-section {
@@ -954,6 +1010,126 @@ nav {
     padding: 4rem 0;
     background: var(--light-color);
 }
+.course-info {
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: var(--secondary-color);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.course-info i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .course-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .course-header-text h1 {
+        font-size: 2.5rem;
+    }
+    
+    .course-header-image {
+        max-width: 100%;
+    }
+    
+    .course-detail-content {
+        margin-top: -3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .course-header {
+        padding: 1.5rem 0 3rem;
+    }
+    
+    .register-form-container {
+        padding: 2rem;
+    }
+    
+    .register-form-container h1 {
+        font-size: 1.8rem;
+    }
+    
+    .course-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .course-description h1 {
+        font-size: 2rem;
+    }
+    
+    .course-description h2 {
+        font-size: 1.75rem;
+    }
+    
+    .course-description h3 {
+        font-size: 1.5rem;
+    }
+    
+    .course-description h4 {
+        font-size: 1.3rem;
+    }
+    
+    .course-description h5 {
+        font-size: 1.15rem;
+    }
+    
+    .course-description li {
+        padding-left: 25px;
+    }
+}
+
+@media (max-width: 576px) {
+    .course-header-text h1 {
+        font-size: 1.75rem;
+    }
+    
+    .course-detail-content {
+        padding: 1.5rem;
+        margin-top: -2rem;
+    }
+    
+    .register-form-container {
+        padding: 1.5rem;
+    }
+    
+    .register-form-container h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-group label {
+        font-size: 1rem;
+    }
+    
+    .form-group input {
+        padding: 0.8rem;
+    }
+    
+    .course-description h1 {
+        font-size: 1.8rem;
+    }
+    
+    .course-description h2 {
+        font-size: 1.5rem;
+        padding-left: 10px;
+    }
+    
+    .course-description li {
+        font-size: 1rem;
+    }
+}
+
 
 .register-form-container {
     max-width: 800px;
@@ -986,22 +1162,6 @@ nav {
     width: 100px;
     height: 3px;
     background: var(--primary-color);
-}
-
-.course-info {
-    font-size: 1.1rem;
-    text-align: center;
-    margin-bottom: 2.5rem;
-    color: var(--secondary-color);
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.course-info i {
-    color: var(--primary-color);
-    margin-right: 0.5rem;
 }
 
 .form-group {
@@ -1125,109 +1285,6 @@ footer {
     text-decoration: underline;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-    .course-header-content {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .course-header-text h1 {
-        font-size: 2.5rem;
-    }
-    
-    .course-header-image {
-        max-width: 100%;
-    }
-    
-    .course-detail-content {
-        margin-top: -3rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .course-header {
-        padding: 1.5rem 0 3rem;
-    }
-    
-    .register-form-container {
-        padding: 2rem;
-    }
-    
-    .register-form-container h1 {
-        font-size: 1.8rem;
-    }
-    
-    .course-info {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .course-description h1 {
-        font-size: 2rem;
-    }
-    
-    .course-description h2 {
-        font-size: 1.75rem;
-    }
-    
-    .course-description h3 {
-        font-size: 1.5rem;
-    }
-    
-    .course-description h4 {
-        font-size: 1.3rem;
-    }
-    
-    .course-description h5 {
-        font-size: 1.15rem;
-    }
-    
-    .course-description li {
-        padding-left: 25px;
-    }
-}
-
-@media (max-width: 576px) {
-    .course-header-text h1 {
-        font-size: 1.75rem;
-    }
-    
-    .course-detail-content {
-        padding: 1.5rem;
-        margin-top: -2rem;
-    }
-    
-    .register-form-container {
-        padding: 1.5rem;
-    }
-    
-    .register-form-container h1 {
-        font-size: 1.5rem;
-    }
-    
-    .form-group label {
-        font-size: 1rem;
-    }
-    
-    .form-group input {
-        padding: 0.8rem;
-    }
-    
-    .course-description h1 {
-        font-size: 1.8rem;
-    }
-    
-    .course-description h2 {
-        font-size: 1.5rem;
-        padding-left: 10px;
-    }
-    
-    .course-description li {
-        font-size: 1rem;
-    }
-}
 
 .portfolio-link {
     display: inline-block;

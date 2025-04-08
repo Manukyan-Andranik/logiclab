@@ -5,33 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ course.title }} - LogicLab</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/course_style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 
 <body>
+
+    <nav>
+        <div class="nav-container">
+            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
+                <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
+                <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
+                <li><a href="{{ url_for('register', course_id=course_id) }}" class="btn-nav">Գրանցվել</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <header class="course-header">
         <div class="container">
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
-                    <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
-                    <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
-                </ul>
-            </nav>
-            
             <div class="course-header-content">
                 <div class="course-header-text">
                     <h1>{{ course.title }}</h1>
-                    <a href="{{ course.portfolio }}" target="_blank" class="portfolio-link">Portfolio</a>
-
-
+                    <p>{{ course.short_description }}</p>
+                    <a href="{{ course.portfolio }}" target="_blank" class="portfolio-link">
+                        <i class="fas fa-external-link-alt"></i> Portfolio
+                    </a>
+                    <a href="{{ course.curriculum }}" target="_blank" class="portfolio-link">
+                        <i class="fas fa-external-link-alt"></i> Ուսումնական ծրագիր
+                    </a>
                 </div>
-                <div class="course-header-image">
-                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}" alt="{{ course.title }}">
-                </div>
+                <!-- <div class="course-header-image">
+                    <img src="{{ url_for('static', filename='images/' + course_id + '.jpg') }}"
+                        alt="{{ course.title }}">
+                </div> -->
             </div>
         </div>
     </header>
@@ -39,65 +49,103 @@
     <section class="course-detail-section">
         <div class="container">
             <div class="course-detail-content">
-                <div class="course-detail-info">
-                    <div class="course-highlights">
-                        <div class="highlight-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <p>Մեկնարկը՝ {{ course.start_date }}</p>
-                        </div>
-                        <div class="highlight-item">
-                            <i class="fas fa-clock"></i>
-                            <p>Տևողությունը՝ {{ course.duration }}</p>
-                        </div>
-                        <div class="highlight-item">
-                            <i class="fas fa-calendar-week"></i>
-                            <p>Ժամանակացույց՝ {{ course.schedule }}</p>
-                        </div>
+                <div class="course-highlights">
+                    <div class="highlight-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <p>Մեկնարկը {{ course.start_date }}</p>
                     </div>
-                    <div class="course-description">
-                        {% for chapter in course.chapters %}
-                        <h4>{{ chapter.title }}</h4>
-                        <h1></h1>
-                        {% for line in chapter.content %}
-                        <p>{{ line }}</p>
-                        {% endfor %}
-                        {% if chapter.sections %}
-                        {% for section in chapter.sections %}
-                            <h5>{{ section.section_title }}</h5>
-                            <ul>
-                                {% for lesson in section.lessons %}
-                                    {% for ses_num, ses in lesson.items() %}
-                                        <b>{{ ses_num }}</b>
-                                        <p>{{ ses }}</p>
-                                    {% endfor %}
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% endfor %}
-                        <h4>Դասընթացի արժեք՝</h4>
-                        <h1></h1>
-                        <ul>
-                            <li><i class="fas fa-check"></i> Ամսեկան վճար՝ {{ course.monthly_payment }} դրամ</li>
-                            <li><i class="fas fa-check"></i> Դասընթացի ընդհանուր արժեք՝ {{ course.total_payment }} դրամ</li>
-                        </ul>
+                    <div class="highlight-item">
+                        <i class="fas fa-clock"></i>
+                        <p>Տևողությունը {{ course.duration }}</p>
                     </div>
-                    <a href="{{ url_for('register', course_id=course_id) }}" class="btn btn-large">Գրանցվել հիմա</a>
+                    <div class="highlight-item">
+                        <i class="fas fa-calendar-week"></i>
+                        <p>{{ course.schedule }}</p>
+                    </div>
                 </div>
+
+                <div class="course-description">
+                    {% for chapter in course.chapters %}
+                    <h4>{{ chapter.title }}</h4>
+                    <ul>
+                        {% for line in chapter.content %}
+                        <li><i class="fas fa-check"></i> {{line}}</li>
+                        <!-- <p>{{ line }}</p> -->
+                        {% endfor %}
+                    </ul>
+                    {% if chapter.sections %}
+                    {% for section in chapter.sections %}
+                    <h5>{{ section.section_title }}</h5>
+                    <ul>
+                        {% for lesson in section.lessons %}
+                        {% for ses_num, ses in lesson.items() %}
+                        <li><b>{{ ses_num }}</b> - {{ ses }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                    </ul>
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+
+                    <h4>Դասընթացի արժեք՝</h4>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Ամսեկան վճար՝ {{ course.monthly_payment }} դրամ</li>
+                        <li><i class="fas fa-check"></i> Դասընթացի ընդհանուր արժեք՝ {{ course.total_payment }} դրամ</li>
+                    </ul>
+                </div>
+
+                <a href="{{ url_for('register', course_id=course_id) }}" class="btn btn-large">
+                    <i class="fas fa-user-plus"></i> Գրանցվել հիմա
+                </a>
             </div>
         </div>
     </section>
 
- 
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <p>© Powered by</p>
-                <a href="#">Soul's of Code</a>
-                <p>&</p>
-                <a href="#">ViewBox</a>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>LogicLab</h3>
+                    <p>Մասնագիտական դասընթացներ AI, Machine Learning և 3D-ի ոլորտներում</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Կապ</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան</p>
+                    <p><i class="fas fa-phone"></i> +374 94 752662</p>
+                    <p><i class="fas fa-envelope"></i> info.logic.laboratory@gmail.com</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Հետևեք մեզ</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 LogicLab. Բոլոր իրավունքները պաշտպանված են</p>
+                <div class="footer-credits">
+                    <p>Powered by <a href="#">Soul's of Code</a> & <a href="#">ViewBox</a></p>
+                </div>
             </div>
         </div>
     </footer>
+    <script>
+        // Mobile navigation toggle
+        document.querySelector('.nav-toggle').addEventListener('click', function () {
+            document.querySelector('.nav-links').classList.toggle('show');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>
