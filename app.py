@@ -236,6 +236,7 @@ def admin_edit_course(course_id):
                     'monthly_payment': int(request.form.get('monthly_payment', 0)) if request.form.get('monthly_payment') else None,
                     'total_payment': int(request.form.get('total_payment', 0)) if request.form.get('total_payment') else None,
                     'is_active': request.form.get('is_active') == 'on',
+                    'curriculum': request.form.get('curriculum', ''),
                     'chapters': []
                 }
 

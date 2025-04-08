@@ -68,6 +68,10 @@
         <input type="checkbox" id="is_active" name="is_active" {{ 'checked' if course.is_active }}>
         <label for="is_active">Active Course</label>
     </div>
+    <div class="form-group">
+        <label for="title">Curriculum*</label>
+        <input type="text" id="title" name="title" value="{{ course.curriculum }}" required>
+    </div>
     
     <div class="form-header">
         <h3>Chapters</h3>
