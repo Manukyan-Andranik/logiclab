@@ -21,7 +21,7 @@
             <ul class="nav-links">
                 <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
                 <li><a href="{{ url_for('all_courses') }}">Դասընթացներ</a></li>
-                <li><a href="#instructors">Դասախոսներ</a></li>
+                <li><a href="{{ url_for('instructors') }}">Դասախոսներ</a></li>
                 <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
                 <li><a href="{{ url_for('register', course_id=course_id) }}" class="btn-nav"> Գրանցվել </a></li>
             </ul>

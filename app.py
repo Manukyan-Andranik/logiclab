@@ -607,17 +607,17 @@ def register(course_id):
         full_name = request.form['full_name']
         email = request.form['email']
         phone = request.form['phone']
+        age = request.form['age']
+        clas = request.form['class']
         
-        if not all([full_name, email, phone]):
+        if not all([full_name, email, phone, age, clas]):
             flash('Please fill all fields', 'error')
-            return redirect(url_for('register', course_id=course_id))
-        
-        if registrations.find_one({'email': email, 'course_id': course_id}):
-            flash('This email is already registered for the course', 'error')
             return redirect(url_for('register', course_id=course_id))
         
         registrations.insert_one({
             'full_name': full_name,
+            'age': age,
+            'class': clas,
             'email': email,
             'phone': phone,
             'course_id': course_id,

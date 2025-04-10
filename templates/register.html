@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="hy">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
+
 <body>
     <nav>
         <div class="nav-container">
@@ -19,7 +21,7 @@
             <ul class="nav-links">
                 <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
                 <li><a href="{{ url_for('all_courses') }}">Դասընթացներ</a></li>
-                <li><a href="#instructors">Դասախոսներ</a></li>
+                <li><a href="{{ url_for('instructors') }}">Դասախոսներ</a></li>
                 <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
             </ul>
         </div>
@@ -40,27 +42,43 @@
         <div class="container">
             <div class="register-form-container">
                 <h1>Գրանցում՝ <span class="highlight">{{ course.title }}</span> դասընթացի համար</h1>
-                
+
                 <p class="course-info">
                     <i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }}
                     <i class="fas fa-clock"></i> {{ course.duration }}
                     <i class="fas fa-calendar-week"></i> {{ course.schedule }}
                 </p>
-                
+
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
                 {% endwith %}
-                
+
                 <form method="POST" action="{{ url_for('register', course_id=course_id) }}">
                     <div class="form-group">
                         <label for="full_name"><i class="fas fa-user"></i> Անուն Ազգանուն</label>
-                        <input type="text" id="full_name" name="full_name" placeholder="Մուտքագրեք ձեր անունը և ազգանունը" required>
+                        <input type="text" id="full_name" name="full_name"
+                            placeholder="Մուտքագրեք ձեր անունը և ազգանունը" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age"><i class="fas fa-age"></i> Տարիք</label>
+                        <input type="number" id="age" name="age" placeholder="Ձեր տարիքը" min="0" step="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="class"><i class="fas fa-class"></i> Կրթություն</label>
+                        <input type="tel" id="class" name="class" placeholder="Ուսումնական հաստատություն/Դասարան"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="convenient_ates"><i convenient_ates="fas fa-convenient_ates"></i> Նշումներ</label>
+                        <input type="tel" id="convenient_ates" name="convenient_ates"
+                            placeholder="Մուտքագրեք ձեզ հարմար շաբաթվա օրերը" required>
                     </div>
                     <div class="form-group">
                         <label for="email"><i class="fas fa-envelope"></i> Էլ. հասցե</label>
@@ -68,8 +86,11 @@
                     </div>
                     <div class="form-group">
                         <label for="phone"><i class="fas fa-phone"></i> Հեռախոսահամար</label>
-                        <input type="tel" id="phone" name="phone" placeholder="Մուտքագրեք ձեր հեռախոսահամարը" required>
+                        <input type="tel" id="phone" name="phone" placeholder="0XX-XXXXXX" pattern="0\d{2}-\d{6}"
+                            required>
+
                     </div>
+
                     <button type="submit" class="btn btn-large">
                         <i class="fas fa-paper-plane"></i> Ուղարկել հայտը
                     </button>
@@ -109,17 +130,17 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Mobile navigation toggle
             const toggle = document.querySelector('.nav-toggle');
             const links = document.querySelector('.nav-links');
             const body = document.body;
 
-            toggle.addEventListener('click', function(e) {
+            toggle.addEventListener('click', function (e) {
                 e.stopPropagation();
                 links.classList.toggle('active');
                 this.classList.toggle('active');
-                
+
                 // Toggle body overflow
                 body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
             });
@@ -134,7 +155,7 @@
             });
 
             // Close menu when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
                     links.classList.remove('active');
                     toggle.classList.remove('active');
@@ -143,7 +164,7 @@
             });
 
             // Form input validation
-            document.querySelector('form').addEventListener('submit', function(e) {
+            document.querySelector('form').addEventListener('submit', function (e) {
                 const phone = document.getElementById('phone').value;
                 if (!/^\+?\d{8,15}$/.test(phone)) {
                     alert('Խնդրում ենք մուտքագրել վավեր հեռախոսահամար');
@@ -152,5 +173,12 @@
             });
         });
     </script>
+    <script>
+        document.getElementById('phone').addEventListener('input', function (e) {
+            this.value = this.value.replace(/\D/g, ''); // Remove non-digits
+        });
+    </script>
+
 </body>
+
 </html>
