@@ -48,7 +48,7 @@
                     <div class="data-point" style="top:60%; left:80%"></div>
                     <div class="data-point" style="top:70%; left:75%"></div>
                     <div class="data-point" style="top:65%; left:85%"></div>
-                        <div class="regression-line"></div>
+                    <div class="regression-line"></div>
                 </div>
 
                 <!-- 3D animation -->
@@ -80,70 +80,103 @@
     <section class="info-sections">
         <div class="container">
             <h2 data-aos="fade-up">Ինչով ենք <span class="highlight">մենք զբաղվում</span></h2>
-            
+
             <div class="info-grid">
                 <!-- AI Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="info-icon">
-                        <i class="fas fa-brain"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="info-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Արհեստական Բանականություն (AI)</h3>
+                        <p>AI-ն համակարգիչների կողմից մարդկային բանականության նմանակման գիտությունն է։ Այն ներառում է
+                            խնդիրների լուծում, որոշումների կայացում, բնական լեզվի մշակում և մեքենայական ընկալում։ Մեր
+                            դասընթացները կօգնեն ձեզ յուրացնել հիմնական հասկացությունները և գործնական կիրառությունները։
+                        </p>
                     </div>
-                    <h3>Արհեստական Բանականություն (AI)</h3>
-                    <p>AI-ն համակարգիչների կողմից մարդկային բանականության նմանակման գիտությունն է։ Այն ներառում է խնդիրների լուծում, որոշումների կայացում, բնական լեզվի մշակում և մեքենայական ընկալում։ Մեր դասընթացները կօգնեն ձեզ յուրացնել հիմնական հասկացությունները և գործնական կիրառությունները։</p>
-                </div>
-
+                </a>
                 <!-- Machine Learning Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="info-icon">
-                        <i class="fas fa-chart-line"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="info-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Մեքենայական Ուսուցում (ML)</h3>
+                        <p>ML-ը AI-ի ենթադաշտ է, որտեղ համակարգերը սովորում են տվյալների հիման վրա՝ առանց հստակ
+                            ծրագրավորման։ Մենք կուսումնասիրենք ալգորիթմներ, նեյրոնային ցանցեր, խորը ուսուցում և դրանց
+                            կիրառումները իրական աշխարհում։</p>
                     </div>
-                    <h3>Մեքենայական Ուսուցում (ML)</h3>
-                    <p>ML-ը AI-ի ենթադաշտ է, որտեղ համակարգերը սովորում են տվյալների հիման վրա՝ առանց հստակ ծրագրավորման։ Մենք կուսումնասիրենք ալգորիթմներ, նեյրոնային ցանցեր, խորը ուսուցում և դրանց կիրառությունները իրական աշխարհում։</p>
-                </div>
+                </a>
 
                 <!-- Python Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="info-icon">
-                        <i class="fab fa-python"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="info-icon">
+                            <i class="fab fa-python"></i>
+                        </div>
+                        <h3>Python Ծրագրավորում</h3>
+                        <p>Python-ը ամենահայտնի ծրագրավորման լեզուներից է, հատկապես տվյալների գիտության և AI-ի համար։
+                            Մենք
+                            կսովորենք հիմնական սինտաքսը, գրադարանները (NumPy, Pandas, TensorFlow) և կիրառական նախագծերի
+                            մշակում։</p>
                     </div>
-                    <h3>Python Ծրագրավորում</h3>
-                    <p>Python-ը ամենահայտնի ծրագրավորման լեզուներից է, հատկապես տվյալների գիտության և AI-ի համար։ Մենք կսովորենք հիմնական սինտաքսը, գրադարանները (NumPy, Pandas, TensorFlow) և կիրառական նախագծերի մշակում։</p>
-                </div>
+                </a>
 
                 <!-- Math Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="info-icon">
-                        <i class="fas fa-square-root-alt"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="info-icon">
+                            <i class="fas fa-square-root-alt"></i>
+                        </div>
+                        <h3>Մաթեմատիկա</h3>
+                        <p>Մաթեմատիկան հանդիսանում է բոլոր տեխնիկական գիտությունների հիմքը։ Մենք կկենտրոնանանք գծային
+                            հանրահաշվի, հավանականությունների, վիճակագրության և դիսկրետ մաթեմատիկայի վրա, որոնք անհրաժեշտ
+                            են
+                            AI և ML-ի համար։</p>
                     </div>
-                    <h3>Մաթեմատիկա</h3>
-                    <p>Մաթեմատիկան հանդիսանում է բոլոր տեխնիկական գիտությունների հիմքը։ Մենք կկենտրոնանանք գծային հանրահաշվի, հավանականությունների, վիճակագրության և դիսկրետ մաթեմատիկայի վրա, որոնք անհրաժեշտ են AI և ML-ի համար։</p>
-                </div>
+                </a>
 
                 <!-- 3ds Max Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="info-icon">
-                        <i class="fas fa-cube"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="info-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <h3>3ds Max</h3>
+                        <p>3ds Max-ը հզոր գործիք է 3D մոդելավորման, անիմացիայի և վիզուալիզացիայի համար։ Մենք
+                            կուսումնասիրենք
+                            մոդելավորման տեխնիկաներ, նյութերի ստեղծում, լուսավորություն և վիզուալիզացիա սկսնակների և
+                            պրոֆեսիոնալների համար։</p>
                     </div>
-                    <h3>3ds Max</h3>
-                    <p>3ds Max-ը հզոր գործիք է 3D մոդելավորման, անիմացիայի և վիզուալիզացիայի համար։ Մենք կուսումնասիրենք մոդելավորման տեխնիկաներ, նյութերի ստեղծում, լուսավորություն և վիզուալիզացիա սկսնակների և պրոֆեսիոնալների համար։</p>
-                </div>
+                </a>
 
                 <!-- Visualization Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="info-icon">
-                        <i class="fas fa-chart-pie"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="info-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3>Տվյալների Վիզուալիզացիա</h3>
+                        <p>Տվյալների վիզուալիզացիան թույլ է տալիս հասկանալ և ներկայացնել բարդ տեղեկատվությունը։ Մենք
+                            կաշխատենք գրաֆիկների, դիագրամների և ինտերակտիվ վահանակների հետ՝ օգտագործելով այնպիսի
+                            գործիքներ,
+                            ինչպիսիք են Matplotlib, Seaborn և Tableau:</p>
                     </div>
-                    <h3>Տվյալների Վիզուալիզացիա</h3>
-                    <p>Տվյալների վիզուալիզացիան թույլ է տալիս հասկանալ և ներկայացնել բարդ տեղեկատվությունը։ Մենք կաշխատենք գրաֆիկների, դիագրամների և ինտերակտիվ վահանակների հետ՝ օգտագործելով այնպիսի գործիքներ, ինչպիսիք են Matplotlib, Seaborn և Tableau:</p>
-                </div>
+                </a>
 
                 <!-- Photography Section -->
-                <div class="info-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="info-icon">
-                        <i class="fas fa-camera"></i>
+                <a href="{{ url_for('all_courses') }}" class="info-card-link">
+                    <div class="info-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="info-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>Բարձրորակ Լուսանկարչություն</h3>
+                        <p>Լուսանկարչությունը արվեստ է և գիտություն։ Մենք կուսումնասիրենք կոմպոզիցիան, լուսավորությունը,
+                            կադրավորումը և հետմշակումը։ Կսովորենք աշխատել DSLR և միրոր լես տեսախցիկների հետ, ինչպես նաև
+                            Adobe Photoshop և Lightroom ծրագրերով։</p>
                     </div>
-                    <h3>Բարձրորակ Լուսանկարչություն</h3>
-                    <p>Լուսանկարչությունը արվեստ է և գիտություն։ Մենք կուսումնասիրենք կոմպոզիցիան, լուսավորությունը, կադրավորումը և հետմշակումը։ Կսովորենք աշխատել DSLR և միրոր լես տեսախցիկների հետ, ինչպես նաև Adobe Photoshop և Lightroom ծրագրերով։</p>
-                </div>
+                </a>
+
             </div>
         </div>
     </section>
@@ -156,7 +189,8 @@
                     <p><i class="fas fa-envelope"></i> info.logic.laboratory@gmail.com</p>
                     <p><i class="fas fa-phone"></i> +374 94 752662</p>
                     <p><i class="fas fa-phone"></i> +374 98 367419</p>
-                    <a href="https://yandex.com/maps/geo/772050335/?ll=44.485475%2C40.810944&z=18.99" target="_blank" class="back-contact-link">
+                    <a href="https://yandex.com/maps/geo/772050335/?ll=44.485475%2C40.810944&z=18.99" target="_blank"
+                        class="back-contact-link">
                         <i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան
                     </a>
                     <h1>Logic <span class="highlight-title">Lab</span></h1>
@@ -191,7 +225,7 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize AOS animations
             AOS.init({
                 duration: 800,
@@ -221,11 +255,11 @@
             const links = document.querySelector('.nav-links');
             const body = document.body;
 
-            toggle.addEventListener('click', function(e) {
+            toggle.addEventListener('click', function (e) {
                 e.stopPropagation();
                 links.classList.toggle('active');
                 this.classList.toggle('active');
-                
+
                 // Toggle body overflow
                 body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
             });
@@ -240,7 +274,7 @@
             });
 
             // Close menu when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
                     links.classList.remove('active');
                     toggle.classList.remove('active');
@@ -250,26 +284,27 @@
 
             // Instructor card flip functionality
             const cards = document.querySelectorAll('.instructor-card');
-            
+
             // For touch devices
             if ('ontouchstart' in window) {
                 cards.forEach(card => {
-                    card.addEventListener('click', function() {
+                    card.addEventListener('click', function () {
                         this.classList.toggle('flipped');
                     });
                 });
             }
-            
+
             // Optional: Add focus styles for accessibility
             cards.forEach(card => {
-                card.addEventListener('focus', function() {
+                card.addEventListener('focus', function () {
                     this.classList.add('flipped');
                 });
-                card.addEventListener('blur', function() {
+                card.addEventListener('blur', function () {
                     this.classList.remove('flipped');
                 });
             });
         });
     </script>
 </body>
+
 </html>
