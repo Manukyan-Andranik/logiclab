@@ -36,38 +36,55 @@ body {
     padding: 0 1.5rem;
 }
 
-/* Modern Navigation */
+/* Navigation */
 nav {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 1.5rem 0;
+    padding: 1rem 0;
     z-index: 1000;
-    transition: var(--transition);
-    background: rgba(51, 51, 51, 0.9);
+    background: rgba(51, 51, 51, 0.95);
     backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.logo {
+    color: var(--white);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.logo span {
+    color: var(--primary-color);
 }
 
 .nav-links {
     display: flex;
-    justify-content: center;
     list-style: none;
     gap: 1.5rem;
-}
-
-.nav-links li {
-    margin: 0;
 }
 
 .nav-links a {
     color: var(--white);
     text-decoration: none;
     font-size: 1rem;
-    font-weight: 600;
-    transition: var(--transition);
+    font-weight: 500;
     position: relative;
     padding: 0.5rem 0;
+    transition: var(--transition);
 }
 
 .nav-links a::after {
@@ -89,12 +106,91 @@ nav {
     display: none;
     background: none;
     border: none;
-    font-size: 2rem;
-    color: var(--white);
     cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
 }
 
-/* Modern Header */
+.hamburger {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--white);
+    position: relative;
+    transition: var(--transition);
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: var(--white);
+    left: 0;
+    transition: var(--transition);
+}
+
+.hamburger::before {
+    top: -8px;
+}
+
+.hamburger::after {
+    bottom: -8px;
+}
+
+.nav-toggle.active .hamburger {
+    background: transparent;
+}
+
+.nav-toggle.active .hamburger::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.nav-toggle.active .hamburger::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+/* Mobile menu styles */
+@media (max-width: 768px) {
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 70px);
+        background: rgba(51, 51, 51, 0.98);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        padding: 2rem 0;
+        visibility: hidden;
+        opacity: 0;
+        z-index: 999;
+    }
+
+    .nav-links.active {
+        transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-links a {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Header */
 header {
     position: relative;
     background: linear-gradient(135deg, var(--dark-color), var(--secondary-color), var(--dark-color));
@@ -119,7 +215,7 @@ header::before {
 .course-header-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 3rem;
     position: relative;
     z-index: 2;
@@ -127,57 +223,22 @@ header::before {
 
 .course-header-text {
     flex: 1;
-    text-align: center; 
-}
-
-
-/* Update nav container to center without logo */
-.nav-container {
-    display: flex;
-    justify-content: left; /* Changed from space-between to center */
-    align-items: center;
-    max-width: 1200px;
+    text-align: center;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 0 1rem;
 }
 
 .course-header-text h1 {
     font-size: 3rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     line-height: 1.2;
     color: var(--primary-color);
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-.course-header-image {
-    flex: 1;
-    max-width: 400px;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    transition: transform 0.5s ease;
-    position: relative;
-}
-
-.course-header-image::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, rgba(255,215,0,0.1), transparent);
-}
-
-.course-header-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-    transition: transform 0.5s ease;
-}
-
-.course-header-image:hover img {
-    transform: scale(1.05);
+.course-header-text p {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.8);
 }
 
 /* Registration Section */
@@ -314,7 +375,8 @@ header::before {
     color: var(--error-color);
     border: 1px solid var(--error-color);
 }
-/* Footer Styles */
+
+/* Footer */
 footer {
     background-color: var(--secondary-color);
     color: var(--white);
@@ -332,32 +394,32 @@ footer {
     padding: 0 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center content horizontally */
-    text-align: center; /* Center text */
+    align-items: center;
+    text-align: center;
 }
 
 .footer-col h3 {
     color: var(--primary-color);
     margin-bottom: 1.5rem;
     font-size: 1.25rem;
-    width: 100%; /* Ensure full width for proper centering */
+    width: 100%;
 }
 
 .footer-col p {
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    justify-content: center; /* Center the content */
+    justify-content: center;
     gap: 0.5rem;
-    width: 100%; /* Ensure full width */
+    width: 100%;
 }
 
 .social-links {
     display: flex;
-    justify-content: center; /* Center the icons */
+    justify-content: center;
     gap: 1rem;
-    width: 100%; /* Take full width */
-    margin-top: 0.5rem; /* Add some spacing */
+    width: 100%;
+    margin-top: 0.5rem;
 }
 
 .social-links a {
@@ -401,21 +463,39 @@ footer {
     text-decoration: underline;
 }
 
-/* Responsive adjustments */
+/* Responsive Design */
+@media (max-width: 992px) {
+    .course-header-text h1 {
+        font-size: 2.5rem;
+    }
+}
+
 @media (max-width: 768px) {
-    .footer-grid {
-        grid-template-columns: 1fr;
+    .course-header {
+        padding: 7rem 0 3rem;
+        min-height: auto;
     }
     
-    .footer-col {
-        margin-bottom: 1.5rem;
+    .course-header-text h1 {
+        font-size: 2rem;
     }
     
-    .footer-col:last-child {
-        margin-bottom: 0;
+    .register-form-container {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .course-header-text h1 {
+        font-size: 1.8rem;
     }
     
-    .social-links {
-        justify-content: center;
+    .register-form-container {
+        padding: 1.5rem;
+    }
+    
+    .course-info {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }

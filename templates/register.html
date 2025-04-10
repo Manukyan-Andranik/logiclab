@@ -12,10 +12,14 @@
 <body>
     <nav>
         <div class="nav-container">
-            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+            <a href="{{ url_for('home') }}" class="logo">Logic<span>Lab</span></a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
-                <li><a href="{{ url_for('home') }}#courses">Դասընթացներ</a></li>
+                <li><a href="{{ url_for('all_courses') }}">Դասընթացներ</a></li>
+                <li><a href="#instructors">Դասախոսներ</a></li>
                 <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
             </ul>
         </div>
@@ -105,18 +109,47 @@
     </footer>
 
     <script>
-        // Mobile navigation toggle
-        document.querySelector('.nav-toggle').addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('show');
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile navigation toggle
+            const toggle = document.querySelector('.nav-toggle');
+            const links = document.querySelector('.nav-links');
+            const body = document.body;
 
-        // Form input validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const phone = document.getElementById('phone').value;
-            if (!/^\+?\d{8,15}$/.test(phone)) {
-                alert('Խնդրում ենք մուտքագրել վավեր հեռախոսահամար');
-                e.preventDefault();
-            }
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                links.classList.toggle('active');
+                this.classList.toggle('active');
+                
+                // Toggle body overflow
+                body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
+            });
+
+            // Close menu when clicking on links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    links.classList.remove('active');
+                    toggle.classList.remove('active');
+                    body.style.overflow = '';
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
+                    links.classList.remove('active');
+                    toggle.classList.remove('active');
+                    body.style.overflow = '';
+                }
+            });
+
+            // Form input validation
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const phone = document.getElementById('phone').value;
+                if (!/^\+?\d{8,15}$/.test(phone)) {
+                    alert('Խնդրում ենք մուտքագրել վավեր հեռախոսահամար');
+                    e.preventDefault();
+                }
+            });
         });
     </script>
 </body>

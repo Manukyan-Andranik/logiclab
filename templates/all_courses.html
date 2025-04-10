@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="hy">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Բոլոր Դասընթացները - Logic Lab</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all_courses_style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+</head>
+
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="logo">Logic<span>Lab</span></a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
+                <li><a href="{{ url_for('instructors') }}">Դասախոսներ</a></li>
+                <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="courses-hero">
+        <div class="container">
+            <h1 data-aos="fade-right">Բոլոր <span class="highlight">Դասընթացները</span></h1>
+            <p data-aos="fade-right" data-aos-delay="100">Ընտրեք ձեզ հետաքրքրող դասընթացը և սկսեք ձեր ուսումնական
+                ճանապարհորդությունը</p>
+        </div>
+    </section>
+
+    <section id="courses" class="all-courses-section">
+        <div class="container">
+            <div class="courses-grid">
+                {% for course_id, course in courses.items() %}
+                {% if course.is_active %}
+                <div class="course-card">
+                    <a href="{{ url_for('course_details', course_id=course_id) }}" class="course-card-link"
+                        data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                        <div class="course-icon">
+                            <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}" alt="{{ course.title }} Icon">
+                        </div>
+                        <h3>{{ course.title }}</h3>
+                        <a href="{{ course.portfolio }}" target="_blank" class="portfolio-link">Portfolio</a>
+                        <div class="course-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Մեկնարկ՝ {{ course.start_date }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Տևողություն՝ {{ course.duration }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user-tie"></i>
+                                    <a href="{{ url_for('instructors') }}">Դասախոս՝ {{ course.instructor }}</a>
+                                </div>
+                        </div>
+                        <div class="course-more-info">
+                            <a href="{{ url_for('course_details', course_id=course_id) }}" class="more-info">Կարդալ
+                                ավելին</a>
+                        </div>
+                </div>
+                </a>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© 2025 Powered by</p>
+                <a href="#">Soul's of Code</a>
+                <p>&</p>
+                <a href="#">ViewBox</a>
+            </div>
+        </div>
+    </footer>
+
+    <button id="back-to-top" class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                offset: 100,
+                delay: 100
+            });
+
+            // Back to Top
+            const backToTopButton = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+            });
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Mobile navigation toggle
+            const toggle = document.querySelector('.nav-toggle');
+            const links = document.querySelector('.nav-links');
+            const body = document.body;
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                links.classList.toggle('active');
+                this.classList.toggle('active');
+                
+                // Toggle body overflow
+                body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
+            });
+
+            // Close menu when clicking on links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    links.classList.remove('active');
+                    toggle.classList.remove('active');
+                    body.style.overflow = '';
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
+                    links.classList.remove('active');
+                    toggle.classList.remove('active');
+                    body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

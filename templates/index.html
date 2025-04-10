@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>ML և 3DS Max ակադեմիա</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
@@ -16,12 +15,15 @@
 <body>
     <nav>
         <div class="nav-container">
-            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+            <a href="{{ url_for('home') }}" class="logo">Logic<span>Lab</span></a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
-                <li><a href="#courses">Դասընթացներ</a></li>
-                <li><a href="#about">Մեր մասին</a></li>
-                <li><a href="#contact">Կապ</a></li>
+                <li><a href="{{ url_for('all_courses') }}">Դասընթացներ</a></li>
+                <li><a href="{{ url_for('instructors') }}">Դասախոսներ</a></li>
+                <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
             </ul>
         </div>
     </nav>
@@ -46,7 +48,7 @@
                     <div class="data-point" style="top:60%; left:80%"></div>
                     <div class="data-point" style="top:70%; left:75%"></div>
                     <div class="data-point" style="top:65%; left:85%"></div>
-                    <div class="regression-line"></div>
+                        <div class="regression-line"></div>
                 </div>
 
                 <!-- 3D animation -->
@@ -70,76 +72,7 @@
                     <span class="tech-tag ml-tag">Machine Learning</span>
                     <span class="tech-tag d3-tag">3D Visualisation</span>
                 </div>
-                <a href="#courses" class="btn btn-pulse">Դիտել դասընթացները</a>
-            </div>
-        </div>
-    </section>
-
-    <section id="courses" class="courses-section">
-        <div class="container">
-            <h2 data-aos="fade-up">Մեր <span class="highlight">Դասընթացները</span></h2>
-            <div class="course-grid">
-                {% for course_id, course in courses.items() %}
-                    {% if course.is_active %}
-                        <div class="course-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
-                            <div class="course-icon">
-                                <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}"
-                                    class="icon-img" alt="Course Icon">
-                            </div>
-                            <h3>{{ course.title }}</h3>
-                            <p>{{ course.description }}</p>
-                            <div class="course-details">
-                                <p><i class="fas fa-calendar-alt"></i> Մեկնարկը՝ {{ course.start_date }}</p>
-                                <p><i class="fas fa-clock"></i> Տևողությունը՝ {{ course.duration }}</p>
-                                <p><i class="fas fa-calendar-week"></i> Ժամանակացույց՝ {{ course.schedule }}</p>
-                            </div>
-                            <a href="{{ url_for('course_details', course_id=course_id) }}" class="btn">Իմանալ ավելին</a>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-
-    <section id="about" class="about-section">
-        <div class="lecturers-wrapper">
-            <div class="lecturer-cards-container">
-                {% for instructor_id, instructor in instructors.items() %}
-                    <div class="lecturer-card" data-aos="fade-up">
-                        <img src="{{ url_for('static', filename='images/' ~ instructor.photo) }}"
-                            alt="{{ instructor.specialization }}" class="lecturer-image">
-                        <div class="lecturer-info">
-                            <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
-                            <h4>{{ instructor.specialization }}</h4>
-                            <p>{{ instructor.profession }}</p>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> {{ instructor.workExperience }}+ տարվա փորձ</li>
-                                <li><i class="fas fa-check-circle"></i> Կրթություն: {{ instructor.education.degree }} |
-                                    {{ instructor.education.fieldOfStudy }} | {{ instructor.education.institution }}
-                                </li>
-                                <li><i class="fas fa-check-circle"></i> Աշխատանքային փորձ</li>
-                                <ul style="padding-left: 20px;">
-                                    {% for company in instructor.companies %}
-                                        <li class="company-item"><i class="fas fa-building"></i> {{ company.company }} |
-                                            {{ company.type }} | {{ company.role }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <li><i class="fas fa-check-circle"></i> Հմտություններ: {{ instructor.skills|join(', ') }}</li>
-                            </ul>
-                            <div class="lecturer-contacts">
-                                <a href="tel:{{ instructor.contacts.phone }}" class="contact-link phone-link">
-                                    <i class="fas fa-phone"></i> Անձնական
-                                </a>
-                                <a href="{{ instructor.contacts.linkedin }}" target="_blank" class="contact-link">
-                                    <i class="fab fa-linkedin"></i> LinkedIn
-                                </a>
-                                <a href="{{ instructor.contacts.web }}" target="_blank" class="contact-link">
-                                    <i class="fas fa-globe"></i> WEB
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+                <a href="{{ url_for('all_courses') }}" class="btn btn-pulse">Դիտել դասընթացները</a>
             </div>
         </div>
     </section>
@@ -169,6 +102,9 @@
                 </div>
             </div>
         </div>
+        <button id="back-to-top" class="back-to-top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
     </section>
 
     <footer>
@@ -182,31 +118,19 @@
         </div>
     </footer>
 
-    <button id="back-to-top" class="back-to-top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS animations
             AOS.init({
                 duration: 800,
                 easing: 'ease-in-out',
                 once: true,
-                offset: 100,
-                delay: 100
+                offset: 100
             });
 
-            // Hero highlight
-            const highlights = document.querySelectorAll('.highlight-title');
-            setTimeout(() => {
-                highlights.forEach(highlight => {
-                    highlight.style.opacity = 1;
-                });
-            }, 500);
-
-            // Back to Top
+            // Back to Top button
             const backToTopButton = document.getElementById('back-to-top');
             window.addEventListener('scroll', () => {
                 if (window.pageYOffset > 300) {
@@ -222,14 +146,60 @@
                 });
             });
 
-            // Nav toggle
+            // Mobile navigation toggle
             const toggle = document.querySelector('.nav-toggle');
             const links = document.querySelector('.nav-links');
-            toggle.addEventListener('click', () => {
-                links.classList.toggle('show');
+            const body = document.body;
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                links.classList.toggle('active');
+                this.classList.toggle('active');
+                
+                // Toggle body overflow
+                body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
+            });
+
+            // Close menu when clicking on links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    links.classList.remove('active');
+                    toggle.classList.remove('active');
+                    body.style.overflow = '';
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
+                    links.classList.remove('active');
+                    toggle.classList.remove('active');
+                    body.style.overflow = '';
+                }
+            });
+
+            // Instructor card flip functionality
+            const cards = document.querySelectorAll('.instructor-card');
+            
+            // For touch devices
+            if ('ontouchstart' in window) {
+                cards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        this.classList.toggle('flipped');
+                    });
+                });
+            }
+            
+            // Optional: Add focus styles for accessibility
+            cards.forEach(card => {
+                card.addEventListener('focus', function() {
+                    this.classList.add('flipped');
+                });
+                card.addEventListener('blur', function() {
+                    this.classList.remove('flipped');
+                });
             });
         });
     </script>
 </body>
-
 </html>

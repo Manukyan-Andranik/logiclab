@@ -1,4 +1,5 @@
 import os
+import json
 from bson import ObjectId
 from datetime import datetime
 from pymongo import MongoClient
@@ -116,8 +117,39 @@ def home():
     all_courses = {}
     for id in course_ids:
         all_courses[id] = find_by_id(courses, id)
-
+    with open("courses.json", "w") as json_file:
+        json.dump(all_courses, json_file, indent=4)
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
+
+
+@app.route('/instructors')
+def instructors():
+    courses_collection, _, _, instructors_collection = get_collections()
+    instructors = list(instructors_collection.find())
+    instructor_ids = get_ids(instructors)
+    all_instructors = {}
+    for id in instructor_ids:
+        all_instructors[id] = find_by_id(instructors, id)
+    return render_template("instructors.html", instructors=all_instructors)
+
+
+@app.route('/all_courses')
+def all_courses():
+    courses_collection, _, _, instructors_collection = get_collections()
+    courses = list(courses_collection.find({"is_active": True}))
+    instructors = list(instructors_collection.find())
+    instructor_ids = get_ids(instructors)
+    all_instructors = {}
+    for id in instructor_ids:
+        all_instructors[id] = find_by_id(instructors, id)
+        
+    course_ids = get_ids(courses)
+    all_courses = {}
+    for id in course_ids:
+        all_courses[id] = find_by_id(courses, id)
+        
+    return render_template('all_courses.html', courses=all_courses)
+
 
 # Admin routes
 @app.route('/admin')
@@ -354,8 +386,6 @@ def admin_edit_instructor(instructor_id):
                 },
                 'companies': companies,
             }
-            print("____________")
-            print(updates["photo"])
             # Process skills
             skills = request.form.get("skills", "")
             updates["skills"] = [skill.strip() for skill in skills.split(",") if skill.strip()]
