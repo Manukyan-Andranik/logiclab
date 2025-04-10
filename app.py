@@ -605,10 +605,12 @@ def register(course_id):
     
     if request.method == 'POST':
         full_name = request.form['full_name']
-        email = request.form['email']
-        phone = request.form['phone']
         age = request.form['age']
         clas = request.form['class']
+        convenient_dates = request.form['convenient_dates']
+        email = request.form['email']
+        phone = request.form['phone']
+        
         
         if not all([full_name, email, phone, age, clas]):
             flash('Please fill all fields', 'error')
@@ -618,6 +620,7 @@ def register(course_id):
             'full_name': full_name,
             'age': age,
             'class': clas,
+            'convenient_dates': convenient_dates,
             'email': email,
             'phone': phone,
             'course_id': course_id,
@@ -626,8 +629,7 @@ def register(course_id):
             'status': 'pending'
         })
         
-        flash('Registration successful! We will contact you soon.', 'success')
-        return redirect(url_for('course_details', course_id=course_id))
+        flash('Գրանցումը հաջողվեց: Մենք շուտով կկապվենք ձեզ հետ', 'success')
     
     return render_template('register.html', course=course, course_id=course_id)
 
@@ -688,7 +690,7 @@ def contact():
                 """
             )
             mail.send(msg)
-            flash('Your message has been sent successfully!', 'success')
+            flash('Ձեր հաղորդագրությունը հաջողությամբ ուղարկվել է!', 'success')
             
         except Exception as e:
             app.logger.error(f"Failed to send email: {str(e)}")

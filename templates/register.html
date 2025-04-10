@@ -48,16 +48,30 @@
                     <i class="fas fa-clock"></i> {{ course.duration }}
                     <i class="fas fa-calendar-week"></i> {{ course.schedule }}
                 </p>
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
+                <div class="flash-messages">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="flash-message flash-{{ category }}">
+                                    <span class="flash-text">{{ message }}</span>
+                                    <button class="flash-close" onclick="this.parentElement.remove()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                 </div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
+
+                <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %} -->
 
                 <form method="POST" action="{{ url_for('register', course_id=course_id) }}">
                     <div class="form-group">
@@ -69,15 +83,14 @@
                         <label for="age"><i class="fas fa-age"></i> Տարիք</label>
                         <input type="number" id="age" name="age" placeholder="Ձեր տարիքը" min="0" step="1" required>
                     </div>
-
                     <div class="form-group">
                         <label for="class"><i class="fas fa-class"></i> Կրթություն</label>
-                        <input type="tel" id="class" name="class" placeholder="Ուսումնական հաստատություն/Դասարան"
+                        <input type="text" id="class" name="class" placeholder="Ուսումնական հաստատություն/Դասարան"
                             required>
                     </div>
                     <div class="form-group">
-                        <label for="convenient_ates"><i convenient_ates="fas fa-convenient_ates"></i> Նշումներ</label>
-                        <input type="tel" id="convenient_ates" name="convenient_ates"
+                        <label for="convenient_dates"><i class="fas fa-calendar-check"></i> Նշումներ</label>
+                        <input type="text" id="convenient_dates" name="convenient_dates"
                             placeholder="Մուտքագրեք ձեզ հարմար շաբաթվա օրերը" required>
                     </div>
                     <div class="form-group">
@@ -88,7 +101,6 @@
                         <label for="phone"><i class="fas fa-phone"></i> Հեռախոսահամար</label>
                         <input type="tel" id="phone" name="phone" placeholder="0XX-XXXXXX" pattern="0\d{2}-\d{6}"
                             required>
-
                     </div>
 
                     <button type="submit" class="btn btn-large">
@@ -131,7 +143,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Mobile navigation toggle
+            // Mobile nav
             const toggle = document.querySelector('.nav-toggle');
             const links = document.querySelector('.nav-links');
             const body = document.body;
@@ -140,12 +152,9 @@
                 e.stopPropagation();
                 links.classList.toggle('active');
                 this.classList.toggle('active');
-
-                // Toggle body overflow
                 body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
             });
 
-            // Close menu when clicking on links
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', () => {
                     links.classList.remove('active');
@@ -154,7 +163,6 @@
                 });
             });
 
-            // Close menu when clicking outside
             document.addEventListener('click', function (e) {
                 if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
                     links.classList.remove('active');
@@ -163,22 +171,28 @@
                 }
             });
 
-            // Form input validation
+            // Format phone input live as 0XX-XXXXXX
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function () {
+                let digits = this.value.replace(/\D/g, '').slice(0, 9);
+                if (digits.length > 3) {
+                    this.value = digits.slice(0, 3) + '-' + digits.slice(3);
+                } else {
+                    this.value = digits;
+                }
+            });
+
+            // Extra form validation (optional)
             document.querySelector('form').addEventListener('submit', function (e) {
-                const phone = document.getElementById('phone').value;
-                if (!/^\+?\d{8,15}$/.test(phone)) {
-                    alert('Խնդրում ենք մուտքագրել վավեր հեռախոսահամար');
+                const phoneVal = phoneInput.value;
+                const phonePattern = /^0\d{2}-\d{6}$/;
+                if (!phonePattern.test(phoneVal)) {
+                    alert('Խնդրում ենք մուտքագրել վավեր հեռախոսահամար՝ ձևաչափով 0XX-XXXXXX');
                     e.preventDefault();
                 }
             });
         });
     </script>
-    <script>
-        document.getElementById('phone').addEventListener('input', function (e) {
-            this.value = this.value.replace(/\D/g, ''); // Remove non-digits
-        });
-    </script>
-
 </body>
 
 </html>
