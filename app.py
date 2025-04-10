@@ -271,7 +271,7 @@ def admin_edit_course(course_id):
                     'curriculum': request.form.get('curriculum', ''),
                     'chapters': []
                 }
-
+                print("curriculum", updates["curriculum"])
                 # Process chapters
                 chapter_index = 0
                 while f'chapter_{chapter_index}_title' in request.form:
