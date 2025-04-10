@@ -117,8 +117,6 @@ def home():
     all_courses = {}
     for id in course_ids:
         all_courses[id] = find_by_id(courses, id)
-    with open("courses.json", "w") as json_file:
-        json.dump(all_courses, json_file, indent=4)
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
 
 
