@@ -483,6 +483,7 @@ nav {
 }
 
 .contact-form {
+  max-width: 300px;
   background: var(--white);
   padding: 2rem;
   border-radius: 0.5rem;
@@ -696,6 +697,7 @@ footer {
 @media (max-width: 576px) {
   .container {
       padding: 0 1rem;
+      right: 40px;
   }
 
   section {
@@ -709,7 +711,7 @@ footer {
   /* Adjust back-to-top button for very small screens */
   .back-to-top {
       bottom: 10px;
-      right: 10px;
+      right: 40px;
       width: 40px;
       height: 40px;
   }
