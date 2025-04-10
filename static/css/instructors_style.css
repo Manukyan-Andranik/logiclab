@@ -210,8 +210,8 @@ nav {
 
 .instructor-image {
     position: relative;
-    max-width: 100px;
-    height: auto;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     overflow: hidden;
     margin-bottom: 1.5rem;
@@ -221,7 +221,7 @@ nav {
 
 .instructor-image img {
     max-width: 100px;
-    height: auto;
+    height: 100px;
     object-fit: cover;
     transition: var(--transition);
 }
