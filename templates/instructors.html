@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
-
 </head>
 
 <body>
@@ -32,11 +31,6 @@
     <main class="instructors-main">
         <section class="instructors-hero">
             <div class="container">
-            <h1>
-
-
-
-            </h1>
                 <h1 data-aos="fade-up">Մեր <span class="highlight">Դասախոսները</span></h1>
                 <p data-aos="fade-up" data-aos-delay="100">Ոլորտի լավագույն մասնագետները, որոնք կօգնեն ձեզ յուրացնել նոր
                     հմտություններ</p>
@@ -47,62 +41,68 @@
             <div class="container">
                 <div class="instructors-grid">
                     {% for instructor_id, instructor in instructors.items() %}
-                    <div class="instructor-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
-                        <div class="card-front">
-                            <div class="instructor-image">
-                                <img src="{{ url_for('static', filename='images/' ~ instructor.photo) }}"
-                                    alt="{{ instructor.firstName }} {{ instructor.lastName }}">
-                            </div>
-                            <div class="basic-info">
-                                <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
-                                <p class="specialization">{{ instructor.specialization }}</p>
-                                <div class="experience">
-                                    <i class="fas fa-briefcase"></i>
-                                    <p class="profession">{{ instructor.profession }}</p>
-                                    <span>{{ instructor.workExperience }}+ տարի փորձ</span>
+                    <div class="instructor-card" id="instructor-{{ instructor_id }}" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                        <button class="flip-btn" aria-label="Flip card" data-instructor-id="{{ instructor_id }}">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <div class="card-inner" >
+                            <div class="card-front">
+                                <div class="instructor-image">
+                                    <img src="{{ instructor.photo_url }}"
+                                         alt="{{ instructor.firstName }} {{ instructor.lastName }}">
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="card-back">
-                            <div class="detailed-info">
-                                <div class="back-header">
+                                                            
+                                <div class="basic-info">
                                     <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
+                                    <p class="specialization">{{ instructor.specialization }}</p>
+                                    <div class="experience">
+                                        <i class="fas fa-briefcase"></i>
+                                        <p class="profession">{{ instructor.profession }}</p>
+                                        <span>{{ instructor.workExperience }}+ տարի փորձ</span>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="scrollable-content">
-                                    <div class="education">
-                                        <h4><i class="fas fa-graduation-cap"></i> Կրթություն</h4>
-                                        <p>{{ instructor.education.degree }}</p>
-                                        <p>{{ instructor.education.fieldOfStudy }}</p>
-                                        <p>{{ instructor.education.institution }}</p>
+                            <div class="card-back">
+                                <div class="detailed-info">
+                                    <div class="back-header">
+                                        <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
                                     </div>
 
-                                    <div class="skills">
-                                        <h4><i class="fas fa-code"></i> Հմտություններ</h4>
-                                        <div class="skills-tags">
-                                            {% for skill in instructor.skills %}
-                                            <span class="tag">{{ skill }}</span>
-                                            {% endfor %}
+                                    <div class="scrollable-content">
+                                        <div class="education">
+                                            <h4><i class="fas fa-graduation-cap"></i> Կրթություն</h4>
+                                            <p>{{ instructor.education.degree }}</p>
+                                            <p>{{ instructor.education.fieldOfStudy }}</p>
+                                            <p>{{ instructor.education.institution }}</p>
+                                        </div>
+
+                                        <div class="skills">
+                                            <h4><i class="fas fa-code"></i> Հմտություններ</h4>
+                                            <div class="skills-tags">
+                                                {% for skill in instructor.skills %}
+                                                <span class="tag">{{ skill }}</span>
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="contact">
-                                    <a href="tel:{{ instructor.contacts.phone }}" class="contact-btn phone"
-                                        aria-label="Phone">
-                                        <i class="fas fa-phone-alt"></i>
-                                    </a>
-                                    <a href="{{ instructor.contacts.linkedin }}" target="_blank"
-                                        class="contact-btn linkedin" aria-label="LinkedIn">
-                                        <i class="fab fa-linkedin-in"></i>
-                                    </a>
-                                    {% if instructor.contacts.web %}
-                                    <a href="{{ instructor.contacts.web }}" target="_blank" class="contact-btn web"
-                                        aria-label="Website">
-                                        <i class="fas fa-globe"></i>
-                                    </a>
-                                    {% endif %}
+                                    <div class="contact">
+                                        <a href="tel:{{ instructor.contacts.phone }}" class="contact-btn phone"
+                                            aria-label="Phone">
+                                            <i class="fas fa-phone-alt"></i>
+                                        </a>
+                                        <a href="{{ instructor.contacts.linkedin }}" target="_blank"
+                                            class="contact-btn linkedin" aria-label="LinkedIn">
+                                            <i class="fab fa-linkedin-in"></i>
+                                        </a>
+                                        {% if instructor.contacts.web %}
+                                        <a href="{{ instructor.contacts.web }}" target="_blank" class="contact-btn web"
+                                            aria-label="Website">
+                                            <i class="fas fa-globe"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -116,7 +116,6 @@
     <button id="back-to-top" class="back-to-top" aria-label="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
-
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -159,32 +158,16 @@
                     toggle.classList.remove('active');
                 });
             });
+
+            // Card flip functionality - only on button click
+            document.querySelectorAll('.flip-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const card = this.closest('.instructor-card');
+                    card.classList.toggle('flipped');
+                });
+            });
         });
     </script>
 </body>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const cards = document.querySelectorAll('.instructor-card');
-
-        // For touch devices
-        if ('ontouchstart' in window) {
-            cards.forEach(card => {
-                card.addEventListener('click', function () {
-                    this.classList.toggle('flipped');
-                });
-            });
-        }
-
-        // Optional: Add focus styles for accessibility
-        cards.forEach(card => {
-            card.addEventListener('focus', function () {
-                this.classList.add('flipped');
-            });
-            card.addEventListener('blur', function () {
-                this.classList.remove('flipped');
-            });
-        });
-    });
-</script>
-
 </html>
