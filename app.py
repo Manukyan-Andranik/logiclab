@@ -258,6 +258,7 @@ def admin_edit_course(course_id):
             try:
                 updates = {
                     'title': request.form.get('title'),
+                    'icon_url': request.form.get('icon_url'),
                     'duration': request.form.get('duration'),
                     'start_date': request.form.get('start_date'),
                     'schedule': request.form.get('schedule'),

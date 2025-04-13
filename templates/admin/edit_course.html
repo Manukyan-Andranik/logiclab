@@ -18,7 +18,13 @@
         <label for="title">Course Title*</label>
         <input type="text" id="title" name="title" value="{{ course.title }}" required>
     </div>
-    
+    <div class="form-group">
+        <label for="icon_url">Photo</label>
+            {% if course.icon_url %}
+            <img src="{{ course.icon_url }}" class="current-icon_url">
+            {% endif %}
+            <input type="text" id="icon_url" name="icon_url" value="{{ course.icon_url }}" required>
+    </div>
     <div class="form-row">
         <div class="form-group">
             <label for="start_date">Start Date*</label>

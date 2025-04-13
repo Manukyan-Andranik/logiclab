@@ -46,7 +46,7 @@
                     <a href="{{ url_for('course_details', course_id=course_id) }}" class="course-card-link"
                         data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
                         <div class="course-icon">
-                            <img src="{{ url_for('static', filename='images/ml_icon.png') if course_id == 'machine_learning' else url_for('static', filename='images/cube_icon.png') }}" alt="{{ course.title }} Icon">
+                            <img src="{{ course.icon_url }}"  class="course-icon" alt="{{ course.title }} Icon">
                         </div>
                         <h3>{{ course.title }}</h3>
                         <a href="{{ course.portfolio }}" target="_blank" class="portfolio-link">Portfolio</a>

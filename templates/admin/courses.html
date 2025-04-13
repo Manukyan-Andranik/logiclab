@@ -26,6 +26,7 @@
     <div class="course-card">
         <div class="course-header">
             <h2>{{ course.title }}</h2>
+
             <span class="status-badge {{ 'active' if course.is_active else 'inactive' }}">
                 {{ 'Active' if course.is_active else 'Inactive' }}
             </span>

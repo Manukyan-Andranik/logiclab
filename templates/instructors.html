@@ -42,17 +42,9 @@
                 <div class="instructors-grid">
                     {% for instructor_id, instructor in instructors.items() %}
                     <div class="instructor-card" id="instructor-{{ instructor_id }}" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
-                        <button class="flip-btn" aria-label="Flip card" data-instructor-id="{{ instructor_id }}">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <div class="card-inner" >
-                            <div class="card-front">
-                                <div class="instructor-image">
-                                    <img src="{{ instructor.photo_url }}"
-                                         alt="{{ instructor.firstName }} {{ instructor.lastName }}">
-                                </div>
-                                                            
-                                <div class="basic-info">
+                        <div class="cell" style="background-image: url('{{ instructor.photo_url }}')">
+                            <div class="info">
+                                <div class="instructor-content">
                                     <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
                                     <p class="specialization">{{ instructor.specialization }}</p>
                                     <div class="experience">
@@ -60,45 +52,32 @@
                                         <p class="profession">{{ instructor.profession }}</p>
                                         <span>{{ instructor.workExperience }}+ տարի փորձ</span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="card-back">
-                                <div class="detailed-info">
-                                    <div class="back-header">
-                                        <h3>{{ instructor.firstName }} {{ instructor.lastName }}</h3>
+                                    
+                                    <div class="education">
+                                        <h4><i class="fas fa-graduation-cap"></i> Կրթություն</h4>
+                                        <p>{{ instructor.education.degree }}</p>
+                                        <p>{{ instructor.education.fieldOfStudy }}</p>
+                                        <p>{{ instructor.education.institution }}</p>
                                     </div>
-
-                                    <div class="scrollable-content">
-                                        <div class="education">
-                                            <h4><i class="fas fa-graduation-cap"></i> Կրթություն</h4>
-                                            <p>{{ instructor.education.degree }}</p>
-                                            <p>{{ instructor.education.fieldOfStudy }}</p>
-                                            <p>{{ instructor.education.institution }}</p>
-                                        </div>
-
-                                        <div class="skills">
-                                            <h4><i class="fas fa-code"></i> Հմտություններ</h4>
-                                            <div class="skills-tags">
-                                                {% for skill in instructor.skills %}
-                                                <span class="tag">{{ skill }}</span>
-                                                {% endfor %}
-                                            </div>
+                                    
+                                    <div class="skills">
+                                        <h4><i class="fas fa-code"></i> Հմտություններ</h4>
+                                        <div class="skills-tags">
+                                            {% for skill in instructor.skills %}
+                                            <span class="tag">{{ skill }}</span>
+                                            {% endfor %}
                                         </div>
                                     </div>
-
+                                    
                                     <div class="contact">
-                                        <a href="tel:{{ instructor.contacts.phone }}" class="contact-btn phone"
-                                            aria-label="Phone">
+                                        <a href="tel:{{ instructor.contacts.phone }}" class="contact-btn phone" aria-label="Phone">
                                             <i class="fas fa-phone-alt"></i>
                                         </a>
-                                        <a href="{{ instructor.contacts.linkedin }}" target="_blank"
-                                            class="contact-btn linkedin" aria-label="LinkedIn">
+                                        <a href="{{ instructor.contacts.linkedin }}" target="_blank" class="contact-btn linkedin" aria-label="LinkedIn">
                                             <i class="fab fa-linkedin-in"></i>
                                         </a>
                                         {% if instructor.contacts.web %}
-                                        <a href="{{ instructor.contacts.web }}" target="_blank" class="contact-btn web"
-                                            aria-label="Website">
+                                        <a href="{{ instructor.contacts.web }}" target="_blank" class="contact-btn web" aria-label="Website">
                                             <i class="fas fa-globe"></i>
                                         </a>
                                         {% endif %}
@@ -156,15 +135,6 @@
                 link.addEventListener('click', () => {
                     links.classList.remove('active');
                     toggle.classList.remove('active');
-                });
-            });
-
-            // Card flip functionality - only on button click
-            document.querySelectorAll('.flip-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const card = this.closest('.instructor-card');
-                    card.classList.toggle('flipped');
                 });
             });
         });
