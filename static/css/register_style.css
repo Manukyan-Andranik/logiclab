@@ -462,7 +462,6 @@ footer {
     color: var(--primary-dark);
     text-decoration: underline;
 }
-
 /* Responsive Design */
 @media (max-width: 992px) {
     .course-header-text h1 {
