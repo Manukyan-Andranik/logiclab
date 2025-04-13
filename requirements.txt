@@ -5,3 +5,4 @@ flask-cors==4.0.0
 gunicorn==20.1.0
 Werkzeug==2.2.3
 flask_mail
+requests==2.25.1
