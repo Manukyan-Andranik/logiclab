@@ -1,5 +1,7 @@
 import os
 import hashlib
+import requests
+from requests import request
 from datetime import datetime
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -13,7 +15,8 @@ def load_env():
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
-    return MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER
+    DEFAULT_INSTRUCTOR_PHOTO = os.getenv('DEFAULT_INSTRUCTOR_PHOTO')
+    return MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, DEFAULT_INSTRUCTOR_PHOTO
 
 def generate_api_key():
     return hashlib.sha256(os.urandom(32)).hexdigest()
@@ -39,3 +42,10 @@ def check_db(uri):
         })
     
     client.close()
+
+def is_valid_url(url):
+    try:
+        response = requests.head(url, allow_redirects=False, timeout=3)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False

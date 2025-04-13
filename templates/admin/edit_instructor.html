@@ -44,11 +44,11 @@
                 <input type="number" id="workExperience" name="workExperience" value="{{ instructor.workExperience }}" required>
             </div>
             <div class="form-group">
-                <label for="photo">Photo</label>
-                    {% if instructor.photo %}
-                    <img src="{{ url_for('static', filename='images/' + instructor.photo) }}" class="current-photo">
+                <label for="photo_url">Photo</label>
+                    {% if instructor.photo_url %}
+                    <img src="{{ instructor.photo_url }}" class="current-photo_url">
                     {% endif %}
-                    <input type="text" id="photo" name="photo" value="{{ instructor.photo }}" required>
+                    <input type="text" id="photo_url" name="photo_url" value="{{ instructor.photo_url }}" required>
             </div>
         </div>
     </div>

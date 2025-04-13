@@ -25,7 +25,7 @@
     {% for instructor in instructors %}
     <div class="instructor-card">
         <div class="instructor-header">
-            <img src="{{ url_for('static', filename='images/' + instructor.photo) }}" alt="{{ instructor.firstName }} {{ instructor.lastName }}" class="instructor-photo">
+            <img src="{{ instructor.photo_url }}" alt="{{ instructor.firstName }} {{ instructor.lastName }}" class="instructor-photo">
             <h2>{{ instructor.firstName }} {{ instructor.lastName }}</h2>
             <span class="specialization-badge">{{ instructor.specialization }}</span>
         </div>

@@ -7,12 +7,12 @@ from urllib.parse import quote_plus
 from flask_mail import Mail, Message
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
 
-from utils import get_ids, find_by_id, load_env
+from utils import get_ids, find_by_id, load_env, is_valid_url
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Load environment variables
-MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER = load_env()
+MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, DEFAULT_INSTRUCTOR_PHOTO = load_env()
 app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
@@ -364,6 +364,8 @@ def admin_edit_instructor(instructor_id):
 
             # Save to instructor object
             instructor['companies'] = companies
+            photo_url = request.form.get('photo_url')
+            photo_url = photo_url if is_valid_url(photo_url) else DEFAULT_INSTRUCTOR_PHOTO
             # Basic info
             updates = {
                 "firstName": request.form.get("firstName"),
@@ -371,7 +373,7 @@ def admin_edit_instructor(instructor_id):
                 "profession": request.form.get("profession"),
                 "specialization": request.form.get("specialization"),
                 "workExperience": int(request.form.get("workExperience", 0)),
-                "photo": request.form.get("photo", instructor.get("photo", "")),
+                "photo_url": photo_url,    
                 "education": {
                     "institution": request.form.get("education_institution"),
                     "degree": request.form.get("education_degree"),
