@@ -1,4 +1,3 @@
-# app.py (fixed version)
 import os
 import json
 import requests
@@ -54,9 +53,6 @@ def get_collections():
     )
 
 def track_visit():
-    # Skip if this is an admin visit
-    if 'admin_logged_in' in session:
-        return
     
     ip_address = request.remote_addr
     
@@ -348,7 +344,7 @@ def admin_visitor_details(ip):
 @app.before_request
 def before_request():
     # Skip admin and static files
-    if request.endpoint and not request.path.startswith('/admin') and request.endpoint != 'static':
+    if request.endpoint:
         track_visit()
 
 
