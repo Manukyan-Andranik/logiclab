@@ -351,6 +351,7 @@ def before_request():
 # APP ROUTES
 @app.route('/')
 def home():
+    track_visit()
     courses_collection, _, _, instructors_collection = get_collections()
     courses = list(courses_collection.find({"is_active": True}))
     instructors = list(instructors_collection.find())
