@@ -32,6 +32,20 @@
             </div>
         </div>
     </div>
+    <div class="recent-visitors">
+        <h2><i class="fas fa-clock"></i> Recent Visitors</h2>
+        <div class="visitors-list">
+            {% for visitor in recent_visitors %}
+            <div class="visitor-item">
+                <span class="visitor-ip">{{ visitor.ip_address }}</span>
+                <span class="visitor-time">{{ visitor.timestamp.strftime('%H:%M') }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('admin_visitors') }}" class="btn btn-view-all">
+            View All Visitors
+        </a>
+    </div>
 
     <div class="courses-stats">
         <h2><i class="fas fa-chart-bar"></i> Course Enrollment Statistics</h2>

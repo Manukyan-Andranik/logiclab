@@ -1,5 +1,10 @@
+# app.py (fixed version)
 import os
 import json
+import requests
+import socket
+import platform
+from user_agents import parse
 from bson import ObjectId
 from datetime import datetime
 from pymongo import MongoClient
@@ -8,6 +13,7 @@ from flask_mail import Mail, Message
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
 
 from utils import get_ids, find_by_id, load_env, is_valid_url
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
@@ -46,6 +52,107 @@ def get_collections():
         db.admins,
         db.instructors
     )
+
+def track_visit():
+    # Skip if this is an admin visit
+    if 'admin_logged_in' in session:
+        return
+    
+    ip_address = request.remote_addr
+    
+    # Skip private/local IPs
+    if ip_address.startswith(('127' ,'10.', '192.168.', '172.')):
+        return
+    
+    # Get geolocation data
+    geo_data = get_ip_geolocation(ip_address)
+    if not geo_data:  # Skip if geolocation failed
+        return
+    
+    db = get_db()
+    visits = db.visits
+    user_agent_str = request.headers.get('User-Agent', '')
+    user_agent = parse(user_agent_str)
+    referrer = request.headers.get('Referer', '')
+    path = request.path
+    
+    try:
+        # Try to get hostname from IP (may not always work)
+        hostname = socket.gethostbyaddr(ip_address)[0]
+    except (socket.herror, socket.gaierror):
+        hostname = None
+    
+    visit_data = {
+        'ip_address': ip_address,
+        'geo': geo_data,
+        'hostname': hostname,
+        'user_agent_raw': user_agent_str,
+        'browser': user_agent.browser.family,
+        'browser_version': user_agent.browser.version_string,
+        'os': user_agent.os.family,
+        'os_version': user_agent.os.version_string,
+        'device': user_agent.device.family,
+        'is_mobile': user_agent.is_mobile,
+        'is_tablet': user_agent.is_tablet,
+        'is_pc': user_agent.is_pc,
+        'is_bot': user_agent.is_bot,
+        'referrer': referrer,
+        'path': path,
+        'timestamp': datetime.now(),
+        'date': datetime.now().strftime('%Y-%m-%d'),
+        'time': datetime.now().strftime('%H:%M:%S')
+    }
+    
+    try:
+        visits.insert_one(visit_data)
+    except Exception as e:
+        app.logger.error(f"Failed to track visit: {str(e)}")
+
+def get_ip_geolocation(ip_address):
+    try:
+        # First try with free ip-api.com
+        response = requests.get(f'http://ip-api.com/json/{ip_address}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query')
+        data = response.json()
+        
+        if data.get('status') == 'success':
+            return {
+                'country': data.get('country', 'Unknown'),
+                'country_code': data.get('countryCode', ''),
+                'region': data.get('regionName', 'Unknown'),
+                'city': data.get('city', 'Unknown'),
+                'zip': data.get('zip', ''),
+                'latitude': data.get('lat'),
+                'longitude': data.get('lon'),
+                'timezone': data.get('timezone', ''),
+                'isp': data.get('isp', ''),
+                'is_mobile': data.get('mobile', False),
+                'is_proxy': data.get('proxy', False),
+                'is_hosting': data.get('hosting', False)
+            }
+        
+        # Fallback to local GeoLite2 database if available
+        try:
+            with geoip2.database.Reader('GeoLite2-City.mmdb') as reader:
+                response = reader.city(ip_address)
+                return {
+                    'country': response.country.name,
+                    'country_code': response.country.iso_code,
+                    'region': response.subdivisions.most_specific.name if response.subdivisions else None,
+                    'city': response.city.name,
+                    'postal_code': response.postal.code,
+                    'latitude': response.location.latitude,
+                    'longitude': response.location.longitude,
+                    'timezone': response.location.time_zone,
+                    'is_in_european_union': response.country.is_in_european_union,
+                    'accuracy_radius': response.location.accuracy_radius
+                }
+        except:
+            return None
+            
+    except Exception as e:
+        app.logger.error(f"Geolocation error: {e}")
+        return None
+
 
 def send_status_email(to_email, student_name, course_name, new_status):
     try:
@@ -101,6 +208,149 @@ def admin_required(f):
         return f(*args, **kwargs)
     wrapper.__name__ = f.__name__
     return wrapper
+
+@app.route('/admin/visitors')
+@admin_required
+def admin_visitors():
+    db = get_db()
+    visits = db.visits
+    # Add to your aggregation pipeline
+    country_stats = list(visits.aggregate([
+        {"$match": {"geo.country": {"$exists": True}}},
+        {
+            "$group": {
+                "_id": "$geo.country",
+                "count": {"$sum": 1},
+                "code": {"$first": "$geo.country_code"}
+            }
+        },
+        {"$sort": {"count": -1}}
+    ]))
+    
+    # Get visitor statistics
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$ip_address",
+                "total_visits": {"$sum": 1},
+                "last_visit": {"$max": "$timestamp"},
+                "first_visit": {"$min": "$timestamp"},
+                "browser": {"$last": "$browser"},
+                "os": {"$last": "$os"},
+                "device": {"$last": "$device"},
+                "is_bot": {"$last": "$is_bot"}
+            }
+        },
+        {"$sort": {"last_visit": -1}}
+    ]
+    
+    visitors = list(visits.aggregate(pipeline))
+    
+    # Get daily visit counts
+    daily_pipeline = [
+        {
+            "$group": {
+                "_id": "$date",
+                "visits": {"$sum": 1},
+                "unique_visitors": {"$addToSet": "$ip_address"}
+            }
+        },
+        {
+            "$project": {
+                "date": "$_id",
+                "visits": 1,
+                "unique_visitors": {"$size": "$unique_visitors"},
+                "_id": 0
+            }
+        },
+        {"$sort": {"date": -1}}
+    ]
+    
+    daily_stats = list(visits.aggregate(daily_pipeline))
+    
+    # Get device statistics
+    device_stats = list(visits.aggregate([
+        {
+            "$group": {
+                "_id": "$device",
+                "count": {"$sum": 1}
+            }
+        },
+        {"$sort": {"count": -1}}
+    ]))
+    
+    # Get browser statistics
+    browser_stats = list(visits.aggregate([
+        {
+            "$group": {
+                "_id": "$browser",
+                "count": {"$sum": 1}
+            }
+        },
+        {"$sort": {"count": -1}}
+    ]))
+    
+    # Get OS statistics
+    os_stats = list(visits.aggregate([
+        {
+            "$group": {
+                "_id": "$os",
+                "count": {"$sum": 1}
+            }
+        },
+        {"$sort": {"count": -1}}
+    ]))
+    
+    return render_template('admin/visitors.html', 
+                         visitors=visitors, 
+                         daily_stats=daily_stats,
+                         device_stats=device_stats,
+                         browser_stats=browser_stats,
+                         os_stats=os_stats,
+                         total_visits=visits.count_documents({}),
+                         unique_visitors=len(visitors))
+
+
+@app.route('/admin/visitors/<ip>')
+@admin_required
+def admin_visitor_details(ip):
+    db = get_db()
+    visits = db.visits
+    
+    # Get all visits from this IP
+    visitor_visits = list(visits.find({"ip_address": ip}).sort("timestamp", -1))
+    
+    if not visitor_visits:
+        flash('No visits found for this IP address', 'error')
+        return redirect(url_for('admin_visitors'))
+    
+    # Get first and last visit
+    first_visit = visitor_visits[-1]
+    last_visit = visitor_visits[0]
+    
+    # Get browser and device info from last visit
+    browser = last_visit.get('browser', 'Unknown')
+    os = last_visit.get('os', 'Unknown')
+    device = last_visit.get('device', 'Unknown')
+    
+    return render_template('admin/visitor_details.html',
+                         ip=ip,
+                         visits=visitor_visits,
+                         total_visits=len(visitor_visits),
+                         first_visit=first_visit,
+                         last_visit=last_visit,
+                         browser=browser,
+                         os=os,
+                         device=device)
+
+
+# Add this before each route that you want to track
+@app.before_request
+def before_request():
+    # Skip admin and static files
+    if request.endpoint and not request.path.startswith('/admin') and request.endpoint != 'static':
+        track_visit()
+
 
 # APP ROUTES
 @app.route('/')
@@ -185,10 +435,11 @@ def admin_dashboard():
             'courses.course_id': str(course_id),
             'courses.status': 'completed'
         })
-    
+    recent_visitors = list(get_db().visits.find().sort('timestamp', -1).limit(5))
     return render_template('admin/dashboard.html', 
                          courses=all_courses,
-                         total_students=total_students)
+                         total_students=total_students,
+                         recent_visitors=recent_visitors)
     
 @app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
@@ -733,6 +984,7 @@ def contact():
             flash('Failed to send your message. Please try again later.', 'error')
         
         return redirect(url_for('home') + '#contact')
+
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001, debug=True)
