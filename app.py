@@ -153,8 +153,43 @@ def all_courses():
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    return redirect(url_for('admin_courses'))
-
+    courses_collection, students_collection, _, _ = get_collections()
+    
+    # Get all courses
+    all_courses = list(courses_collection.find())
+    
+    # Get total students count
+    total_students = students_collection.count_documents({})
+    
+    # Get enrollment counts for each course
+    for course in all_courses:
+        course_id = course['_id']
+        
+        # Count students in each status for this course
+        course['pending_count'] = students_collection.count_documents({
+            'courses.course_id': str(course_id),
+            'courses.status': 'pending'
+        })
+        
+        course['confirmed_count'] = students_collection.count_documents({
+            'courses.course_id': str(course_id),
+            'courses.status': 'confirmed'
+        })
+        
+        course['rejected_count'] = students_collection.count_documents({
+            'courses.course_id': str(course_id),
+            'courses.status': 'rejected'
+        })
+        
+        course['completed_count'] = students_collection.count_documents({
+            'courses.course_id': str(course_id),
+            'courses.status': 'completed'
+        })
+    
+    return render_template('admin/dashboard.html', 
+                         courses=all_courses,
+                         total_students=total_students)
+    
 @app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
 def admin_delete_course(course_id):
