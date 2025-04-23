@@ -46,8 +46,16 @@
                 <span class="detail-value">{{ course.schedule }}</span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Instructor:</span>
-                <span class="detail-value">{{ course.instructor }}</span>
+                <span class="detail-label">Instructor(s):</span>
+                <div class="meta-item">
+                    <div>
+                        {% for name in course.instructor %}
+                            <span style="margin-left: 2em;"></span><a href="{{ url_for('instructors') }}" class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded inline-block my-1">
+                                {{ name }}
+                            </a><br>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Capacity:</span>

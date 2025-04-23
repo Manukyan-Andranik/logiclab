@@ -44,12 +44,14 @@
     <div class="form-row">
         <div class="form-group">
             <label for="instructor">Instructor*</label>
-            <select id="instructor" name="instructor" required>
+            <select id="instructor" name="instructor" multiple required>
                 {% for inst in instructors %}
-                <option value="{{ inst.firstName }} {{ inst.lastName }}" 
-                    {{ 'selected' if course.instructor == inst.firstName + ' ' + inst.lastName }}>
-                    {{ inst.firstName }} {{ inst.lastName }} ({{ inst.specialization }})
-                </option>
+                    <option value="{{ inst.firstName }} {{ inst.lastName }}"
+                        {% if course.instructor and (inst.firstName ~ ' ' ~ inst.lastName) in course.instructor %}
+                            selected
+                        {% endif %}>
+                        {{ inst.firstName }} {{ inst.lastName }} ({{ inst.specialization }})
+                    </option>
                 {% endfor %}
             </select>
         </div>

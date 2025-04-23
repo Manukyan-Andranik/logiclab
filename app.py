@@ -1,10 +1,8 @@
 import os
-import json
-import requests
 import socket
-import platform
-from user_agents import parse
+import requests
 from bson import ObjectId
+from user_agents import parse
 from datetime import datetime
 from pymongo import MongoClient
 from urllib.parse import quote_plus
@@ -239,6 +237,7 @@ def all_courses():
     all_courses = {}
     for id in course_ids:
         all_courses[id] = find_by_id(courses, id)
+        # all_courses[id]["instructor"] = ["vazgen chilanyan", "vazgen ianidnainina"]
         
     return render_template('all_courses.html', courses=all_courses)
 
@@ -472,7 +471,7 @@ def admin_edit_course(course_id):
                     'duration': request.form.get('duration'),
                     'start_date': request.form.get('start_date'),
                     'schedule': request.form.get('schedule'),
-                    'instructor': request.form.get('instructor'),
+                    'instructor': request.form.getlist('instructor'),
                     'capacity': int(request.form.get('capacity')),
                     'monthly_payment': int(request.form.get('monthly_payment', 0)) if request.form.get('monthly_payment') else None,
                     'total_payment': int(request.form.get('total_payment', 0)) if request.form.get('total_payment') else None,
@@ -961,8 +960,6 @@ def api_register():
     
     registrations.insert_one(registration_data)
     return jsonify({"message": "Registration successful"}), 201
-
-
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001, debug=True)
