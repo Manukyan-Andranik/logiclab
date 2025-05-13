@@ -326,44 +326,44 @@ def contact():
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    courses_collection, students_collection, _, _, _ = get_collections()
+    courses_collection, registrations_collection, _, _, _ = get_collections()
     
     # Get all courses
     all_courses = list(courses_collection.find())
     
-    # Get total students count
-    total_students = students_collection.count_documents({})
+    # Get total students count (count all registrations)
+    total_students = registrations_collection.count_documents({})
     
     # Get enrollment counts for each course
     for course in all_courses:
         course_id = course['_id']
         
         # Count students in each status for this course
-        course['pending_count'] = students_collection.count_documents({
-            'courses.course_id': str(course_id),
-            'courses.status': 'pending'
+        course['pending_count'] = registrations_collection.count_documents({
+            'course_id': course_id,  # Assuming course_id is stored directly
+            'status': 'pending'
         })
         
-        course['confirmed_count'] = students_collection.count_documents({
-            'courses.course_id': str(course_id),
-            'courses.status': 'confirmed'
+        course['confirmed_count'] = registrations_collection.count_documents({
+            'course_id': course_id,  # Added missing course_id filter
+            'status': 'confirmed'
         })
         
-        course['rejected_count'] = students_collection.count_documents({
-            'courses.course_id': str(course_id),
-            'courses.status': 'rejected'
+        course['rejected_count'] = registrations_collection.count_documents({
+            'course_id': course_id,
+            'status': 'rejected'
         })
         
-        course['completed_count'] = students_collection.count_documents({
-            'courses.course_id': str(course_id),
-            'courses.status': 'completed'
+        course['completed_count'] = registrations_collection.count_documents({
+            'course_id': course_id,
+            'status': 'completed'
         })
+    
     recent_visitors = list(get_db().visits.find().sort('timestamp', -1).limit(5))
     return render_template('admin/dashboard.html', 
                          courses=all_courses,
                          total_students=total_students,
                          recent_visitors=recent_visitors)
-    
 @app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
 def admin_delete_course(course_id):
