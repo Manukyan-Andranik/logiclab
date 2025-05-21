@@ -265,6 +265,7 @@ def register(course_id):
         convenient_dates = request.form['convenient_dates']
         email = request.form['email']
         phone = request.form['phone']
+        computer = request.form.get('computer', 'no')
         
         
         if not all([full_name, email, phone, age, clas]):
@@ -276,6 +277,7 @@ def register(course_id):
             'age': age,
             'class': clas,
             'convenient_dates': convenient_dates,
+            'computer': computer,
             'email': email,
             'phone': phone,
             'course_id': course_id,

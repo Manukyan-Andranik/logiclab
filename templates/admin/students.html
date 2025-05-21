@@ -16,7 +16,7 @@
             <select id="course_id" name="course_id" onchange="this.form.submit()">
                 <option value="">All Courses</option>
                 {% for course in courses %}
-                <option value="{{ course._id }}" {{ 'selected' if request.args.get('course_id') == course._id }}>
+                <option value="{{ course._id }}" {{ 'selected' if request.args.get('course_id')==course._id }}>
                     {{ course.title }}
                 </option>
                 {% endfor %}
@@ -35,6 +35,7 @@
                 <th>Course</th>
                 <th>Registration Date</th>
                 <th>Status</th>
+                <th>Computer Availability</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -47,21 +48,39 @@
                 <td>{{ student.course_title }}</td>
                 <td>{{ student.registration_date.strftime('%Y-%m-%d') }}</td>
                 <td>
-                    <form method="POST" action="{{ url_for('admin_update_student', student_id=student._id) }}" class="status-form">
+                    <form method="POST" action="{{ url_for('admin_update_student', student_id=student._id) }}"
+                        class="status-form">
                         <select name="status" onchange="this.form.submit()" class="status-select {{ student.status }}">
-                            <option value="pending" {{ 'selected' if student.status == 'pending' }}>Pending</option>
-                            <option value="confirmed" {{ 'selected' if student.status == 'confirmed' }}>Confirmed</option>
-                            <option value="rejected" {{ 'selected' if student.status == 'rejected' }}>Rejected</option>
-                            <option value="completed" {{ 'selected' if student.status == 'completed' }}>Completed</option>
+                            <option value="pending" {{ 'selected' if student.status=='pending' }}>Pending</option>
+                            <option value="confirmed" {{ 'selected' if student.status=='confirmed' }}>Confirmed</option>
+                            <option value="rejected" {{ 'selected' if student.status=='rejected' }}>Rejected</option>
+                            <option value="completed" {{ 'selected' if student.status=='completed' }}>Completed</option>
                         </select>
                     </form>
                 </td>
+                <style>
+                    .green-text {
+                        color: green;
+                    }
+
+                    .red-text {
+                        color: red;
+                    }
+                </style>
+
+                <td class="{{ 'green-text' if student.computer == 'personal' else 'red-text' }}">
+                    {{ student.computer }}
+                </td>
+
+
                 <td class="action-buttons">
                     <a href="mailto:{{ student.email }}" class="btn btn-email" title="Send Email">
                         <i class="fas fa-envelope"></i>
                     </a>
-                    <form method="POST" action="{{ url_for('admin_delete_student', student_id=student._id) }}" class="delete-form">
-                        <button type="submit" class="btn btn-delete" title="Delete Student" onclick="return confirm('Are you sure you want to delete this student?')">
+                    <form method="POST" action="{{ url_for('admin_delete_student', student_id=student._id) }}"
+                        class="delete-form">
+                        <button type="submit" class="btn btn-delete" title="Delete Student"
+                            onclick="return confirm('Are you sure you want to delete this student?')">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </form>
@@ -73,78 +92,82 @@
 </div>
 
 <style>
-.action-buttons {
-    display: flex;
-    gap: 5px;
-}
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
 
-.btn-email {
-    background-color: #4CAF50;
-    color: white;
-    padding: 5px 10px;
-}
+    .btn-email {
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+    }
 
-.btn-delete {
-    background-color: #f44336;
-    color: white;
-    padding: 5px 10px;
-}
+    .btn-delete {
+        background-color: #f44336;
+        color: white;
+        padding: 5px 10px;
+    }
 
-.status-select.pending {
-    color: #FFA500; /* Orange for pending */
-}
+    .status-select.pending {
+        color: #FFA500;
+        /* Orange for pending */
+    }
 
-.status-select.confirmed {
-    color: #008000; /* Green for confirmed */
-}
+    .status-select.confirmed {
+        color: #008000;
+        /* Green for confirmed */
+    }
 
-.status-select.rejected {
-    color: #FF0000; /* Red for rejected */
-}
+    .status-select.rejected {
+        color: #FF0000;
+        /* Red for rejected */
+    }
 
-.status-select.completed {
-    color: #0000FF; /* Blue for completed */
-}
+    .status-select.completed {
+        color: #0000FF;
+        /* Blue for completed */
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const statusForms = document.querySelectorAll('.status-form');
-    
-    statusForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            const studentId = form.action.split('/').pop();
-            const newStatus = formData.get('status');
-            
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the status select class to reflect new status
-                    const select = form.querySelector('select');
-                    select.className = `status-select ${newStatus}`;
-                    
-                    // Show success message
-                    alert('Status updated and email sent to student');
-                } else {
-                    alert('Error updating status: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating status');
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusForms = document.querySelectorAll('.status-form');
+
+        statusForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const studentId = form.action.split('/').pop();
+                const newStatus = formData.get('status');
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update the status select class to reflect new status
+                            const select = form.querySelector('select');
+                            select.className = `status-select ${newStatus}`;
+
+                            // Show success message
+                            alert('Status updated and email sent to student');
+                        } else {
+                            alert('Error updating status: ' + (data.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating status');
+                    });
             });
         });
     });
-});
 </script>
 {% endblock %}
