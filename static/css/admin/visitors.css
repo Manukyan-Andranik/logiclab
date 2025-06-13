@@ -1,0 +1,236 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg-muted);
+    margin: 0;
+    padding: 0;
+}
+
+.admin-header {
+    margin-bottom: 1.5rem;
+}
+
+.admin-header h1 {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-dark);
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 1rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-light);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 16px;
+}
+
+.total-visits .stat-icon {
+    background-color: rgba(75, 192, 192, 0.15);
+    color: var(--primary-color);
+}
+
+.unique-visitors .stat-icon {
+    background-color: rgba(54, 162, 235, 0.15);
+    color: var(--secondary-color);
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-light);
+}
+
+.stat-content p {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 5px 0 0;
+    color: var(--text-dark);
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section {
+    background: var(--bg-light);
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-dark);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.data-table th {
+    background: var(--bg-muted);
+    font-weight: 600;
+    color: #444;
+}
+
+.data-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.stat-chart {
+    background: var(--bg-muted);
+    padding: 16px;
+    border-radius: var(--radius);
+}
+
+.stat-chart h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    color: var(--text-dark);
+}
+
+.stat-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.stat-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.stat-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.btn-sm {
+    background: var(--primary);
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.2s;
+}
+
+.btn-sm:hover {
+    background: #3baaaa;
+}
+
+@media screen and (max-width: 768px) {
+    .stat-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .stat-icon {
+        margin: 0 0 10px 0;
+    }
+
+    .admin-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .data-table th, .data-table td {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .section h2 {
+        font-size: 1.1rem;
+    }
+}
+
+/* ---------- collapsible sections ---------- */
+.collapsible-content {
+    max-height: 340px;     /* visible “preview” height */
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+}
+
+.section.expanded .collapsible-content {
+    max-height: 9999px;    /* practically “auto” once expanded */
+}
+
+.collapsible-toggle {
+    background: var(--primary, #2563eb);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    margin: 14px auto 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: block;
+    transition: background 0.25s;
+}
+
+.collapsible-toggle:hover {
+    background: #1e4fcc;
+}

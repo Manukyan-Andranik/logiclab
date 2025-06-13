@@ -1,0 +1,216 @@
+/* Container for all instructors */
+.instructors-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    padding-top: 1rem;
+}
+
+/* Individual instructor card */
+.instructor-card {
+    background-color: var(--bg-light);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.instructor-card:hover {
+    transform: translateY(-6px);
+}
+
+/* Instructor header with photo, name, and specialization */
+.instructor-header {
+    background-color: var(--primary-color);
+    color: var(--dark-color);
+    padding: 2rem 1.5rem 3rem;
+    text-align: center;
+    position: relative;
+    padding-bottom: 4rem; /* room for badge */
+}
+
+.instructor-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--primary-dark);
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    background-color: var(--light-color);
+}
+
+.instructor-header h2 {
+    margin: 0 0 1rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Centered specialization badge below name */
+.specialization-badge {
+    display: inline-block;
+    background: var(--primary-dark);
+    color: var(--bg-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.35rem 1.2rem;
+    border-radius: 25px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 auto;
+    margin-top: 0.5rem;
+    position: static;
+}
+
+/* Details area inside the card */
+.instructor-details {
+    padding: 1rem 1.5rem 2rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    color: var(--text-dark);
+}
+
+/* Each detail section */
+.detail-section {
+    border-bottom: 1px solid #e1e5eb;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-bottom: 1rem;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.detail-section h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Paragraph and list spacing */
+.detail-section p,
+.detail-section ul,
+.detail-section li {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+}
+
+/* Lists for companies */
+.detail-section ul {
+    list-style: none;
+    padding-left: 1rem;
+}
+
+.company-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Skills and software tags */
+.skills-list,
+.software-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-tag,
+.software-tag {
+    background-color: var(--primary-color);
+    color: var(--dark-color);
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* Contact links */
+.detail-section a {
+    color: var(--primary-dark);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.detail-section a:hover {
+    color: var(--primary-color);
+}
+
+/* Actions: Edit / Delete buttons */
+.instructor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #e1e5eb;
+    background-color: var(--bg-muted);
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background-color: var(--info-color);
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background-color: #138496;
+}
+
+.btn-delete {
+    background-color: var(--error-color);
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background-color: #b02a37;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .instructor-details {
+        padding: 1rem;
+    }
+
+    .instructor-header {
+        padding: 1.5rem 1rem 2.5rem;
+        padding-bottom: 3.5rem;
+    }
+
+    .instructor-photo {
+        width: 100px;
+        height: 100px;
+    }
+}

@@ -1,34 +1,10 @@
-<!DOCTYPE html>
-<html lang="hy">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Բոլոր Դասընթացները - Logic Lab</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/all_courses_style.css') }}" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
-</head>
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all_courses.css') }}">
+{% endblock %}
 
-<body>
-    <nav>
-        <div class="nav-container">
-            <a href="{{ url_for('home') }}" class="logo">Logic<span>Lab</span></a>
-            <button class="nav-toggle" aria-label="Toggle navigation">
-                <span class="hamburger"></span>
-            </button>
-            <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
-                <li><a href="{{ url_for('all_courses') }}">Դասընթացներ</a></li>
-                <li><a href="{{ url_for('instructors') }}">Դասախոսներ</a></li>
-                <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
-
-            </ul>
-        </div>
-    </nav>
-
+{% block content %}
     <section class="courses-hero">
         <div class="container">
             <h1 data-aos="fade-right">Բոլոր <span class="highlight">Դասընթացները</span></h1>
@@ -81,102 +57,8 @@
                 {% endfor %}
             </div>
         </div>
+        <button id="back-to-top" class="back-to-top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
     </section>
-
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h3>LogicLab</h3>
-                    <p>Մասնագիտական դասընթացներ AI, Machine Learning, Լուսանկարչության և 3D-ի ոլորտներում</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Կապ</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան</p>
-                    <p><i class="fas fa-phone"></i> +374 94 752662</p>
-                    <p><i class="fas fa-envelope"></i> info.logic.laboratory@gmail.com</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Հետևեք մեզ</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© 2025 LogicLab. Բոլոր իրավունքները պաշտպանված են</p>
-                <div class="footer-credits">
-                    <p>Powered by <a href="#">Soul's of Code</a> & <a href="#">ViewBox</a></p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <button id="back-to-top" class="back-to-top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- Scripts -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true,
-                offset: 100,
-                delay: 100
-            });
-
-            // Back to Top
-            const backToTopButton = document.getElementById('back-to-top');
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTopButton.classList.add('show');
-                } else {
-                    backToTopButton.classList.remove('show');
-                }
-            });
-            backToTopButton.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-
-            // Mobile navigation toggle
-            const toggle = document.querySelector('.nav-toggle');
-            const links = document.querySelector('.nav-links');
-            const body = document.body;
-
-            toggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                links.classList.toggle('active');
-                this.classList.toggle('active');
-                
-                // Toggle body overflow
-                body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
-            });
-
-            // Close menu when clicking on links
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', () => {
-                    links.classList.remove('active');
-                    toggle.classList.remove('active');
-                    body.style.overflow = '';
-                });
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.nav-container') && window.innerWidth <= 768) {
-                    links.classList.remove('active');
-                    toggle.classList.remove('active');
-                    body.style.overflow = '';
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+{% endblock %}

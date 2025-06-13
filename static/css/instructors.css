@@ -1,177 +1,23 @@
-:root {
-    --primary-color: #FFD700;
-    --primary-dark: #FFC000;
-    --white: #fff;
-    --secondary-color: #333;
-    --light-color: #f4f4f4;
-    --dark-color: #222;
-    --linkedin-blue: #0077B5;
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--light-color);
-    color: var(--secondary-color);
-    line-height: 1.6;
-}
-
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
-
-.highlight {
-    color: var(--primary-color);
-}
-
-/* Navigation */
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 1rem 0;
-    z-index: 1000;
-    background: rgba(51, 51, 51, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: var(--transition);
-}
-
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
-
-.logo {
-    color: var(--white);
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.logo span {
-    color: var(--primary-color);
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-}
-
-.nav-links a {
-    color: var(--white);
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
-    position: relative;
-    padding: 0.5rem 0;
-    transition: var(--transition);
-}
-
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--primary-color);
-    transition: var(--transition);
-}
-
-.nav-links a:hover::after {
-    width: 100%;
-}
-
-.nav-toggle {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    z-index: 1001;
-}
-
-.hamburger {
-    display: block;
-    width: 25px;
-    height: 2px;
-    background: var(--white);
-    position: relative;
-    transition: var(--transition);
-}
-
-.hamburger::before,
-.hamburger::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: var(--white);
-    left: 0;
-    transition: var(--transition);
-}
-
-.hamburger::before {
-    top: -8px;
-}
-
-.hamburger::after {
-    bottom: -8px;
-}
-
-.nav-toggle.active .hamburger {
-    background: transparent;
-}
-
-.nav-toggle.active .hamburger::before {
-    transform: rotate(45deg);
-    top: 0;
-}
-
-.nav-toggle.active .hamburger::after {
-    transform: rotate(-45deg);
-    bottom: 0;
-}
-
-/* Hero Section */
+/* Instructors Hero Section */
 .instructors-hero {
     background: linear-gradient(135deg, var(--dark-color), var(--secondary-color), var(--dark-color));
     color: var(--white);
     padding: 8rem 0 4rem;
     text-align: center;
-  }
-  
-  .instructors-hero h1 {
+}
 
+.instructors-hero h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
     margin-top: 4rem;
+}
 
-  }
-  
-  .instructors-hero p {
+.instructors-hero p {
     font-size: 1.25rem;
     color: rgba(255,255,255,0.8);
     max-width: 800px;
     margin: 0 auto;
-  }
+}
 
 /* Instructors Grid */
 .instructors-grid {
@@ -226,7 +72,7 @@ nav {
     max-width: 100px;
     height: 100px;
     object-fit: cover;
-    transition: var(--transition);
+    transition: all 0.3s ease;
 }
 
 .experience-badge {
@@ -373,35 +219,14 @@ nav {
     flex-shrink: 0;
 }
 
+/* Card Flip Animation */
 .instructor-card {
     position: relative;
     width: 100%;
     height: 450px;
     perspective: 1000px;
     cursor: pointer;
-    transform-style: preserve-3d; /* Add this */
-}
-
-.card-front, 
-.card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    background: var(--white);
-    transform-style: preserve-3d; /* Add this */
-}
-
-.card-front {
-    transform: rotateY(0deg);
-}
-
-.card-back {
-    transform: rotateY(180deg);
+    transform-style: preserve-3d;
 }
 
 .instructor-card:hover .card-front {
@@ -410,135 +235,6 @@ nav {
 
 .instructor-card:hover .card-back {
     transform: rotateY(0deg);
-}
-/* Back to Top */
-.back-to-top {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 50px;
-    height: 50px;
-    background: var(--primary-color);
-    color: var(--secondary-color);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    visibility: hidden;
-    transition: var(--transition);
-    z-index: 999;
-}
-
-.back-to-top.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.back-to-top:hover {
-    background: var(--primary-dark);
-    transform: translateY(-3px);
-}
-
-/* Responsive Design */
-@media (max-width: 992px) {
-    .instructors-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-
-}
-
-@media (max-width: 768px) {
-    .nav-container {
-        padding: 0 1rem;
-    }
-
-    .nav-links {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        height: calc(100vh - 70px);
-        background: rgba(51, 51, 51, 0.98);
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2rem;
-        transform: translateX(100%);
-        transition: var(--transition);
-    }
-
-    .nav-links.active {
-        transform: translateX(0);
-    }
-
-    .nav-toggle {
-        display: block;
-    }
-
-    .instructors-hero {
-        padding: 6rem 0 3rem;
-    }
-    
-    .instructors-hero h1 {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .container {
-        padding: 0 1rem;
-    }
-
-    .instructors-hero {
-        padding: 3rem 0;
-    }
-
-    .instructors-hero h1 {
-        font-size: 1.75rem;
-    }
-
-    .instructors-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .instructor-card {
-        height: 380px;
-    }
-}
-
-/* Card flip styles */
-.instructor-card {
-    position: relative;
-    perspective: 1000px;
-}
-
-.card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-.instructor-card.flipped .card-inner {
-    transform: rotateY(180deg);
-}
-
-.card-front,
-.card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-}
-
-.card-back {
-    transform: rotateY(180deg);
 }
 
 /* Flip button styles */
@@ -570,14 +266,7 @@ nav {
     transform: scale(1.1);
 }
 
-
-/* Footer */
-footer {
-    background-color: var(--secondary-color);
-    color: var(--white);
-    padding: 3rem 0 1rem;
-}
-
+/* Footer Grid Styles */
 .footer-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -626,7 +315,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--transition);
+    transition: all 0.3s ease;
 }
 
 .social-links a:hover {
@@ -650,10 +339,45 @@ footer {
 .footer-credits a {
     color: var(--primary-color);
     text-decoration: none;
-    transition: var(--transition);
+    transition: all 0.3s ease;
 }
 
 .footer-credits a:hover {
     color: var(--primary-dark);
     text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .instructors-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .instructors-hero {
+        padding: 6rem 0 3rem;
+    }
+    
+    .instructors-hero h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .instructors-hero {
+        padding: 3rem 0;
+    }
+
+    .instructors-hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .instructors-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .instructor-card {
+        height: 380px;
+    }
 }
