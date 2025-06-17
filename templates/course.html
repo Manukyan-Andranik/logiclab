@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %} {{ course.title }} - Logic Lab{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/course.css') }}">

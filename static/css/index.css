@@ -391,14 +391,14 @@
   display: inline-block;
   margin: 0 10px;
   color: var(--primary-dark);
-  font-size: 1.5rem;
-  transition: color 0.3s ease;
+  font-size: 24px;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .contact-info-social a:hover {
+  transform: scale(1.2);
   color: var(--primary-dark);
 }
-
 
 .contact-form {
   background: var(--white);
