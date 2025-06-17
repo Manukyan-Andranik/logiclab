@@ -34,12 +34,26 @@
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
-                <small id="keyHelp" class="form-text">
-                    <a href="https://drive.google.com/your-doc-link" target="_blank" class="api-doc-link"
-                        rel="noopener noreferrer">
-                        Ինչպես ձեռք բերել API բանալի?
-                    </a>
-                </small>
+                <div id="loginBox">
+                    <!-- Flash message -->
+                    <!-- In your flash message div -->
+                    <div id="flashMessage" class="api-help-message">
+                        <button type="button" class="close-flash" aria-label="Close">&times;</button>
+                        <strong>API բանալի ստանալու քայլերը` </strong>
+                        <ol style="margin: 8px 0 0 20px; padding: 0;">
+                            <li>Գրանցվեք LogicLab-ի ձեր նախընտրած դասընթացին։</li>
+                            <li>Ստացեք հաստատող նամակ մեր թիմից։</li>
+                            <li>Սպասեք դասընթացի մեկնարկի օրվան։</li>
+                            <li>Դասընթացի մեկնարկի օրը ստացեք ձեր API բանալին։</li>
+                        </ol>
+                    </div>
+                    <!-- Հղումը flash-ը ցույց տալու համար -->
+                    <small id="keyHelp" class="form-text">
+                        <a href="#" id="showApiHelp">
+                            Ինչպես ձեռք բերել API բանալի?
+                        </a>
+                    </small>
+                </div>
             </div>
             <button type="submit" class="btn btn-submit">
                 <span class="btn-text">Մուտք</span>
@@ -69,5 +83,38 @@
         submitBtn.disabled = true;
         submitBtn.querySelector('.btn-text').textContent = 'Ստուգվում է...';
     });
+
+    // Show/hide API help message
+const flashMessage = document.getElementById('flashMessage');
+const showApiHelp = document.getElementById('showApiHelp');
+const closeFlash = document.querySelector('.close-flash');
+
+function showFlash(e) {
+    if (e) e.preventDefault();
+    flashMessage.style.display = 'block';
+    setTimeout(() => {
+        flashMessage.style.opacity = '1';
+    }, 50);
+}
+
+function hideFlash(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    flashMessage.style.opacity = '0';
+    setTimeout(() => {
+        flashMessage.style.display = 'none';
+    }, 300);
+}
+
+showApiHelp.addEventListener('click', showFlash);
+closeFlash.addEventListener('click', hideFlash);
+
+
+// Prevent form submission when clicking on the help message
+flashMessage.addEventListener('click', function(e) {
+    e.stopPropagation();
+});
 </script>
 {% endblock %}
