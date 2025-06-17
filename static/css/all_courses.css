@@ -41,14 +41,14 @@
 }
 
 .course-card {
-  background: var(--white);
-  border-radius: 0.5rem;
-  padding: 2rem;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 5px 15px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: var(--white);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  transition: 0.3s;
 }
 
 .course-card:hover {

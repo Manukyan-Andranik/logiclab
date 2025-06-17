@@ -16,18 +16,33 @@
 <body>
     <nav>
         <div class="nav-container">
-            <a href="{{ url_for('home') }}" class="logo">Logic<span>Lab</span></a>
+            <a href="{{ url_for('home') }}" class="logo"> Logic <span> Lab </span></a>
             <button class="nav-toggle" aria-label="Toggle navigation">
                 <span class="hamburger"></span>
             </button>
             <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">Գլխավոր</a></li>
-                <li><a href="{{ url_for('all_courses') }}">Դասընթացներ</a></li>
-                <li><a href="{{ url_for('instructors') }}">Դասախոսներ</a></li>
-                <li><a href="{{ url_for('home') }}#contact">Կապ</a></li>
-            </ul>
+                <li><a href="{{ url_for('home') }}" id="home" class="{% if request.endpoint == 'home' %}active{% endif %}">Գլխավոր էջ</a></li>
+                <li><a href="{{ url_for('all_courses') }}" class="{% if request.endpoint == 'all_courses' %}active{% endif %}">Դասընթացներ</a></li>
+                <li><a href="{{ url_for('instructors') }}" class="{% if request.endpoint == 'instructors' %}active{% endif %}">Դասախոսներ</a></li>
+                {% if session.get('user_logged_in') %}
+                <li><a href="{{ url_for('user_dashboard') }}" class="{% if request.endpoint == 'user_dashboard' %}active{% endif %}">Նյութեր</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('user_login') }}" class="{% if request.endpoint == 'user_login' %}active{% endif %}">Մուտք</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('home') }}#contact" id="contact-link">Կապ</a></li>
+            </ul>            
         </div>
     </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     {% block content %}{% endblock %}
 
@@ -105,31 +120,18 @@
                     }
                 });
             }
-
-            // Instructor card flip functionality
-            const cards = document.querySelectorAll('.instructor-card');
-
-            // For touch devices
-            if ('ontouchstart' in window) {
-                cards.forEach(card => {
-                    card.addEventListener('click', function () {
-                        this.classList.toggle('flipped');
-                    });
-                });
-            }
-
-            // Optional: Add focus styles for accessibility
-            cards.forEach(card => {
-                card.addEventListener('focus', function () {
-                    this.classList.add('flipped');
-                });
-                card.addEventListener('blur', function () {
-                    this.classList.remove('flipped');
-                });
-            });
         });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
 
 </html>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.location.hash === '#contact') {
+        document.getElementById('contact-link').classList.add('active');
+        document.getElementById('home').classList.remove('active');
+      }
+    });
+  </script>
+  

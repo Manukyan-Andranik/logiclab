@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Մուտք - Logic Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/users/login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-box">
+        <div class="login-header">
+            <h1><i class="fas fa-lock"></i> Մուտք </h1>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('user_login') }}" id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="api_key"><i class="fas fa-key"></i> API բանալի</label>
+                <div class="input-with-toggle">
+                    <input type="password" id="api_key" name="api_key" required autocomplete="off"
+                        aria-describedby="keyHelp">
+                    <button type="button" class="toggle-password" aria-label="Show password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <small id="keyHelp" class="form-text">
+                    <a href="https://drive.google.com/your-doc-link" target="_blank" class="api-doc-link"
+                        rel="noopener noreferrer">
+                        Ինչպես ձեռք բերել API բանալի?
+                    </a>
+                </small>
+            </div>
+            <button type="submit" class="btn btn-submit">
+                <span class="btn-text">Մուտք</span>
+                <i class="fas fa-sign-in-alt"></i>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p>Անհրաժեշտ է օգնություն? <a href="{{ url_for('home') }}#contact">Կապ հաստատել</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelector('.toggle-password').addEventListener('click', function () {
+        const input = document.getElementById('api_key');
+        const icon = this.querySelector('i');
+        input.type = input.type === 'password' ? 'text' : 'password';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.querySelector('.btn-text').textContent = 'Ստուգվում է...';
+    });
+</script>
+{% endblock %}

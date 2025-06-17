@@ -162,17 +162,23 @@
         <div class="container">
             <h2><span class="highlight">Կապվեք</span> մեզ հետ</h2>
             <div class="contact-grid">
-                <div class="contact-info">
-                    <h3>Կոնտակտային տվյալներ</h3>
-                    <p><i class="fas fa-envelope"></i> info.logic.laboratory@gmail.com</p>
-                    <p><i class="fas fa-phone"></i> +374 94 752662</p>
-                    <p><i class="fas fa-phone"></i> +374 98 367419</p>
-                    <a href="https://yandex.com/maps/geo/772050335/?ll=44.485475%2C40.810944&z=18.99" target="_blank"
-                        class="back-contact-link">
-                        <i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան
-                    </a>
-                    <h1>Logic <span class="highlight-title">Lab</span></h1>
-                </div>
+                <div>
+                    <div class="contact-info">
+                        <h3>Կապ մեզ հետ</h3>
+                        <p><a href="mailto:info.logic.laboratory@gmail.com" class="contact-link"><i class="fas fa-envelope"></i> info.logic.laboratory@gmail.com</a></p>
+                        <p><a href="tel:+37495053232" class="contact-link"><i class="fas fa-phone-alt"></i> 094-752662</a></p>
+                        <p><a href="tel:+37495053232" class="contact-link"><i class="fas fa-phone-alt"></i> 098-367419</a></p>
+                        <p><a href="https://yandex.com/maps/geo/772050335/?ll=44.485475%2C40.810944&z=18.99" target="_blank" class="contact-link"><i class="fas fa-map-marker-alt"></i> Վանաձոր, Հայաստան</a></p>
+                      </div>
+                      
+                  
+                    <div class="contact-info-social">
+                      <a href="https://www.linkedin.com/company/logiclabacademy/" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                      <a href="https://www.instagram.com/viewbox_visual/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                      <a href="https://www.facebook.com/LogicLabruary" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    </div>
+                  </div>
+                  
                 <div class="contact-form">
                     <h3>Ուղարկե՛ք հաղորդագրություն</h3>
                     <form method="POST" action="{{ url_for('contact') }}">
@@ -182,6 +188,7 @@
                         <button type="submit" class="btn btn-pulse">Ուղարկել հաղորդագրությունը</button>
                     </form>
                 </div>
+
             </div>
         </div>
         <button id="back-to-top" class="back-to-top">

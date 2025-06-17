@@ -1,15 +1,12 @@
 import os
-import socket
-import requests
 from bson import ObjectId
-from user_agents import parse
 from datetime import datetime
-from pymongo import MongoClient
 from urllib.parse import quote_plus
 from flask_mail import Mail, Message
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
 
 from utils import get_ids, find_by_id, load_env, is_valid_url
+from data_manager import DataManager, admin_required, user_required
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -33,170 +30,17 @@ escaped_password = quote_plus(PASSWORD)
 URI = f"mongodb+srv://{escaped_username}:{escaped_password}@cluster0.ckpsnux.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 app.config['MONGO_URI'] = URI
 
-# Methods
-def get_db():
-    """Get MongoDB database connection"""
-    client = MongoClient(current_app.config['MONGO_URI'])
-    db = client.education_platform
-    return db
+DATA_MANAGER = DataManager(app, URI)
 
-def get_collections():
-    """Get all required collections"""
-    db = get_db()
-    return (
-        db.courses,
-        db.registrations,
-        db.admins,
-        db.instructors,
-        db.visits
-        
-    )
-
-def track_visit(visits):
-    print("Tracking visit...")
-    ip_address = request.remote_addr
-    user_agent_str = request.headers.get('User-Agent', '')
-    user_agent = parse(user_agent_str)
-    referrer = request.headers.get('Referer', '')
-    path = request.path
-    
-    try:
-        # Try to get hostname from IP (may not always work)
-        hostname = socket.gethostbyaddr(ip_address)[0]
-    except (socket.herror, socket.gaierror):
-        hostname = None
-    
-    visit_data = {
-        'ip_address': ip_address,
-        'hostname': hostname,
-        'user_agent_raw': user_agent_str,
-        'browser': user_agent.browser.family,
-        'browser_version': user_agent.browser.version_string,
-        'os': user_agent.os.family,
-        'os_version': user_agent.os.version_string,
-        'device': user_agent.device.family,
-        'is_mobile': user_agent.is_mobile,
-        'is_tablet': user_agent.is_tablet,
-        'is_pc': user_agent.is_pc,
-        'is_bot': user_agent.is_bot,
-        'referrer': referrer,
-        'path': path,
-        'timestamp': datetime.now(),
-        'date': datetime.now().strftime('%Y-%m-%d'),
-        'time': datetime.now().strftime('%H:%M:%S')
-    }
-    
-    try:
-        visits.insert_one(visit_data)
-    except Exception as e:
-        app.logger.error(f"Failed to track visit: {str(e)}")
-
-def get_ip_geolocation(ip_address):
-    try:
-        # First try with free ip-api.com
-        response = requests.get(f'http://ip-api.com/json/{ip_address}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query')
-        data = response.json()
-        
-        if data.get('status') == 'success':
-            return {
-                'country': data.get('country', 'Unknown'),
-                'country_code': data.get('countryCode', ''),
-                'region': data.get('regionName', 'Unknown'),
-                'city': data.get('city', 'Unknown'),
-                'zip': data.get('zip', ''),
-                'latitude': data.get('lat'),
-                'longitude': data.get('lon'),
-                'timezone': data.get('timezone', ''),
-                'isp': data.get('isp', ''),
-                'is_mobile': data.get('mobile', False),
-                'is_proxy': data.get('proxy', False),
-                'is_hosting': data.get('hosting', False)
-            }
-        
-        # Fallback to local GeoLite2 database if available
-        try:
-            with geoip2.database.Reader('GeoLite2-City.mmdb') as reader:
-                response = reader.city(ip_address)
-                return {
-                    'country': response.country.name,
-                    'country_code': response.country.iso_code,
-                    'region': response.subdivisions.most_specific.name if response.subdivisions else None,
-                    'city': response.city.name,
-                    'postal_code': response.postal.code,
-                    'latitude': response.location.latitude,
-                    'longitude': response.location.longitude,
-                    'timezone': response.location.time_zone,
-                    'is_in_european_union': response.country.is_in_european_union,
-                    'accuracy_radius': response.location.accuracy_radius
-                }
-        except:
-            return None
-            
-    except Exception as e:
-        app.logger.error(f"Geolocation error: {e}")
-        return None
-
-def send_status_email(to_email, student_name, course_name, new_status):
-    try:
-        subject = f"Your registration status for {course_name} has been updated"
-        
-        status_messages = {
-            'pending': "Your registration is being reviewed.",
-            'confirmed': "Your registration has been confirmed! Welcome to the course.",
-            'rejected': "We're sorry, but your registration could not be accepted at this time.",
-            'completed': "Congratulations on completing the course! Well done!"
-        }
-        
-        body = f"""
-        Dear {student_name},
-        
-        Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
-        
-        {status_messages.get(new_status, '')}
-        
-        If you have any questions, please don't hesitate to contact us.
-        
-        Best regards,
-        LogicLab Team
-        """
-        
-        msg = Message(
-            subject=subject,
-            recipients=[to_email],
-            body=body
-        )
-        mail.send(msg)
-        return True
-    except Exception as e:
-        app.logger.error(f"Failed to send status email: {str(e)}")
-        return False
-
-# Admin authentication decorator
-def admin_required(f):
-    def wrapper(*args, **kwargs):
-        if 'admin_logged_in' not in session:
-            provided_key = request.args.get('api_key') or request.form.get('api_key')
-            if not provided_key:
-                return redirect(url_for('admin_login'))
-            
-            admins = get_db().admins
-            admin = admins.find_one({"api_key": provided_key})
-            if not admin:
-                flash('Invalid API key', 'error')
-                return redirect(url_for('admin_login'))
-            
-            session['admin_logged_in'] = True
-            session['api_key'] = provided_key
-        return f(*args, **kwargs)
-    wrapper.__name__ = f.__name__
-    return wrapper
-
-# USER ROUTES
+# Site Routes
 @app.route('/')
 def home():
 
-    courses_collection, _, _, instructors_collection, visits = get_collections()
-    track_visit(visits)
+    courses_collection = DATA_MANAGER.get_courses()
+    instructors_collection = DATA_MANAGER.get_instructors()
+    visits = DATA_MANAGER.get_visits()
+    
+    DATA_MANAGER.track_visit(visits)
     courses = list(courses_collection.find({"is_active": True}))
     instructors = list(instructors_collection.find())
     instructor_ids = get_ids(instructors)
@@ -210,10 +54,39 @@ def home():
         all_courses[id] = find_by_id(courses, id)
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
 
+# User routes
+@app.route('/login', methods=['GET', 'POST'])
+def user_login():    
+    if request.method == 'POST':
+        api_key = request.form.get('api_key')
+        decoded_key = DATA_MANAGER._decode_api_key(api_key, expiration_months=13)
+        if decoded_key['valid']:
+            session['user_logged_in'] = True
+            session['api_key'] = api_key
+            return redirect(url_for('user_dashboard'))
+        flash('Invalid API Key', 'error')
+    return render_template('users/login.html')
+
+@app.route('/logout')
+def user_logout():
+    session.clear()
+    return redirect(url_for('home'))
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+@user_required
+def user_dashboard():
+    course_id="machine_learning"
+    print(course_id)
+    materials = DATA_MANAGER.get_materials()
+    all_materials = list(materials.find({"_id": course_id}))
+    print("All materials:", all_materials)
+    return render_template('users/profile.html', course_id = course_id, materials=all_materials[0])
+
 @app.route('/instructors')
 def instructors():
-    courses_collection, _, _, instructors_collection, visits = get_collections()
-    track_visit(visits)
+    instructors_collection = DATA_MANAGER.get_instructors()
+    visits = DATA_MANAGER.get_visits()
+    DATA_MANAGER.track_visit(visits)
     instructors = list(instructors_collection.find())
     instructor_ids = get_ids(instructors)
     all_instructors = {}
@@ -224,8 +97,11 @@ def instructors():
 # Course route
 @app.route('/all_courses')
 def all_courses():
-    courses_collection, _, _, instructors_collection, visits = get_collections()
-    track_visit(visits)
+    courses_collection = DATA_MANAGER.get_courses()
+    instructors_collection = DATA_MANAGER.get_instructors()
+    visits = DATA_MANAGER.get_visits()
+    
+    DATA_MANAGER.track_visit(visits)
     courses = list(courses_collection.find({"is_active": True}))
     instructors = list(instructors_collection.find())
     instructor_ids = get_ids(instructors)
@@ -243,8 +119,9 @@ def all_courses():
 
 @app.route('/course/<course_id>')
 def course_details(course_id):
-    courses_collection, _, _, _, visits = get_collections()
-    track_visit(visits)
+    courses_collection = DATA_MANAGER.get_courses()
+    visits = DATA_MANAGER.get_visits()
+    DATA_MANAGER.track_visit(visits)
     course = courses_collection.find_one({"_id": course_id})
     if not course:
         return redirect(url_for('home'))
@@ -252,8 +129,11 @@ def course_details(course_id):
 
 @app.route('/register/<course_id>', methods=['GET', 'POST'])
 def register(course_id):
-    courses_collection, registrations, _, _, visits = get_collections()
-    track_visit(visits)
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations = DATA_MANAGER.get_registrations()
+    visits = DATA_MANAGER.get_visits()
+
+    DATA_MANAGER.track_visit(visits)
     course = courses_collection.find_one({"_id": course_id})
     if not course:
         return redirect(url_for('home'))
@@ -324,11 +204,29 @@ def contact():
         
         return redirect(url_for('home') + '#contact')
 
+
+
+
 # Admin routes
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    admins = DATA_MANAGER.get_admins()
+    
+    if request.method == 'POST':
+        api_key = request.form.get('api_key')
+        admin = admins.find_one({"api_key": api_key})
+        if admin:
+            session['admin_logged_in'] = True
+            session['api_key'] = api_key
+            return redirect(url_for('admin_dashboard'))
+        flash('Invalid API Key', 'error')
+    return render_template('admin/login.html')
+
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    courses_collection, registrations_collection, _, _, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations_collection = DATA_MANAGER.get_registrations()
     
     # Get all courses
     all_courses = list(courses_collection.find())
@@ -361,15 +259,18 @@ def admin_dashboard():
             'status': 'completed'
         })
     
-    recent_visitors = list(get_db().visits.find().sort('timestamp', -1).limit(5))
+    recent_visitors = list(DATA_MANAGER.get_visits().find().sort('timestamp', -1).limit(5))
     return render_template('admin/dashboard.html', 
                          courses=all_courses,
                          total_students=total_students,
                          recent_visitors=recent_visitors)
+
 @app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
 def admin_delete_course(course_id):
-    courses_collection, registrations, _, _, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations = DATA_MANAGER.get_registrations()
+    
     try:
         student_count = registrations.count_documents({"course_id": course_id})
         if student_count > 0:
@@ -389,7 +290,9 @@ def admin_delete_course(course_id):
 @app.route('/admin/instructors/delete/<instructor_id>', methods=['POST'])
 @admin_required
 def admin_delete_instructor(instructor_id):
-    courses_collection, _, _, instructors_collection, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
+    instructors_collection = DATA_MANAGER.get_instructors()
+    
     try:
         course_count = courses_collection.count_documents({
             "instructor": {"$regex": instructor_id.split('_')[0], "$options": "i"}
@@ -409,19 +312,6 @@ def admin_delete_instructor(instructor_id):
     
     return redirect(url_for('admin_instructors'))
 
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    _, _, admins, _, _ = get_collections()
-    if request.method == 'POST':
-        api_key = request.form.get('api_key')
-        admin = admins.find_one({"api_key": api_key})
-        if admin:
-            session['admin_logged_in'] = True
-            session['api_key'] = api_key
-            return redirect(url_for('admin_dashboard'))
-        flash('Invalid API Key', 'error')
-    return render_template('admin/login.html')
-
 @app.route('/admin/logout')
 def admin_logout():
     session.clear()
@@ -430,7 +320,7 @@ def admin_logout():
 @app.route('/admin/courses')
 @admin_required
 def admin_courses():
-    courses_collection, _, _, instructors_collection, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
     all_courses = list(courses_collection.find())
     return render_template('admin/courses.html', courses=all_courses)
 
@@ -438,7 +328,9 @@ def admin_courses():
 @admin_required
 def admin_edit_course(course_id):
     try:
-        courses_collection, _, _, instructors_collection, _ = get_collections()
+        courses_collection = DATA_MANAGER.get_courses()
+        instructors_collection = DATA_MANAGER.get_instructors()
+        
         course = courses_collection.find_one({'_id': course_id})
         if not course:
             flash('Course not found', 'error')
@@ -521,7 +413,8 @@ def admin_edit_course(course_id):
 @app.route('/admin/students')
 @admin_required
 def admin_students():
-    courses_collection, registrations, _, _, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations = DATA_MANAGER.get_registrations()
     course_filter = request.args.get('course_id')
     query = {}
     if course_filter:
@@ -534,7 +427,7 @@ def admin_students():
 @app.route('/admin/student/<student_id>/delete', methods=['POST'])
 @admin_required
 def admin_delete_student(student_id):
-    _, registrations, _, _, _ = get_collections()
+    registrations = DATA_MANAGER.get_registrations()
     student = registrations.find_one({"_id": ObjectId(student_id)})
     if not student:
         flash('Student not found', 'error')
@@ -547,14 +440,14 @@ def admin_delete_student(student_id):
 @app.route('/admin/instructors')
 @admin_required
 def admin_instructors():
-    _, _, _, instructors_collection, _ = get_collections()
+    instructors_collection = DATA_MANAGER.get_instructors()
     all_instructors = list(instructors_collection.find())
     return render_template('admin/instructors.html', instructors=all_instructors)
 
 @app.route('/admin/instructors/edit/<instructor_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_edit_instructor(instructor_id):
-    _, _, _, instructors_collection, _ = get_collections()
+    instructors_collection = DATA_MANAGER.get_instructors()
     
     instructor = instructors_collection.find_one({"_id": instructor_id})
     if not instructor:
@@ -622,7 +515,7 @@ def admin_edit_instructor(instructor_id):
 @app.route('/admin/student/<student_id>/update', methods=['POST'])
 @admin_required
 def admin_update_student(student_id):
-    _, registrations, _, _, _ = get_collections()
+    registrations = DATA_MANAGER.get_registrations()
     new_status = request.form['status']
     student = registrations.find_one({"_id": ObjectId(student_id)})
     
@@ -639,7 +532,8 @@ def admin_update_student(student_id):
     )
     
     # Send email notification
-    email_sent = send_status_email(
+    email_sent = DATA_MANAGER.send_status_email(
+        mail,
         student['email'], 
         student['full_name'], 
         student['course_title'], 
@@ -663,7 +557,8 @@ def admin_update_student(student_id):
 @app.route('/admin/courses/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_course():
-    courses_collection, _, _, instructors_collection, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
+    instructors_collection = DATA_MANAGER.get_instructors()
     if request.method == 'POST':
         try:
             # Validate required fields
@@ -732,7 +627,7 @@ def admin_add_course():
 @app.route('/admin/instructors/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_instructor():
-    _, _, _, instructors_collection, _ = get_collections()
+    instructors_collection = DATA_MANAGER.get_instructors()
     if request.method == 'POST':
         try:
             # Validate required fields
@@ -802,8 +697,7 @@ def admin_add_instructor():
 @app.route('/admin/visitors')
 @admin_required
 def admin_visitors():
-    db = get_db()
-    visits = db.visits
+    visits = DATA_MANAGER.get_visits()
     # Add to your aggregation pipeline
     country_stats = list(visits.aggregate([
         {"$match": {"geo.country": {"$exists": True}}},
@@ -903,8 +797,7 @@ def admin_visitors():
 @app.route('/admin/visitors/<ip>')
 @admin_required
 def admin_visitor_details(ip):
-    db = get_db()
-    visits = db.visits
+    visits = DATA_MANAGER.get_visits()
     
     # Get all visits from this IP
     visitor_visits = list(visits.find({"ip_address": ip}).sort("timestamp", -1))
@@ -935,13 +828,14 @@ def admin_visitor_details(ip):
 # API Endpoints
 @app.route('/api/courses', methods=['GET'])
 def api_courses():
-    courses_collection, _, _, _, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
     courses = list(courses_collection.find({"is_active": True}, {'_id': 0}))
     return jsonify(courses)
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
-    courses_collection, registrations, _, _, _ = get_collections()
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations = DATA_MANAGER.get_registrations()
     data = request.json
     course_id = data.get('course_id')
     if not courses_collection.find_one({"_id": course_id, "is_active": True}):
@@ -962,6 +856,126 @@ def api_register():
     
     registrations.insert_one(registration_data)
     return jsonify({"message": "Registration successful"}), 201
+
+
+
+# Admin Materials Routes
+@app.route('/admin/materials')
+def admin_materials():
+    try:
+        # Get all courses and materials counts
+        courses = DATA_MANAGER.get_courses()
+        all_courses = list(courses.find({"is_active": True}))
+        selected_course_id = request.args.get('course', '')
+        print(selected_course_id)
+        materials_data = None
+        if selected_course_id:
+            
+            materials_data = DATA_MANAGER.get_materials()
+            all_materials = list(materials_data.find({"_id": selected_course_id}))
+            
+        return render_template('admin/materials.html',
+                            courses=all_courses,
+                            selected_course=all_courses[0],
+                            materials=materials_data if materials_data else {'materials': []})
+    
+    except Exception as e:
+        current_app.logger.error(f"Error in admin_materials: {str(e)}")
+        flash('An error occurred while loading materials', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/materials/add', methods=['POST'])
+def add_material():
+    try:
+        course_id = request.form.get('course_id')
+        name = request.form.get('name')
+        google_drive_url = request.form.get('google_drive_url')
+        
+        if not all([course_id, name, google_drive_url]):
+            flash('All fields are required', 'error')
+            return redirect(url_for('admin_materials', course=course_id))
+        
+        material_data = {
+            "name": name.strip(),
+            "google_drive_url": google_drive_url.strip()
+        }
+        
+        if DATA_MANAGER.add_material(course_id, material_data):
+            flash('Material added successfully!', 'success')
+        else:
+            flash('Failed to add material', 'error')
+            
+        return redirect(url_for('admin_materials', course=course_id))
+    
+    except Exception as e:
+        print("_"*50)
+        current_app.logger.error(f"Error adding material: {str(e)}")
+        flash('An error occurred while adding the material', 'error')
+        return redirect(url_for('admin_materials'))
+
+@app.route('/admin/materials/update', methods=['POST'])
+@admin_required
+def update_material():
+    try:
+        course_id = request.form.get('course_id')
+        material_index = int(request.form.get('material_index'))
+        name = request.form.get('name')
+        google_drive_url = request.form.get('google_drive_url')
+        
+        if not all([course_id, name, google_drive_url]):
+            flash('All fields are required', 'error')
+            return redirect(url_for('admin_materials', course=course_id))
+        
+        if not is_valid_url(google_drive_url, allowed_domains=['drive.google.com', 'colab.research.google.com']):
+            flash('Please provide a valid Google Drive or Colab URL', 'error')
+            return redirect(url_for('admin_materials', course=course_id))
+        
+        updated_data = {
+            "name": name.strip(),
+            "google_drive_url": google_drive_url.strip()
+        }
+        
+        if DATA_MANAGER.update_material(course_id, material_index, updated_data):
+            flash('Material updated successfully!', 'success')
+        else:
+            flash('Material not found or no changes made', 'warning')
+            
+        return redirect(url_for('admin_materials', course=course_id))
+    
+    except ValueError:
+        flash('Invalid material index', 'error')
+        return redirect(url_for('admin_materials'))
+    except Exception as e:
+        current_app.logger.error(f"Error updating material: {str(e)}")
+        flash('An error occurred while updating the material', 'error')
+        return redirect(url_for('admin_materials'))
+
+@app.route('/admin/materials/delete', methods=['POST'])
+@admin_required
+def delete_material():
+    try:
+        if not request.is_json:
+            return jsonify({"success": False, "error": "Invalid request format"}), 400
+            
+        data = request.get_json()
+        course_id = data.get('course_id')
+        material_index = data.get('material_index')
+        
+        if not course_id or material_index is None:
+            return jsonify({"success": False, "error": "Missing required fields"}), 400
+        
+        if DATA_MANAGER.delete_material(course_id, int(material_index)):
+            return jsonify({"success": True})
+        return jsonify({"success": False, "error": "Material not found"}), 404
+    
+    except ValueError:
+        return jsonify({"success": False, "error": "Invalid material index"}), 400
+    except Exception as e:
+        current_app.logger.error(f"Error deleting material: {str(e)}")
+        return jsonify({"success": False, "error": "Internal server error"}), 500
+
+
+
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001, debug=True)

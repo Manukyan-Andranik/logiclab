@@ -6,6 +6,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
+import socket
+
+from user_agents import parse
+
+
 load_dotenv(dotenv_path=".env")
 
 def load_env():

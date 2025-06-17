@@ -9,3 +9,5 @@ ml_config.json
 ml_course.json
 static/images/.DS_Store
 util
+test.py
+static/.DS_Store
