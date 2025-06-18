@@ -215,7 +215,7 @@
   transform: translateX(-50%);
   width: 80px;
   height: 3px;
-  background: var(--primary-dark);
+  background: var(--primary-color);
 }
 
 .info-grid {
