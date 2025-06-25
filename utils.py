@@ -1,4 +1,6 @@
 import os
+import re
+
 import hashlib
 import requests
 from requests import request
@@ -54,3 +56,50 @@ def is_valid_url(url):
         return response.status_code == 200
     except requests.RequestException:
         return False
+
+
+
+def generate_download_url(shared_url, export_format=None):
+    """
+    Generates a direct download URL from a Google shared file URL.
+
+    Args:
+        shared_url (str): Shared Google Drive, Docs, or Colab URL.
+        export_format (str, optional): Export format for Docs (e.g., 'pdf', 'pptx', 'ipynb').
+
+    Returns:
+        str: Direct download URL or message.
+    """
+    # Handle Google Drive file URLs
+    drive_match = re.search(r"(?:/d/|id=)([a-zA-Z0-9_-]{25,})", shared_url)
+    if "drive.google.com" in shared_url and drive_match:
+        file_id = drive_match.group(1)
+        return f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    # Handle Colab links
+    if "colab.research.google.com/drive/" in shared_url:
+        match = re.search(r"/drive/([a-zA-Z0-9_-]{25,})", shared_url)
+        if match:
+            file_id = match.group(1)
+            return f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    # Handle Google Docs, Sheets, Slides
+    if "docs.google.com" in shared_url:
+        doc_type = None
+        if "/document/d/" in shared_url:
+            doc_type = "document"
+        elif "/spreadsheets/d/" in shared_url:
+            doc_type = "spreadsheets"
+        elif "/presentation/d/" in shared_url:
+            doc_type = "presentation"
+
+        if doc_type:
+            match = re.search(rf"/{doc_type}/d/([a-zA-Z0-9_-]+)", shared_url)
+            if match:
+                file_id = match.group(1)
+                if export_format:
+                    return f"https://docs.google.com/{doc_type}/d/{file_id}/export?format={export_format}"
+                else:
+                    return shared_url
+
+    return "❌ Unsupported or invalid URL"

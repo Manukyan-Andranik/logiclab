@@ -12,3 +12,4 @@ ua-parser==1.0.1
 special-agents
 user_agents
 geoip2
+re==2.2.1
