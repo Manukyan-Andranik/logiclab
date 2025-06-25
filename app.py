@@ -5,7 +5,7 @@ from urllib.parse import quote_plus
 from flask_mail import Mail, Message
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
 
-from utils import get_ids, find_by_id, load_env, is_valid_url
+from utils import get_ids, find_by_id, load_env, is_valid_url, generate_download_url
 from data_manager import DataManager, admin_required, user_required
 
 app = Flask(__name__)
@@ -76,10 +76,8 @@ def user_logout():
 @user_required
 def user_dashboard():
     course_id="machine_learning"
-    print(course_id)
     materials = DATA_MANAGER.get_materials()
     all_materials = list(materials.find({"_id": course_id}))
-    print("All materials:", all_materials)
     return render_template('users/profile.html', course_id = course_id, materials=all_materials[0])
 
 @app.route('/instructors')
@@ -203,8 +201,6 @@ def contact():
             flash('Failed to send your message. Please try again later.', 'error')
         
         return redirect(url_for('home') + '#contact')
-
-
 
 
 # Admin routes
@@ -373,7 +369,6 @@ def admin_edit_course(course_id):
                     'curriculum': request.form.get('curriculum', ''),
                     'chapters': []
                 }
-                print("curriculum", updates["curriculum"])
                 # Process chapters
                 chapter_index = 0
                 while f'chapter_{chapter_index}_title' in request.form:
@@ -867,8 +862,7 @@ def admin_materials():
         courses = DATA_MANAGER.get_courses()
         all_courses = list(courses.find({"is_active": True}))
         selected_course_id = request.args.get('course', '')
-        print(selected_course_id)
-        materials_data = None
+        all_materials = None
         if selected_course_id:
             
             materials_data = DATA_MANAGER.get_materials()
@@ -877,7 +871,7 @@ def admin_materials():
         return render_template('admin/materials.html',
                             courses=all_courses,
                             selected_course=all_courses[0],
-                            materials=materials_data if materials_data else {'materials': []})
+                            materials=all_materials if all_materials else {'materials': []})
     
     except Exception as e:
         current_app.logger.error(f"Error in admin_materials: {str(e)}")
@@ -897,7 +891,8 @@ def add_material():
         
         material_data = {
             "name": name.strip(),
-            "google_drive_url": google_drive_url.strip()
+            "google_drive_url": google_drive_url.strip(),
+            "download_url": generate_download_url(google_drive_url)
         }
         
         if DATA_MANAGER.add_material(course_id, material_data):

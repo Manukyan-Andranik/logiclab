@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %} Materials - Logic Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/users/profile.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <header class="profile-header">
+        <div class="profile-info">
+            <div class="avatar-container">
+                <div class="avatar">
+                    <i class="fas fa-book-open"></i>
+                </div>
+            </div>
+            <div class="details">
+                <h1>Դասընթացների բոլոր նյութերը մեկ տեղում</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-content">
+        <section class="materials-section">
+            {% if materials %}
+                {% set course = materials %}
+                <article class="course-card">
+                    <header class="course-header">
+                        <h2>
+                            <i class="fas fa-graduation-cap"></i>
+                            {{ materials.name }} դասընթաց
+                        </h2>
+                    </header>
+                    <div class="materials-list">
+                        {% for material in course.materials %}
+                        <div class="material-item">
+                            <div class="material-icon">
+                                {% if material.type == 'PDF' %}
+                                <i class="fas fa-file-pdf"></i>
+                                {% elif material.type == 'Video' %}
+                                <i class="fas fa-video"></i>
+                                {% elif material.type == 'Presentation' %}
+                                <i class="fas fa-file-powerpoint"></i>
+                                {% elif material.type == 'Archive' %}
+                                <i class="fas fa-file-archive"></i>
+                                {% elif material.type == 'Code' %}
+                                <i class="fas fa-code"></i>
+                                {% else %}
+                                <i class="fas fa-file-alt"></i>
+                                {% endif %}
+                            </div>
+                            <div class="material-info">
+                                <h4>{{ material.name }}</h4>
+                                <span class="material-type">{{ material.type }}{% if material.size %} • {{ material.size }}{% endif %}</span>
+                            </div>
+                            <div class="material-actions">
+                                <a href="{{ material.google_drive_url }}" target="_blank" class="btn btn-view" aria-label="Դիտել {{ material.name }}">
+                                    <i class="fas fa-eye"></i> Դիտել
+                                </a>
+                            
+                                {% if '/file/d/' in material.google_drive_url %}
+                                    {# Extract file ID from the Google Drive URL #}
+                                    {% set file_id = material.google_drive_url.split('/file/d/')[1].split('/')[0] %}
+                                    <a href="https://drive.google.com/uc?export=download&id={{ file_id }}" class="btn btn-download" aria-label="Ներբեռնել {{ material.name }}">
+                                        <i class="fas fa-download"></i> Ներբեռնել
+                                    </a>
+                                {% else %}
+                                    {# Fallback: open original link in new tab #}
+                                    <a href="{{ material.download_url }}" class="btn btn-download" target="_blank" aria-label="Ներբեռնել {{ material.name }}">
+                                        <i class="fas fa-download"></i> Ներբեռնել
+                                    </a>
+                                {% endif %}
+                            </div>
+                            
+                        </div>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open fa-3x"></i>
+                    <h3>Նյութեր չեն գտնվել</h3>
+                    <p>Դուք դեռ չունեք հասանելի ուսումնական նյութեր: Խնդրում ենք ստուգել ավելի ուշ կամ դիմել ձեր դասախոսին:</p>
+                    <a href="{{ url_for('home') }}" class="btn btn-view">
+                        <i class="fas fa-arrow-left"></i> Վերադառնալ գլխավոր էջ
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+{% endblock %}
