@@ -72,72 +72,8 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
-}
-
-.detail-item i {
-    color: var(--primary-color);
-    width: 20px;
-    text-align: center;
-}
-
-.detail-item p {
-    margin: 0;
-    opacity: 0.9;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 0.5rem 1.5rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    width: fit-content;
-}
-
-.status-badge.confirmed {
-    background: rgba(40, 167, 69, 0.1);
-    color: var(--success-color);
-    border: 1px solid rgba(40, 167, 69, 0.3);
-}
-
-.status-badge.pending {
-    background: rgba(255, 193, 7, 0.1);
-    color: var(--warning-color);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-}
-
-.status-badge.cancelled {
-    background: rgba(220, 53, 69, 0.1);
-    color: var(--error-color);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-}
-
 .profile-content {
     padding: 3rem;
-}
-
-.section-header {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.section-header h1 {
-    font-size: 2rem;
-    color: var(--secondary-color);
-    margin-bottom: 0.5rem;
-}
-
-.section-header h2 {
-    font-size: 1.6rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: #555;
 }
 
 .course-card {
@@ -164,28 +100,48 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.course-header h3 {
-    font-size: 1.5rem;
+.course-header h2 {
+    font-size: 1.8rem;
     color: var(--secondary-color);
     font-weight: 600;
     margin: 0;
 }
 
 .materials-list {
-    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 3rem;
+    padding: 2rem;
+}
+
+/* ✅ New: Lesson Wrapper */
+.lesson-block {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #fafafa;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.02);
+}
+
+/* ✅ New: Lesson Title */
+.lesson-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color);
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
 }
 
 .material-item {
     display: flex;
     align-items: center;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: 8px;
     background: #fdfdfd;
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    gap: 1.5rem;
 }
 
 .material-item:hover {
@@ -204,7 +160,6 @@
     justify-content: center;
     font-size: 1.75rem;
     color: var(--primary-color);
-    margin-right: 1.75rem;
     flex-shrink: 0;
     transition: all 0.3s ease;
 }
@@ -309,10 +264,6 @@
         text-align: center;
     }
     
-    .detail-item {
-        justify-content: center;
-    }
-    
     .material-item {
         flex-direction: column;
         align-items: flex-start;
@@ -352,14 +303,6 @@
         font-size: 1.8rem;
     }
     
-    .section-header h1 {
-        font-size: 1.6rem;
-    }
-    
-    .section-header h2 {
-        font-size: 1.4rem;
-    }
-    
     .material-actions {
         flex-direction: column;
         gap: 0.75rem;
@@ -374,7 +317,7 @@
         padding: 1rem 1.5rem;
     }
     
-    .course-header h3 {
+    .course-header h2 {
         font-size: 1.3rem;
     }
     
@@ -386,4 +329,29 @@
     .material-item {
         padding: 1.25rem;
     }
+}
+
+.toggle-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f0f0f0;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background: #e0e0e0;
+}
+
+.lesson-toggle-icon {
+    font-size: 1rem;
+    color: #555;
+    margin-left: 1rem;
+}
+
+.lesson-content {
+    margin-top: 1rem;
 }

@@ -1,0 +1,461 @@
+<!-- admin_course_materials.html -->
+{% extends "admin/base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/material_details.css') }}">
+<style>
+    /* Add these new styles for the improved modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 25px;
+        border: 1px solid #888;
+        width: 60%;
+        max-width: 700px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover {
+        color: black;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+    
+    .url-entry {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .url-entry input {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+    
+    .btn-add-another {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+    
+    .btn-add-another:hover {
+        background-color: #45a049;
+    }
+    
+    .btn-remove-url {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .btn-remove-url:hover {
+        background-color: #d32f2f;
+    }
+    
+    .modal-footer {
+        margin-top: 20px;
+        text-align: right;
+    }
+    
+    .btn-save {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .btn-save:hover {
+        background-color: #0b7dda;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1><i class="fas fa-book-reader"></i> Manage Course Materials: {{ materials.name }}</h1>
+</div>
+
+{% if materials %}
+<div class="course-materials">
+    {% for lesson_key, lesson in materials.materials.items() %}
+    <div class="lesson-block">
+        <h3 class="lesson-title toggle-btn" onclick="toggleLesson(this)">
+            <i class="fas fa-chalkboard-teacher"></i> {{ lesson.tittle }} ({{ lesson_key }})
+            <i class="fas fa-chevron-down lesson-toggle-icon"></i>
+        </h3>
+
+        <div class="lesson-content">
+            <form class="url-form" data-lesson-key="{{ lesson_key }}">
+                <input type="hidden" name="course_id" value="{{ materials._id }}">
+                
+                <div class="url-list">
+                    <h4>📑 Presentations</h4>
+                    <div class="url-container" data-field="presentations">
+                        {% for url in lesson.presentations %}
+                        <div class="url-item">
+                            <input type="text" class="url-input" name="presentations" value="{{ url }}">
+                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn-add-url" onclick="addUrlField(this, 'presentations')">Add Presentation</button>
+                </div>
+
+                <div class="url-list">
+                    <h4>💻 Code Notebooks</h4>
+                    <div class="url-container" data-field="code">
+                        {% for url in lesson.code %}
+                        <div class="url-item">
+                            <input type="text" class="url-input" name="code" value="{{ url }}">
+                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn-add-url" onclick="addUrlField(this, 'code')">Add Code Notebook</button>
+                </div>
+
+                <div class="url-list">
+                    <h4>📁 Other Materials</h4>
+                    <div class="url-container" data-field="other">
+                        {% for url in lesson.other %}
+                        <div class="url-item">
+                            <input type="text" class="url-input" name="other" value="{{ url }}">
+                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                        </div>
+                        {% else %}
+                        <div class="url-item">
+                            <input type="text" class="url-input" name="other" value="">
+                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn-add-url" onclick="addUrlField(this, 'other')">Add Other Material</button>
+                </div>
+
+                <button type="button" class="btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">Save Changes</button>
+            </form>
+
+            <div class="lesson-actions">
+                <button class="btn btn-danger" onclick="deleteLesson('{{ lesson_key }}')">
+                    <i class="fas fa-trash"></i> Delete Lesson
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <button class="btn btn-admin" onclick="showAddLessonModal()">
+        <i class="fas fa-plus"></i> Add New Lesson
+    </button>
+</div>
+{% endif %}
+
+<!-- Improved Add Lesson Modal -->
+<div id="add-lesson-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="hideAddLessonModal()">&times;</span>
+        <h2>Add New Lesson</h2>
+        <form id="add-lesson-form">
+            <input type="hidden" name="course_id" value="{{ materials._id }}">
+            
+            <div class="form-group">
+                <label for="lesson-title">Lesson Title *</label>
+                <input type="text" id="lesson-title" name="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lesson-key">Lesson Key * (e.g. "lesson_3")</label>
+                <input type="text" id="lesson-key" name="lesson_key" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Presentation URLs</label>
+                <div id="presentations-container">
+                    <div class="url-entry">
+                        <input type="url" name="presentations[]" placeholder="https://example.com/presentation1">
+                        <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-another" onclick="addUrlEntry('presentations-container')">Add Another Presentation</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Code Notebook URLs</label>
+                <div id="code-container">
+                    <div class="url-entry">
+                        <input type="url" name="code[]" placeholder="https://example.com/notebook1">
+                        <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-another" onclick="addUrlEntry('code-container')">Add Another Notebook</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Other Materials URLs</label>
+                <div id="other-container">
+                    <div class="url-entry">
+                        <input type="url" name="other[]" placeholder="https://example.com/other-material">
+                        <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-another" onclick="addUrlEntry('other-container')">Add Another URL</button>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-save" onclick="submitAddLessonForm()">Add Lesson</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Toggle lesson visibility
+    function toggleLesson(el) {
+        const content = el.nextElementSibling;
+        const icon = el.querySelector('.lesson-toggle-icon');
+        if (content.style.display === 'none' || !content.style.display) {
+            content.style.display = 'block';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            content.style.display = 'none';
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    }
+
+    // URL management for existing lessons
+    function addUrlField(button, fieldName) {
+        const container = button.previousElementSibling;
+        const newUrlItem = document.createElement('div');
+        newUrlItem.className = 'url-item';
+        newUrlItem.innerHTML = `
+            <input type="text" class="url-input" name="${fieldName}" value="">
+            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+        `;
+        container.appendChild(newUrlItem);
+    }
+
+    function removeUrlField(button) {
+        const urlItem = button.parentElement;
+        if (urlItem.parentElement.children.length > 1) {
+            urlItem.remove();
+        } else {
+            urlItem.querySelector('input').value = '';
+        }
+    }
+
+    // Modal functions
+    function showAddLessonModal() {
+        document.getElementById('add-lesson-modal').style.display = 'block';
+    }
+
+    function hideAddLessonModal() {
+        document.getElementById('add-lesson-modal').style.display = 'none';
+    }
+
+    // URL management for new lessons
+    function addUrlEntry(containerId) {
+        const container = document.getElementById(containerId);
+        const newEntry = document.createElement('div');
+        newEntry.className = 'url-entry';
+        
+        const fieldName = containerId.replace('-container', '');
+        newEntry.innerHTML = `
+            <input type="url" name="${fieldName}[]" placeholder="Enter URL">
+            <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+        `;
+        
+        container.appendChild(newEntry);
+    }
+
+    function removeUrlEntry(button) {
+        const entry = button.parentElement;
+        if (entry.parentElement.children.length > 1) {
+            entry.remove();
+        }
+    }
+
+    // Form submission
+    function submitAddLessonForm() {
+        const form = document.getElementById('add-lesson-form');
+        const formData = new FormData(form);
+        
+        // Prepare the lesson data
+        const lessonData = {
+            tittle: formData.get('title'),
+            presentations: [],
+            code: [],
+            other: []
+        };
+        
+        // Collect all URLs
+        formData.getAll('presentations[]').forEach(url => {
+            if (url.trim()) lessonData.presentations.push(url.trim());
+        });
+        
+        formData.getAll('code[]').forEach(url => {
+            if (url.trim()) lessonData.code.push(url.trim());
+        });
+        
+        formData.getAll('other[]').forEach(url => {
+            if (url.trim()) lessonData.other.push(url.trim());
+        });
+        
+        const courseId = formData.get('course_id');
+        const lessonKey = formData.get('lesson_key');
+        
+        // Send the request
+        fetch('/admin/materials/add_lesson', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                course_id: courseId,
+                lesson_key: lessonKey,
+                lesson_data: lessonData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Lesson added successfully!');
+                hideAddLessonModal();
+                window.location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'Failed to add lesson'));
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+
+    // Save URLs for existing lessons
+    function saveUrls(lessonKey) {
+        const form = document.querySelector(`.url-form[data-lesson-key="${lessonKey}"]`);
+        const courseId = form.querySelector('input[name="course_id"]').value;
+        
+        const data = {
+            presentations: [],
+            code: [],
+            other: []
+        };
+
+        // Collect all URLs from the form
+        form.querySelectorAll('input[name="presentations"]').forEach(input => {
+            if (input.value.trim()) data.presentations.push(input.value.trim());
+        });
+        form.querySelectorAll('input[name="code"]').forEach(input => {
+            if (input.value.trim()) data.code.push(input.value.trim());
+        });
+        form.querySelectorAll('input[name="other"]').forEach(input => {
+            if (input.value.trim()) data.other.push(input.value.trim());
+        });
+
+        // Send the update request
+        fetch('/admin/materials/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                course_id: courseId,
+                lesson_key: lessonKey,
+                updated_data: data
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Materials updated successfully!');
+            } else {
+                alert('Error updating materials: ' + (result.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Error updating materials: ' + error);
+        });
+    }
+
+    function deleteLesson(lessonKey) {
+        if (confirm("Are you sure you want to delete " + lessonKey + "?")) {
+            fetch('/admin/materials/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    course_id: '{{ materials._id }}',
+                    lesson_key: lessonKey
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert("Error deleting lesson: " + data.message);
+                }
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.lesson-content').forEach(el => el.style.display = 'none');
+    });
+</script>
+{% endblock %}

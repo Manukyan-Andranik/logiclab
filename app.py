@@ -857,26 +857,43 @@ def api_register():
 # Admin Materials Routes
 @app.route('/admin/materials')
 def admin_materials():
+    # try:
+    # Get all courses and materials counts
+    courses = DATA_MANAGER.get_courses()
+    all_courses = list(courses.find({"is_active": True}))
+    selected_course_id = "machine_learning" # request.args.get('course', '')
+    materials = DATA_MANAGER.get_materials()
+    all_materials = list(materials.find({"_id": selected_course_id}))
+    
+    return render_template('admin/materials.html',
+                        all_courses=all_courses,
+                        selected_course=all_courses[0],
+                        materials=all_materials if all_materials else {'materials': []})
+    
+    # except Exception as e:
+    #     current_app.logger.error(f"Error in admin_materials: {str(e)}")
+    #     flash('An error occurred while loading materials', 'error')
+    #     return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/materials/<course_id>')
+def admin_material_details(course_id):
     try:
-        # Get all courses and materials counts
-        courses = DATA_MANAGER.get_courses()
-        all_courses = list(courses.find({"is_active": True}))
-        selected_course_id = request.args.get('course', '')
-        all_materials = None
-        if selected_course_id:
-            
-            materials_data = DATA_MANAGER.get_materials()
-            all_materials = list(materials_data.find({"_id": selected_course_id}))
-            
-        return render_template('admin/materials.html',
-                            courses=all_courses,
-                            selected_course=all_courses[0],
-                            materials=all_materials if all_materials else {'materials': []})
+        materials = DATA_MANAGER.get_materials()
+        
+        all_materials = list(materials.find({"_id": course_id}))
+        if not all_materials:
+            all_materials = {'materials': []}
+        
+        return render_template('admin/material_details.html',
+                            selected_course=course_id,
+                            materials=all_materials[0])
     
     except Exception as e:
-        current_app.logger.error(f"Error in admin_materials: {str(e)}")
+        current_app.logger.error(f"Error in admin_material_details: {str(e)}")
         flash('An error occurred while loading materials', 'error')
-        return redirect(url_for('admin_dashboard'))
+        return redirect(url_for('admin_materials'))
+
 
 @app.route('/admin/materials/add', methods=['POST'])
 def add_material():
@@ -903,46 +920,52 @@ def add_material():
         return redirect(url_for('admin_materials', course=course_id))
     
     except Exception as e:
-        print("_"*50)
         current_app.logger.error(f"Error adding material: {str(e)}")
         flash('An error occurred while adding the material', 'error')
         return redirect(url_for('admin_materials'))
 
 @app.route('/admin/materials/update', methods=['POST'])
-@admin_required
-def update_material():
+def update_materials():
+    try:
+        data = request.get_json()
+        course_id = data['course_id']
+        lesson_key = data['lesson_key']
+        updated_data = data['updated_data']
+        
+        success = DATA_MANAGER.update_material(course_id, lesson_key, updated_data)
+        
+        return jsonify({
+            'success': success,
+            'message': 'Materials updated successfully' if success else 'Failed to update materials'
+        })
+    
+    except Exception as e:
+        current_app.logger.error(f"Error updating materials: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/admin/materials/add_lesson', methods=['POST'])
+def add_lesson():
     try:
         course_id = request.form.get('course_id')
-        material_index = int(request.form.get('material_index'))
-        name = request.form.get('name')
-        google_drive_url = request.form.get('google_drive_url')
+        lesson_key = request.form.get('lesson_key')
         
-        if not all([course_id, name, google_drive_url]):
-            flash('All fields are required', 'error')
-            return redirect(url_for('admin_materials', course=course_id))
-        
-        if not is_valid_url(google_drive_url, allowed_domains=['drive.google.com', 'colab.research.google.com']):
-            flash('Please provide a valid Google Drive or Colab URL', 'error')
-            return redirect(url_for('admin_materials', course=course_id))
-        
-        updated_data = {
-            "name": name.strip(),
-            "google_drive_url": google_drive_url.strip()
+        lesson_data = {
+            'tittle': request.form.get('title'),
+            'presentations': [url.strip() for url in request.form.get('presentations', '').split(',') if url.strip()],
+            'code': [url.strip() for url in request.form.get('code', '').split(',') if url.strip()],
+            'other': [url.strip() for url in request.form.get('other', '').split(',') if url.strip()]
         }
         
-        if DATA_MANAGER.update_material(course_id, material_index, updated_data):
-            flash('Material updated successfully!', 'success')
-        else:
-            flash('Material not found or no changes made', 'warning')
-            
-        return redirect(url_for('admin_materials', course=course_id))
+        message, msg_type = DATA_MANAGER.add_material(course_id, lesson_key, lesson_data)
+        flash(message, msg_type)
+        return redirect(url_for('admin/material', course_id=course_id))
     
-    except ValueError:
-        flash('Invalid material index', 'error')
-        return redirect(url_for('admin_materials'))
     except Exception as e:
-        current_app.logger.error(f"Error updating material: {str(e)}")
-        flash('An error occurred while updating the material', 'error')
+        current_app.logger.error(f"Error adding lesson: {str(e)}")
+        flash('An error occurred while adding the lesson', 'error')
         return redirect(url_for('admin_materials'))
 
 @app.route('/admin/materials/delete', methods=['POST'])
