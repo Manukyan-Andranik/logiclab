@@ -931,7 +931,6 @@ def update_materials():
         course_id = data['course_id']
         lesson_key = data['lesson_key']
         updated_data = data['updated_data']
-        print(course_id, lesson_key, updated_data)
         success = DATA_MANAGER.update_material(course_id, lesson_key, updated_data)
         
         return jsonify({
@@ -949,7 +948,6 @@ def update_materials():
 @app.route('/admin/materials/add_lesson', methods=['POST'])
 def add_lesson():
     try:
-        # Detect if the request is JSON (from JS fetch) or form (from form submission)
         if request.is_json:
             data = request.get_json()
             course_id = data.get('course_id')
@@ -967,21 +965,18 @@ def add_lesson():
 
         message, msg_type = DATA_MANAGER.add_material(course_id, lesson_key, lesson_data)
 
-        # If the request is AJAX/JSON (from JS)
         if request.is_json:
             return jsonify({
                 'success': msg_type == 'success',
                 'message': message
             })
 
-        # Otherwise, it's from a traditional form
         flash(message, msg_type)
         return redirect(url_for('admin_materials'))
 
     except Exception as e:
         error_message = f"Error adding lesson: {str(e)}"
         current_app.logger.error(error_message)
-
         if request.is_json:
             return jsonify({'success': False, 'message': error_message}), 500
         else:

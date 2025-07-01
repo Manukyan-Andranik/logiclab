@@ -278,75 +278,57 @@
 
     // Form submission
     function submitAddLessonForm() {
-        const form = document.getElementById('add-lesson-form');
-        const formData = new FormData(form);
-        
-        // Validate required fields
-        if (!formData.get('title') || !formData.get('lesson_key')) {
-            alert('Please fill in all required fields');
-            return;
-        }
-        
-        // Prepare the lesson data
-        const lessonData = {
-            tittle: formData.get('title'),
-            presentations: [],
-            code: [],
-            other: []
-        };
-        
-        // Collect all URLs
-        formData.getAll('presentations[]').forEach(url => {
-            if (url.trim()) lessonData.presentations.push(url.trim());
-        });
-        
-        formData.getAll('code[]').forEach(url => {
-            if (url.trim()) lessonData.code.push(url.trim());
-        });
-        
-        formData.getAll('other[]').forEach(url => {
-            if (url.trim()) lessonData.other.push(url.trim());
-        });
-        
-        const courseId = formData.get('course_id');
-        const lessonKey = formData.get('lesson_key');
-        
-        // Show loading state
-        const submitBtn = form.querySelector('.btn-primary');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        submitBtn.disabled = true;
-        
-        // Send the request
-        fetch('/admin/materials/add_lesson', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                course_id: courseId,
-                lesson_key: lessonKey,
-                lesson_data: lessonData
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Lesson added successfully!', 'success');
-                hideAddLessonModal();
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showToast('Error: ' + (data.message || 'Failed to add lesson'), 'error');
-            }
-        })
-        .catch(error => {
-            showToast('Error: ' + error, 'error');
-        })
-        .finally(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        });
+    const form = document.getElementById('add-lesson-form');
+    const formData = new FormData(form);
+
+    const title = formData.get('title');
+    const lessonKey = formData.get('lesson_key');
+    const courseId = formData.get('course_id');
+
+    if (!title || !lessonKey || !courseId) {
+        alert('Please fill in all required fields');
+        return;
     }
+
+    const lessonData = {
+        tittle: title,
+        presentations: formData.getAll('presentations[]').map(url => url.trim()).filter(Boolean),
+        code: formData.getAll('code[]').map(url => url.trim()).filter(Boolean),
+        other: formData.getAll('other[]').map(url => url.trim()).filter(Boolean)
+    };
+
+    const submitBtn = form.querySelector('.btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    submitBtn.disabled = true;
+
+    fetch('/admin/materials/add_lesson', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            course_id: courseId,
+            lesson_key: lessonKey,
+            lesson_data: lessonData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Lesson added successfully!', 'success');
+            hideAddLessonModal();
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showToast('Error: ' + (data.message || 'Failed to add lesson'), 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error: ' + error.message, 'error');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
 
     // Save URLs for existing lessons
     function saveUrls(lessonKey) {
