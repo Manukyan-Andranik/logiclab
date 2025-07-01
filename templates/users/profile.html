@@ -34,6 +34,7 @@
                     </h2>
                 </header>
                 <div class="materials-list">
+                    {% if course.materials %}
                     {% for lesson_key, lesson in course.materials.items() %}
                     <div class="lesson-block">
                         <h3 class="lesson-title toggle-btn" onclick="toggleLesson(this)">
@@ -110,6 +111,13 @@
                         </div>
                     </div>
                     {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle fa-3x"></i>
+                        <h3>Նյութեր չկան</h3>
+                        <p>Այս դասընթացի համար նյութեր դեռ չեն ավելացվել:</p>
+                    </div>
+                    {% endif %}
                 </div>
             </article>
             {% else %}

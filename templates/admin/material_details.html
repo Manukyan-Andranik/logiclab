@@ -12,6 +12,7 @@
 
 {% if materials %}
 <div class="course-materials">
+    {% if materials.materials %}
     {% for lesson_key, lesson in materials.materials.items() %}
     <div class="lesson-block">
         <div class="lesson-title toggle-btn" onclick="toggleLesson(this)">
@@ -102,6 +103,7 @@
         <i class="fas fa-info-circle"></i> No lessons found for this course. Add your first lesson below.
     </div>
     {% endfor %}
+    {% endif %}
 
     <button class="btn btn-admin" onclick="showAddLessonModal()">
         <i class="fas fa-plus"></i> Add New Lesson

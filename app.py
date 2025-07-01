@@ -208,6 +208,10 @@ def user_dashboard():
 
 
 
+
+
+
+
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -945,24 +949,44 @@ def update_materials():
 @app.route('/admin/materials/add_lesson', methods=['POST'])
 def add_lesson():
     try:
-        course_id = request.form.get('course_id')
-        lesson_key = request.form.get('lesson_key')
-        
-        lesson_data = {
-            'tittle': request.form.get('title'),
-            'presentations': [url.strip() for url in request.form.get('presentations', '').split(',') if url.strip()],
-            'code': [url.strip() for url in request.form.get('code', '').split(',') if url.strip()],
-            'other': [url.strip() for url in request.form.get('other', '').split(',') if url.strip()]
-        }
-        
+        # Detect if the request is JSON (from JS fetch) or form (from form submission)
+        if request.is_json:
+            data = request.get_json()
+            course_id = data.get('course_id')
+            lesson_key = data.get('lesson_key')
+            lesson_data = data.get('lesson_data')
+        else:
+            course_id = request.form.get('course_id')
+            lesson_key = request.form.get('lesson_key')
+            lesson_data = {
+                'tittle': request.form.get('title'),
+                'presentations': [url.strip() for url in request.form.getlist('presentations[]') if url.strip()],
+                'code': [url.strip() for url in request.form.getlist('code[]') if url.strip()],
+                'other': [url.strip() for url in request.form.getlist('other[]') if url.strip()]
+            }
+
         message, msg_type = DATA_MANAGER.add_material(course_id, lesson_key, lesson_data)
+
+        # If the request is AJAX/JSON (from JS)
+        if request.is_json:
+            return jsonify({
+                'success': msg_type == 'success',
+                'message': message
+            })
+
+        # Otherwise, it's from a traditional form
         flash(message, msg_type)
-        return redirect(url_for('admin/material', course_id=course_id))
-    
-    except Exception as e:
-        current_app.logger.error(f"Error adding lesson: {str(e)}")
-        flash('An error occurred while adding the lesson', 'error')
         return redirect(url_for('admin_materials'))
+
+    except Exception as e:
+        error_message = f"Error adding lesson: {str(e)}"
+        current_app.logger.error(error_message)
+
+        if request.is_json:
+            return jsonify({'success': False, 'message': error_message}), 500
+        else:
+            flash('An error occurred while adding the lesson', 'error')
+            return redirect(url_for('admin_materials'))
 
 
 # API Endpoints
@@ -997,6 +1021,21 @@ def api_register():
     registrations.insert_one(registration_data)
     return jsonify({"message": "Registration successful"}), 201
 
-
+@app.route('/api/materials')
+@user_required
+def get_all_materials():
+    try:
+        # Get all course materials
+        materials = {
+            "machine_learning": DATA_MANAGER.get_materials_by_course_id("machine_learning")[0],
+            "ai_tools": DATA_MANAGER.get_materials_by_course_id("ai_tools")[0],
+            "3d_modeling": DATA_MANAGER.get_materials_by_course_id("3d_modeling")[0],
+            "photography": DATA_MANAGER.get_materials_by_course_id("photography")[0]
+        }
+        return jsonify(materials)
+    except Exception as e:
+        current_app.logger.error(f"Error getting all materials: {str(e)}")
+        return jsonify({"error": "Failed to load materials"}), 500
+    
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port=5001, debug=True)

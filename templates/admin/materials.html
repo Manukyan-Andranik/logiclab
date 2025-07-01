@@ -1,143 +1,269 @@
-<!-- admin_course_materials.html -->
 {% extends "admin/base.html" %}
 
+{% block title %} Materials Dashboard - Logic Lab{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/materials.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #FFD700;
+        --primary-dark: #FFC000;
+        --secondary-color: #333;
+        --light-color: #f4f4f4;
+        --dark-color: #222;
+        --success-color: #28a745;
+        --error-color: #dc3545;
+        --info-color: #17a2b8;
+        --ml-color: #4CAF50;
+        --ai-color: #2196F3;
+        --modeling-color: #9C27B0;
+        --photo-color: #FF5722;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+    }
+
+    .dashboard-header p {
+        font-size: 1.2rem;
+        color: #666;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-top: 5px solid;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .course-card.ml {
+        border-color: var(--ml-color);
+    }
+
+    .course-card.ai {
+        border-color: var(--ai-color);
+    }
+
+    .course-card.modeling {
+        border-color: var(--modeling-color);
+    }
+
+    .course-card.photo {
+        border-color: var(--photo-color);
+    }
+
+    .course-card-header {
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .course-icon {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        position: absolute;
+        top: -30px;
+        left: 1.5rem;
+    }
+
+    .course-card.ml .course-icon {
+        background: var(--ml-color);
+        color: white;
+    }
+
+    .course-card.ai .course-icon {
+        background: var(--ai-color);
+        color: white;
+    }
+
+    .course-card.modeling .course-icon {
+        background: var(--modeling-color);
+        color: white;
+    }
+
+    .course-card.photo .course-icon {
+        background: var(--photo-color);
+        color: white;
+    }
+
+    .course-card-body {
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .course-card h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    .course-card p {
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-view-course {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .course-card.ml .btn-view-course {
+        background: var(--ml-color);
+        color: white;
+    }
+
+    .course-card.ai .btn-view-course {
+        background: var(--ai-color);
+        color: white;
+    }
+
+    .course-card.modeling .btn-view-course {
+        background: var(--modeling-color);
+        color: white;
+    }
+
+    .course-card.photo .btn-view-course {
+        background: var(--photo-color);
+        color: white;
+    }
+
+    .btn-view-course:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        margin-bottom: 1rem;
+        color: #ccc;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .courses-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-header">
-    <h1><i class="fas fa-book-reader"></i> Manage Course Materials</h1>
-</div>
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1><i class="fas fa-book-open"></i> Course Materials Dashboard</h1>
+        <p>Access all your learning materials in one place. Click on any course to view its resources.</p>
+    </header>
 
-<div class="filter-bar">
-    <form class="filter-form" method="GET" action="{{ url_for('admin_materials') }}">
-        <label for="course_id">Choose a course:</label>
-        <select name="course_id" id="course_id" onchange="this.form.submit()">
-            <option value="">Select Course</option>
-            {% for course in all_courses %}
-            <option value="{{ course._id }}" {% if selected_course == course._id %}selected{% endif %}>{{ course._id }}</option>
-            {% endfor %}
-        </select>
-    </form>
-</div>
+    <div class="courses-grid">
+        <!-- Machine Learning Course -->
+        <div class="course-card ml">
+            <div class="course-card-header">
+                <div class="course-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+            </div>
+            <div class="course-card-body">
+                <h3>Machine Learning</h3>
+                <p>Learn the fundamentals of ML algorithms and applications</p>
+                <a href="admin/materials/machine_learning" class="btn-view-course">
+                    <i class="fas fa-book-open"></i> View Materials
+                </a>
+            </div>
+        </div>
 
-{% if course_materials %}
-<div class="course-materials">
-    {% for lesson_key, lesson in course_materials.materials.items() %}
-    <div class="lesson-block">
-        <h3 class="lesson-title toggle-btn" onclick="toggleLesson(this)">
-            <i class="fas fa-chalkboard-teacher"></i> {{ lesson.tittle }} ({{ lesson_key }})
-            <i class="fas fa-chevron-down lesson-toggle-icon"></i>
-        </h3>
+        <!-- AI Tools Course -->
+        <div class="course-card ai">
+            <div class="course-card-header">
+                <div class="course-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+            </div>
+            <div class="course-card-body">
+                <h3>AI Tools</h3>
+                <p>Master modern AI tools and frameworks</p>
+                <a href="admin/materials/ai_tools" class="btn-view-course">
+                    <i class="fas fa-book-open"></i> View Materials
+                </a>
+            </div>
+        </div>
 
-        <div class="lesson-content">
-            <h4>📑 Presentations</h4>
-            <ul>
-                {% for url in lesson.presentations %}
-                <li>
-                    {{ loop.index }}.
-                    <a href="{{ url }}" target="_blank">View</a>
-                </li>
-                {% endfor %}
-            </ul>
+        <!-- 3D Modeling Course -->
+        <div class="course-card modeling">
+            <div class="course-card-header">
+                <div class="course-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+            </div>
+            <div class="course-card-body">
+                <h3>3D Modeling</h3>
+                <p>Create stunning 3D models and animations</p>
+                <a href="admin/materials/3d_modeling" class="btn-view-course">
+                    <i class="fas fa-book-open"></i> View Materials
+                </a>
+            </div>
+        </div>
 
-            <h4>💻 Code Notebooks</h4>
-            <ul>
-                {% for url in lesson.code %}
-                <li>
-                    {{ loop.index }}.
-                    <a href="{{ url }}" target="_blank">View</a>
-                </li>
-                {% endfor %}
-            </ul>
-
-            <h4>📁 Other Materials</h4>
-            <ul>
-                {% for url in lesson.other %}
-                <li>
-                    {{ loop.index }}.
-                    <a href="{{ url }}" target="_blank">View</a>
-                </li>
-                {% endfor %}
-            </ul>
-
-            <div class="lesson-actions">
-                <button class="btn btn-edit" onclick="editLesson('{{ lesson_key }}')">
-                    <i class="fas fa-edit"></i> Edit Lesson
-                </button>
-                <button class="btn btn-danger" onclick="deleteLesson('{{ lesson_key }}')">
-                    <i class="fas fa-trash"></i> Delete Lesson
-                </button>
+        <!-- Photography Course -->
+        <div class="course-card photo">
+            <div class="course-card-header">
+                <div class="course-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <div class="course-card-body">
+                <h3>Photography</h3>
+                <p>Capture professional-quality photos</p>
+                <a href="admin/materials/photography" class="btn-view-course">
+                    <i class="fas fa-book-open"></i> View Materials
+                </a>
             </div>
         </div>
     </div>
-    {% endfor %}
-
-    <button class="btn btn-admin" onclick="document.getElementById('add-lesson-modal').style.display='block'">
-        <i class="fas fa-plus"></i> Add New Lesson
-    </button>
 </div>
-{% endif %}
-
-<!-- Add Lesson Modal -->
-<div id="add-lesson-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
-        <h2>Add New Lesson</h2>
-        <form method="POST">
-            <input type="hidden" name="course_id" value="{{ selected_course }}">
-            <div class="form-group">
-                <label>Lesson Title:</label>
-                <input type="text" name="title" required>
-            </div>
-            <div class="form-group">
-                <label>Lesson Key (e.g. lesson 3):</label>
-                <input type="text" name="lesson_key" required>
-            </div>
-            <div class="form-group">
-                <label>Presentation URLs (comma-separated):</label>
-                <textarea name="presentations"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Code URLs (comma-separated):</label>
-                <textarea name="code"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Other URLs (comma-separated):</label>
-                <textarea name="other"></textarea>
-            </div>
-            <button type="submit" class="btn btn-save">Add Lesson</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    function toggleLesson(el) {
-        const content = el.nextElementSibling;
-        const icon = el.querySelector('.lesson-toggle-icon');
-        if (content.style.display === 'none' || !content.style.display) {
-            content.style.display = 'block';
-            icon.classList.remove('fa-chevron-down');
-            icon.classList.add('fa-chevron-up');
-        } else {
-            content.style.display = 'none';
-            icon.classList.remove('fa-chevron-up');
-            icon.classList.add('fa-chevron-down');
-        }
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.lesson-content').forEach(el => el.style.display = 'none');
-    });
-
-    function editLesson(lessonKey) {
-        alert("Trigger edit for " + lessonKey);
-        // Integrate with actual modal or navigation
-    }
-    function deleteLesson(lessonKey) {
-        if (confirm("Are you sure you want to delete " + lessonKey + "?")) {
-            // POST request to delete endpoint
-        }
-    }
-</script>
 {% endblock %}
