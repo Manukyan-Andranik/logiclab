@@ -69,20 +69,16 @@ class DataManager(TokenManager):
         db = self.get_db()
         return db.visits
 
-    def get_materials_collection(self):
-        db = self.get_db()
-        return db.materials
-
     # ========== Materials Management Methods ==========
     def get_materials(self):
         """Get all materials for a specific course"""
         db = self.get_db()
         return db.materials
 
-    def get_all_materials(self):
-        """Get all materials across all courses"""
-        materials = self.get_materials_collection()
-        return list(materials.find({}))
+    def get_materials_by_course_id(self, course_id):
+        all_materials = self.get_materials()
+        materials = all_materials.find({"_id": course_id})
+        return list(materials)
 
     def add_material(self, course_id, lesson_key, lesson_data):
         """
@@ -101,7 +97,7 @@ class DataManager(TokenManager):
         Returns:
             Tuple: (message, message_type)
         """
-        materials_collection = self.get_materials_collection()
+        materials_collection = self.get_materials()
         
         try:
             # Check if course material exists
@@ -144,89 +140,62 @@ class DataManager(TokenManager):
                 
         except Exception as e:
             return (f'Error adding material: {str(e)}', 'error')
-    
-        def update_material(self, course_id, material_index, updated_data):
-            """
-            Update an existing material
-            Args:
-                course_id: ID of the course
-                material_index: Index of the material in the materials array
-                updated_data: Dictionary with updated fields
-            """
-            materials = self.get_materials_collection()
-            update_fields = {}
-            
-            for key, value in updated_data.items():
-                update_fields[f"materials.{material_index}.{key}"] = value
-            
-            result = materials.update_one(
-                {"_id": course_id},
-                {"$set": update_fields}
-            )
-            return result.modified_count > 0
 
-        def delete_material(self, course_id, material_index):
-            """
-            Delete a material from a course
-            Args:
-                course_id: ID of the course
-                material_index: Index of the material to delete
-            """
-            materials = self.get_materials_collection()
+    def update_material(self, course_id, material_index, updated_data):
+        """
+        Update an existing material
+        Args:
+            course_id: ID of the course
+            material_index: Index of the material in the materials array
+            updated_data: Dictionary with updated fields
+        """
+        materials = self.get_materials()
+        update_fields = {}
+        
+        for key, value in updated_data.items():
+            update_fields[f"materials.{material_index}.{key}"] = value
+        
+        result = materials.update_one(
+            {"_id": course_id},
+            {"$set": update_fields}
+        )
+        return result.modified_count > 0
+
+    def delete_lesson(self, course_id, lesson_key):
+        """
+        Delete a lesson from course materials
+        
+        Args:
+            course_id: ID of the course
+            lesson_key: Key of the lesson to delete
             
-            # First unset the specific material
-            result = materials.update_one(
+        Returns:
+            bool: True if deletion was successful, False otherwise
+        """
+        materials_collection = self.get_materials()
+        
+        try:
+            result = materials_collection.update_one(
                 {"_id": course_id},
-                {"$unset": {f"materials.{material_index}": 1}}
+                {"$unset": {f"materials.{lesson_key}": ""}}
             )
             
-            if result.modified_count > 0:
-                # Then pull to remove the null value
-                materials.update_one(
+            # Clean up empty materials object if this was the last lesson
+            course_material = materials_collection.find_one({'_id': course_id})
+            if course_material and 'materials' in course_material and not course_material['materials']:
+                materials_collection.update_one(
                     {"_id": course_id},
-                    {"$pull": {"materials": None}}
+                    {"$unset": {"materials": ""}}
                 )
-                return True
+                
+            return result.modified_count > 0
+            
+        except Exception as e:
+            self.app.logger.error(f"Error deleting lesson: {str(e)}")
             return False
 
-        def get_course_materials_count(self, course_id):
-            """Get count of materials for a specific course"""
-            materials = self.get_materials_collection()
-            course_data = materials.find_one({"_id": course_id}, {"materials": 1})
-            return len(course_data.get("materials", [])) if course_data else 0
+    # ========== Visits Management Methods ==========
 
-        # ========== Course-Materials Relationship Methods ==========
-        def get_courses_with_materials(self):
-            """Get all courses along with their material counts"""
-            courses = self.get_courses()
-            materials = self.get_materials_collection()
-            
-            pipeline = [
-                {
-                    "$lookup": {
-                        "from": "materials",
-                        "localField": "_id",
-                        "foreignField": "_id",
-                        "as": "materials_info"
-                    }
-                },
-                {
-                    "$project": {
-                        "_id": 1,
-                        "name": 1,
-                        "description": 1,
-                        "material_count": {
-                            "$size": {
-                                "$ifNull": [{"$arrayElemAt": ["$materials_info.materials", 0]}, []]
-                            }
-                        }
-                    }
-                }
-            ]
-            
-            return list(courses.aggregate(pipeline))
-
-        # ========== Existing Methods Remain Unchanged ==========
     def track_visit(self, visits):
         ip_address = request.remote_addr
         user_agent_str = request.headers.get('User-Agent', '')
@@ -382,6 +351,11 @@ def user_required(f):
     wrapper.__name__ = f.__name__
     return wrapper
 
+DATA_MANAGER_INSTANCE = None
 
+def set_global_data_manager(instance):
+    global DATA_MANAGER_INSTANCE
+    DATA_MANAGER_INSTANCE = instance
 
-
+def get_global_data_manager():
+    return DATA_MANAGER_INSTANCE

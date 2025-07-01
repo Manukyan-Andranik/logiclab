@@ -1,190 +1,93 @@
-<!-- admin_course_materials.html -->
 {% extends "admin/base.html" %}
+{% block content %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/material_details.css') }}">
-<style>
-    /* Add these new styles for the improved modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-    }
-    
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 25px;
-        border: 1px solid #888;
-        width: 60%;
-        max-width: 700px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    
-    .close:hover {
-        color: black;
-    }
-    
-    .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
-    
-    .form-group input[type="text"],
-    .form-group textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-    
-    .form-group textarea {
-        min-height: 80px;
-        resize: vertical;
-    }
-    
-    .url-entry {
-        display: flex;
-        margin-bottom: 10px;
-    }
-    
-    .url-entry input {
-        flex-grow: 1;
-        margin-right: 10px;
-    }
-    
-    .btn-add-another {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 5px;
-    }
-    
-    .btn-add-another:hover {
-        background-color: #45a049;
-    }
-    
-    .btn-remove-url {
-        background-color: #f44336;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .btn-remove-url:hover {
-        background-color: #d32f2f;
-    }
-    
-    .modal-footer {
-        margin-top: 20px;
-        text-align: right;
-    }
-    
-    .btn-save {
-        background-color: #2196F3;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-    
-    .btn-save:hover {
-        background-color: #0b7dda;
-    }
-</style>
 {% endblock %}
 
-{% block content %}
 <div class="admin-header">
-    <h1><i class="fas fa-book-reader"></i> Manage Course Materials: {{ materials.name }}</h1>
+    <h1><i class="fas fa-book-open"></i> Manage Course Materials: {{ materials.name }}</h1>
+    <p class="text-light">Add, edit, and organize your course resources</p>
 </div>
 
 {% if materials %}
 <div class="course-materials">
     {% for lesson_key, lesson in materials.materials.items() %}
     <div class="lesson-block">
-        <h3 class="lesson-title toggle-btn" onclick="toggleLesson(this)">
-            <i class="fas fa-chalkboard-teacher"></i> {{ lesson.tittle }} ({{ lesson_key }})
+        <div class="lesson-title toggle-btn" onclick="toggleLesson(this)">
+            <h3>
+                <i class="fas fa-chalkboard-teacher"></i> 
+                {{ lesson.tittle }} 
+                <span class="badge bg-light text-dark">{{ lesson_key }}</span>
+            </h3>
             <i class="fas fa-chevron-down lesson-toggle-icon"></i>
-        </h3>
+        </div>
 
         <div class="lesson-content">
             <form class="url-form" data-lesson-key="{{ lesson_key }}">
                 <input type="hidden" name="course_id" value="{{ materials._id }}">
                 
                 <div class="url-list">
-                    <h4>📑 Presentations</h4>
+                    <h4><i class="fas fa-file-powerpoint"></i> Presentations</h4>
                     <div class="url-container" data-field="presentations">
                         {% for url in lesson.presentations %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="presentations" value="{{ url }}">
-                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                            <input type="text" class="url-input" name="presentations" value="{{ url }}" placeholder="Enter presentation URL">
+                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
                         </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="btn-add-url" onclick="addUrlField(this, 'presentations')">Add Presentation</button>
+                    <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'presentations')">
+                        <i class="fas fa-plus"></i> Add Presentation
+                    </button>
                 </div>
 
                 <div class="url-list">
-                    <h4>💻 Code Notebooks</h4>
+                    <h4><i class="fas fa-code"></i> Code Notebooks</h4>
                     <div class="url-container" data-field="code">
                         {% for url in lesson.code %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="code" value="{{ url }}">
-                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                            <input type="text" class="url-input" name="code" value="{{ url }}" placeholder="Enter notebook URL">
+                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
                         </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="btn-add-url" onclick="addUrlField(this, 'code')">Add Code Notebook</button>
+                    <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'code')">
+                        <i class="fas fa-plus"></i> Add Notebook
+                    </button>
                 </div>
 
                 <div class="url-list">
-                    <h4>📁 Other Materials</h4>
+                    <h4><i class="fas fa-file-alt"></i> Other Materials</h4>
                     <div class="url-container" data-field="other">
                         {% for url in lesson.other %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="other" value="{{ url }}">
-                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                            <input type="text" class="url-input" name="other" value="{{ url }}" placeholder="Enter resource URL">
+                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
                         </div>
                         {% else %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="other" value="">
-                            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+                            <input type="text" class="url-input" name="other" value="" placeholder="Enter resource URL">
+                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
                         </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="btn-add-url" onclick="addUrlField(this, 'other')">Add Other Material</button>
+                    <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'other')">
+                        <i class="fas fa-plus"></i> Add Resource
+                    </button>
                 </div>
 
-                <button type="button" class="btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">Save Changes</button>
+                <button type="button" class="btn btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
             </form>
 
             <div class="lesson-actions">
@@ -194,6 +97,10 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No lessons found for this course. Add your first lesson below.
+    </div>
     {% endfor %}
 
     <button class="btn btn-admin" onclick="showAddLessonModal()">
@@ -202,75 +109,100 @@
 </div>
 {% endif %}
 
-<!-- Improved Add Lesson Modal -->
+<!-- Add Lesson Modal -->
 <div id="add-lesson-modal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="hideAddLessonModal()">&times;</span>
-        <h2>Add New Lesson</h2>
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle"></i> Add New Lesson</h2>
+            <span class="close" onclick="hideAddLessonModal()">&times;</span>
+        </div>
+        
         <form id="add-lesson-form">
             <input type="hidden" name="course_id" value="{{ materials._id }}">
             
             <div class="form-group">
                 <label for="lesson-title">Lesson Title *</label>
-                <input type="text" id="lesson-title" name="title" required>
+                <input type="text" id="lesson-title" name="title" required placeholder="Introduction to Machine Learning">
             </div>
             
             <div class="form-group">
-                <label for="lesson-key">Lesson Key * (e.g. "lesson_3")</label>
-                <input type="text" id="lesson-key" name="lesson_key" required>
+                <label for="lesson-key">Lesson Key * (e.g. "lesson_1")</label>
+                <input type="text" id="lesson-key" name="lesson_key" required placeholder="lesson_1">
             </div>
             
             <div class="form-group">
                 <label>Presentation URLs</label>
                 <div id="presentations-container">
                     <div class="url-entry">
-                        <input type="url" name="presentations[]" placeholder="https://example.com/presentation1">
-                        <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+                        <input type="url" name="presentations[]" placeholder="https://drive.google.com/presentation1">
+                        <button type="button" class="btn btn-remove-url" onclick="removeUrlEntry(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-                <button type="button" class="btn-add-another" onclick="addUrlEntry('presentations-container')">Add Another Presentation</button>
+                <button type="button" class="btn btn-add-url" onclick="addUrlEntry('presentations-container')">
+                    <i class="fas fa-plus"></i> Add Presentation
+                </button>
             </div>
             
             <div class="form-group">
                 <label>Code Notebook URLs</label>
                 <div id="code-container">
                     <div class="url-entry">
-                        <input type="url" name="code[]" placeholder="https://example.com/notebook1">
-                        <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+                        <input type="url" name="code[]" placeholder="https://colab.research.google.com/notebook1">
+                        <button type="button" class="btn btn-remove-url" onclick="removeUrlEntry(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-                <button type="button" class="btn-add-another" onclick="addUrlEntry('code-container')">Add Another Notebook</button>
+                <button type="button" class="btn btn-add-url" onclick="addUrlEntry('code-container')">
+                    <i class="fas fa-plus"></i> Add Notebook
+                </button>
             </div>
             
             <div class="form-group">
                 <label>Other Materials URLs</label>
                 <div id="other-container">
                     <div class="url-entry">
-                        <input type="url" name="other[]" placeholder="https://example.com/other-material">
-                        <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+                        <input type="url" name="other[]" placeholder="https://example.com/resource">
+                        <button type="button" class="btn btn-remove-url" onclick="removeUrlEntry(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-                <button type="button" class="btn-add-another" onclick="addUrlEntry('other-container')">Add Another URL</button>
+                <button type="button" class="btn btn-add-url" onclick="addUrlEntry('other-container')">
+                    <i class="fas fa-plus"></i> Add Resource
+                </button>
             </div>
             
             <div class="modal-footer">
-                <button type="button" class="btn-save" onclick="submitAddLessonForm()">Add Lesson</button>
+                <button type="button" class="btn btn-secondary" onclick="hideAddLessonModal()">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitAddLessonForm()">
+                    <i class="fas fa-check"></i> Add Lesson
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // Toggle lesson visibility
+    // Toggle lesson visibility with animation
     function toggleLesson(el) {
         const content = el.nextElementSibling;
         const icon = el.querySelector('.lesson-toggle-icon');
+        
         if (content.style.display === 'none' || !content.style.display) {
             content.style.display = 'block';
+            content.style.animation = 'fadeIn 0.3s ease';
             icon.classList.remove('fa-chevron-down');
             icon.classList.add('fa-chevron-up');
         } else {
-            content.style.display = 'none';
+            content.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                content.style.display = 'none';
+            }, 250);
             icon.classList.remove('fa-chevron-up');
             icon.classList.add('fa-chevron-down');
         }
@@ -282,16 +214,22 @@
         const newUrlItem = document.createElement('div');
         newUrlItem.className = 'url-item';
         newUrlItem.innerHTML = `
-            <input type="text" class="url-input" name="${fieldName}" value="">
-            <button type="button" class="btn-remove-url" onclick="removeUrlField(this)">Remove</button>
+            <input type="text" class="url-input" name="${fieldName}" value="" placeholder="Enter ${fieldName} URL">
+            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                <i class="fas fa-trash"></i> Remove
+            </button>
         `;
         container.appendChild(newUrlItem);
+        newUrlItem.querySelector('input').focus();
     }
 
     function removeUrlField(button) {
         const urlItem = button.parentElement;
         if (urlItem.parentElement.children.length > 1) {
-            urlItem.remove();
+            urlItem.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                urlItem.remove();
+            }, 250);
         } else {
             urlItem.querySelector('input').value = '';
         }
@@ -300,10 +238,12 @@
     // Modal functions
     function showAddLessonModal() {
         document.getElementById('add-lesson-modal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
     }
 
     function hideAddLessonModal() {
         document.getElementById('add-lesson-modal').style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 
     // URL management for new lessons
@@ -314,17 +254,23 @@
         
         const fieldName = containerId.replace('-container', '');
         newEntry.innerHTML = `
-            <input type="url" name="${fieldName}[]" placeholder="Enter URL">
-            <button type="button" class="btn-remove-url" onclick="removeUrlEntry(this)">Remove</button>
+            <input type="url" name="${fieldName}[]" placeholder="Enter ${fieldName.replace('_', ' ')} URL">
+            <button type="button" class="btn btn-remove-url" onclick="removeUrlEntry(this)">
+                <i class="fas fa-trash"></i>
+            </button>
         `;
         
         container.appendChild(newEntry);
+        newEntry.querySelector('input').focus();
     }
 
     function removeUrlEntry(button) {
         const entry = button.parentElement;
         if (entry.parentElement.children.length > 1) {
-            entry.remove();
+            entry.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                entry.remove();
+            }, 250);
         }
     }
 
@@ -332,6 +278,12 @@
     function submitAddLessonForm() {
         const form = document.getElementById('add-lesson-form');
         const formData = new FormData(form);
+        
+        // Validate required fields
+        if (!formData.get('title') || !formData.get('lesson_key')) {
+            alert('Please fill in all required fields');
+            return;
+        }
         
         // Prepare the lesson data
         const lessonData = {
@@ -357,6 +309,12 @@
         const courseId = formData.get('course_id');
         const lessonKey = formData.get('lesson_key');
         
+        // Show loading state
+        const submitBtn = form.querySelector('.btn-primary');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        submitBtn.disabled = true;
+        
         // Send the request
         fetch('/admin/materials/add_lesson', {
             method: 'POST',
@@ -372,15 +330,19 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Lesson added successfully!');
+                showToast('Lesson added successfully!', 'success');
                 hideAddLessonModal();
-                window.location.reload();
+                setTimeout(() => window.location.reload(), 1000);
             } else {
-                alert('Error: ' + (data.message || 'Failed to add lesson'));
+                showToast('Error: ' + (data.message || 'Failed to add lesson'), 'error');
             }
         })
         .catch(error => {
-            alert('Error: ' + error);
+            showToast('Error: ' + error, 'error');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         });
     }
 
@@ -388,6 +350,8 @@
     function saveUrls(lessonKey) {
         const form = document.querySelector(`.url-form[data-lesson-key="${lessonKey}"]`);
         const courseId = form.querySelector('input[name="course_id"]').value;
+        const saveBtn = form.querySelector('.btn-save-urls');
+        const originalText = saveBtn.innerHTML;
         
         const data = {
             presentations: [],
@@ -406,6 +370,10 @@
             if (input.value.trim()) data.other.push(input.value.trim());
         });
 
+        // Show loading state
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+        
         // Send the update request
         fetch('/admin/materials/update', {
             method: 'POST',
@@ -421,18 +389,27 @@
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                alert('Materials updated successfully!');
+                showToast('Materials updated successfully!', 'success');
             } else {
-                alert('Error updating materials: ' + (result.message || 'Unknown error'));
+                showToast('Error updating materials: ' + (result.message || 'Unknown error'), 'error');
             }
         })
         .catch(error => {
-            alert('Error updating materials: ' + error);
+            showToast('Error updating materials: ' + error, 'error');
+        })
+        .finally(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
         });
     }
 
     function deleteLesson(lessonKey) {
-        if (confirm("Are you sure you want to delete " + lessonKey + "?")) {
+        if (confirm(`Are you sure you want to delete the lesson "${lessonKey}"? This action cannot be undone.`)) {
+            const deleteBtn = event.target;
+            const originalText = deleteBtn.innerHTML;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+            deleteBtn.disabled = true;
+            
             fetch('/admin/materials/delete', {
                 method: 'POST',
                 headers: {
@@ -446,16 +423,102 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.reload();
+                    showToast('Lesson deleted successfully!', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
                 } else {
-                    alert("Error deleting lesson: " + data.message);
+                    showToast("Error deleting lesson: " + data.message, 'error');
+                    deleteBtn.innerHTML = originalText;
+                    deleteBtn.disabled = false;
                 }
+            })
+            .catch(error => {
+                showToast("Error: " + error, 'error');
+                deleteBtn.innerHTML = originalText;
+                deleteBtn.disabled = false;
             });
         }
     }
 
+    // Toast notification
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-message">${message}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }, 10);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+        // Initialize all lesson contents as hidden
         document.querySelectorAll('.lesson-content').forEach(el => el.style.display = 'none');
+        
+        // Close modal when clicking outside
+        document.getElementById('add-lesson-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAddLessonModal();
+            }
+        });
     });
+
+    // CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 250px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1100;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast-success {
+            background-color: var(--success-color);
+        }
+        .toast-error {
+            background-color: var(--error-color);
+        }
+        .toast-info {
+            background-color: var(--info-color);
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 {% endblock %}

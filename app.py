@@ -54,32 +54,6 @@ def home():
         all_courses[id] = find_by_id(courses, id)
     return render_template('index.html', courses=all_courses, instructors=all_instructors)
 
-# User routes
-@app.route('/login', methods=['GET', 'POST'])
-def user_login():    
-    if request.method == 'POST':
-        api_key = request.form.get('api_key')
-        decoded_key = DATA_MANAGER._decode_api_key(api_key, expiration_months=13)
-        if decoded_key['valid']:
-            session['user_logged_in'] = True
-            session['api_key'] = api_key
-            return redirect(url_for('user_dashboard'))
-        flash('Invalid API Key', 'error')
-    return render_template('users/login.html')
-
-@app.route('/logout')
-def user_logout():
-    session.clear()
-    return redirect(url_for('home'))
-
-@app.route('/dashboard', methods=['GET', 'POST'])
-@user_required
-def user_dashboard():
-    course_id="machine_learning"
-    materials = DATA_MANAGER.get_materials()
-    all_materials = list(materials.find({"_id": course_id}))
-    return render_template('users/profile.html', course_id = course_id, materials=all_materials[0])
-
 @app.route('/instructors')
 def instructors():
     instructors_collection = DATA_MANAGER.get_instructors()
@@ -92,7 +66,6 @@ def instructors():
         all_instructors[id] = find_by_id(instructors, id)
     return render_template("instructors.html", instructors=all_instructors)
 
-# Course route
 @app.route('/all_courses')
 def all_courses():
     courses_collection = DATA_MANAGER.get_courses()
@@ -203,6 +176,38 @@ def contact():
         return redirect(url_for('home') + '#contact')
 
 
+
+
+
+
+# User routes
+@app.route('/login', methods=['GET', 'POST'])
+def user_login():    
+    if request.method == 'POST':
+        api_key = request.form.get('api_key')
+        decoded_key = DATA_MANAGER._decode_api_key(api_key, expiration_months=13)
+        if decoded_key['valid']:
+            session['user_logged_in'] = True
+            session['api_key'] = api_key
+            return redirect(url_for('user_dashboard'))
+        flash('Invalid API Key', 'error')
+    return render_template('users/login.html')
+
+@app.route('/logout')
+def user_logout():
+    session.clear()
+    return redirect(url_for('home'))
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+@user_required
+def user_dashboard():
+    course_id="machine_learning"
+    materials = DATA_MANAGER.get_materials()
+    all_materials = list(materials.find({"_id": course_id}))
+    return render_template('users/profile.html', course_id = course_id, materials=all_materials[0])
+
+
+
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -217,6 +222,11 @@ def admin_login():
             return redirect(url_for('admin_dashboard'))
         flash('Invalid API Key', 'error')
     return render_template('admin/login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.clear()
+    return redirect(url_for('admin_login'))
 
 @app.route('/admin')
 @admin_required
@@ -261,58 +271,7 @@ def admin_dashboard():
                          total_students=total_students,
                          recent_visitors=recent_visitors)
 
-@app.route('/admin/courses/delete/<course_id>', methods=['POST'])
-@admin_required
-def admin_delete_course(course_id):
-    courses_collection = DATA_MANAGER.get_courses()
-    registrations = DATA_MANAGER.get_registrations()
-    
-    try:
-        student_count = registrations.count_documents({"course_id": course_id})
-        if student_count > 0:
-            flash('Cannot delete course with registered students', 'error')
-            return redirect(url_for('admin_courses'))
-
-        result = courses_collection.delete_one({"_id": course_id})
-        if result.deleted_count == 1:
-            flash('Course deleted successfully', 'success')
-        else:
-            flash('Course not found', 'error')
-    except Exception as e:
-        flash(f'An error occurred: {str(e)}', 'error')
-    
-    return redirect(url_for('admin_courses'))
-
-@app.route('/admin/instructors/delete/<instructor_id>', methods=['POST'])
-@admin_required
-def admin_delete_instructor(instructor_id):
-    courses_collection = DATA_MANAGER.get_courses()
-    instructors_collection = DATA_MANAGER.get_instructors()
-    
-    try:
-        course_count = courses_collection.count_documents({
-            "instructor": {"$regex": instructor_id.split('_')[0], "$options": "i"}
-        })
-        
-        if course_count > 0:
-            flash('Cannot delete instructor assigned to courses', 'error')
-            return redirect(url_for('admin_instructors'))
-
-        result = instructors_collection.delete_one({"_id": instructor_id})
-        if result.deleted_count == 1:
-            flash('Instructor deleted successfully', 'success')
-        else:
-            flash('Instructor not found', 'error')
-    except Exception as e:
-        flash(f'An error occurred: {str(e)}', 'error')
-    
-    return redirect(url_for('admin_instructors'))
-
-@app.route('/admin/logout')
-def admin_logout():
-    session.clear()
-    return redirect(url_for('admin_login'))
-
+# Admin: Courses
 @app.route('/admin/courses')
 @admin_required
 def admin_courses():
@@ -405,39 +364,105 @@ def admin_edit_course(course_id):
         flash(f'An error occurred: {str(e)}', 'error')
         return redirect(url_for('admin_courses'))
     
-@app.route('/admin/students')
+@app.route('/admin/courses/delete/<course_id>', methods=['POST'])
 @admin_required
-def admin_students():
+def admin_delete_course(course_id):
     courses_collection = DATA_MANAGER.get_courses()
     registrations = DATA_MANAGER.get_registrations()
-    course_filter = request.args.get('course_id')
-    query = {}
-    if course_filter:
-        query['course_id'] = course_filter
     
-    all_students = list(registrations.find(query))
-    all_courses = list(courses_collection.find())
-    return render_template('admin/students.html', students=all_students, courses=all_courses)
+    try:
+        student_count = registrations.count_documents({"course_id": course_id})
+        if student_count > 0:
+            flash('Cannot delete course with registered students', 'error')
+            return redirect(url_for('admin_courses'))
 
-@app.route('/admin/student/<student_id>/delete', methods=['POST'])
-@admin_required
-def admin_delete_student(student_id):
-    registrations = DATA_MANAGER.get_registrations()
-    student = registrations.find_one({"_id": ObjectId(student_id)})
-    if not student:
-        flash('Student not found', 'error')
-        return redirect(url_for('admin_students'))
+        result = courses_collection.delete_one({"_id": course_id})
+        if result.deleted_count == 1:
+            flash('Course deleted successfully', 'success')
+        else:
+            flash('Course not found', 'error')
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
     
-    registrations.delete_one({"_id": ObjectId(student_id)})
-    flash('Student registration deleted successfully', 'success')
-    return redirect(url_for('admin_students'))
+    return redirect(url_for('admin_courses'))
 
+# Admin: Instructors
 @app.route('/admin/instructors')
 @admin_required
 def admin_instructors():
     instructors_collection = DATA_MANAGER.get_instructors()
     all_instructors = list(instructors_collection.find())
     return render_template('admin/instructors.html', instructors=all_instructors)
+
+@app.route('/admin/instructors/add', methods=['GET', 'POST'])
+@admin_required
+def admin_add_instructor():
+    instructors_collection = DATA_MANAGER.get_instructors()
+    if request.method == 'POST':
+        try:
+            # Validate required fields
+            required_fields = ['firstName', 'lastName', 'profession', 'specialization', 
+                             'workExperience', 'education_institution', 'education_degree',
+                             'education_fieldOfStudy', 'contact_phone']
+            
+            for field in required_fields:
+                if not request.form.get(field):
+                    flash(f'{" ".join(field.split("_")).capitalize()} is required', 'error')
+                    return redirect(url_for('admin_add_instructor'))
+
+           # First, extract companies dynamically
+            companies = []
+            i = 0
+            while True:
+                name = request.form.get(f'company_{i}_name')
+                company_type = request.form.get(f'company_{i}_type')
+                role = request.form.get(f'company_{i}_role')
+                
+                # Break the loop if name is not provided (assuming name is required)
+                if not name:
+                    break
+
+                companies.append({
+                    'company': name,
+                    'type': company_type,
+                    'role': role
+                })
+                i += 1
+            # Now construct the instructor object
+            new_instructor = {
+                '_id': f"{request.form.get('specialization').lower().replace(' ', '_')}_instructor",
+                'photo': request.form.get('photo', 'default_instructor.jpg'),
+                'firstName': request.form.get('firstName'),
+                'lastName': request.form.get('lastName'),
+                'education': {
+                    'institution': request.form.get('education_institution'),
+                    'degree': request.form.get('education_degree'),
+                    'fieldOfStudy': request.form.get('education_fieldOfStudy')
+                },
+                'profession': request.form.get('profession'),
+                'specialization': request.form.get('specialization'),
+                'workExperience': int(request.form.get('workExperience')),
+                'companies': companies,
+                'contacts': {
+                    'phone': request.form.get('contact_phone'),
+                    'linkedin': request.form.get('contact_linkedin', ''),
+                    'web': request.form.get('contact_web', '')
+                },
+                'skills': [skill.strip() for skill in request.form.get('skills', '').split(',') if skill.strip()],
+                'softwareProficiency': [software.strip() for software in request.form.get('softwareProficiency', '').split(',') if software.strip()]
+            }
+
+            # Insert the new instructor
+            instructors_collection.insert_one(new_instructor)
+            flash('Instructor added successfully', 'success')
+            return redirect(url_for('admin_instructors'))
+            
+        except ValueError as e:
+            flash(f'Invalid number input: {str(e)}', 'error')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+    
+    return render_template('admin/add_instructor.html')
 
 @app.route('/admin/instructors/edit/<instructor_id>', methods=['GET', 'POST'])
 @admin_required
@@ -506,6 +531,60 @@ def admin_edit_instructor(instructor_id):
             flash(f'An error occurred: {str(e)}', 'error')
 
     return render_template('admin/edit_instructor.html', instructor=instructor)
+
+@app.route('/admin/instructors/delete/<instructor_id>', methods=['POST'])
+@admin_required
+def admin_delete_instructor(instructor_id):
+    courses_collection = DATA_MANAGER.get_courses()
+    instructors_collection = DATA_MANAGER.get_instructors()
+    
+    try:
+        course_count = courses_collection.count_documents({
+            "instructor": {"$regex": instructor_id.split('_')[0], "$options": "i"}
+        })
+        
+        if course_count > 0:
+            flash('Cannot delete instructor assigned to courses', 'error')
+            return redirect(url_for('admin_instructors'))
+
+        result = instructors_collection.delete_one({"_id": instructor_id})
+        if result.deleted_count == 1:
+            flash('Instructor deleted successfully', 'success')
+        else:
+            flash('Instructor not found', 'error')
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_instructors'))
+
+# Admin: Students
+@app.route('/admin/students')
+@admin_required
+def admin_students():
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations = DATA_MANAGER.get_registrations()
+    course_filter = request.args.get('course_id')
+    query = {}
+    if course_filter:
+        query['course_id'] = course_filter
+    
+    all_students = list(registrations.find(query))
+    all_courses = list(courses_collection.find())
+    return render_template('admin/students.html', students=all_students, courses=all_courses)
+
+@app.route('/admin/student/<student_id>/delete', methods=['POST'])
+@admin_required
+def admin_delete_student(student_id):
+    registrations = DATA_MANAGER.get_registrations()
+    student = registrations.find_one({"_id": ObjectId(student_id)})
+    if not student:
+        flash('Student not found', 'error')
+        return redirect(url_for('admin_students'))
+    
+    registrations.delete_one({"_id": ObjectId(student_id)})
+    flash('Student registration deleted successfully', 'success')
+    return redirect(url_for('admin_students'))
+
 
 @app.route('/admin/student/<student_id>/update', methods=['POST'])
 @admin_required
@@ -619,76 +698,7 @@ def admin_add_course():
     instructors = list(instructors_collection.find())
     return render_template('admin/add_course.html', instructors=instructors)
 
-@app.route('/admin/instructors/add', methods=['GET', 'POST'])
-@admin_required
-def admin_add_instructor():
-    instructors_collection = DATA_MANAGER.get_instructors()
-    if request.method == 'POST':
-        try:
-            # Validate required fields
-            required_fields = ['firstName', 'lastName', 'profession', 'specialization', 
-                             'workExperience', 'education_institution', 'education_degree',
-                             'education_fieldOfStudy', 'contact_phone']
-            
-            for field in required_fields:
-                if not request.form.get(field):
-                    flash(f'{" ".join(field.split("_")).capitalize()} is required', 'error')
-                    return redirect(url_for('admin_add_instructor'))
-
-           # First, extract companies dynamically
-            companies = []
-            i = 0
-            while True:
-                name = request.form.get(f'company_{i}_name')
-                company_type = request.form.get(f'company_{i}_type')
-                role = request.form.get(f'company_{i}_role')
-                
-                # Break the loop if name is not provided (assuming name is required)
-                if not name:
-                    break
-
-                companies.append({
-                    'company': name,
-                    'type': company_type,
-                    'role': role
-                })
-                i += 1
-            # Now construct the instructor object
-            new_instructor = {
-                '_id': f"{request.form.get('specialization').lower().replace(' ', '_')}_instructor",
-                'photo': request.form.get('photo', 'default_instructor.jpg'),
-                'firstName': request.form.get('firstName'),
-                'lastName': request.form.get('lastName'),
-                'education': {
-                    'institution': request.form.get('education_institution'),
-                    'degree': request.form.get('education_degree'),
-                    'fieldOfStudy': request.form.get('education_fieldOfStudy')
-                },
-                'profession': request.form.get('profession'),
-                'specialization': request.form.get('specialization'),
-                'workExperience': int(request.form.get('workExperience')),
-                'companies': companies,
-                'contacts': {
-                    'phone': request.form.get('contact_phone'),
-                    'linkedin': request.form.get('contact_linkedin', ''),
-                    'web': request.form.get('contact_web', '')
-                },
-                'skills': [skill.strip() for skill in request.form.get('skills', '').split(',') if skill.strip()],
-                'softwareProficiency': [software.strip() for software in request.form.get('softwareProficiency', '').split(',') if software.strip()]
-            }
-
-            # Insert the new instructor
-            instructors_collection.insert_one(new_instructor)
-            flash('Instructor added successfully', 'success')
-            return redirect(url_for('admin_instructors'))
-            
-        except ValueError as e:
-            flash(f'Invalid number input: {str(e)}', 'error')
-        except Exception as e:
-            flash(f'An error occurred: {str(e)}', 'error')
-    
-    return render_template('admin/add_instructor.html')
-
+# Admin: Visitors
 @app.route('/admin/visitors')
 @admin_required
 def admin_visitors():
@@ -820,41 +830,8 @@ def admin_visitor_details(ip):
                          os=os,
                          device=device)
 
-# API Endpoints
-@app.route('/api/courses', methods=['GET'])
-def api_courses():
-    courses_collection = DATA_MANAGER.get_courses()
-    courses = list(courses_collection.find({"is_active": True}, {'_id': 0}))
-    return jsonify(courses)
+# Admin: Materials
 
-@app.route('/api/register', methods=['POST'])
-def api_register():
-    courses_collection = DATA_MANAGER.get_courses()
-    registrations = DATA_MANAGER.get_registrations()
-    data = request.json
-    course_id = data.get('course_id')
-    if not courses_collection.find_one({"_id": course_id, "is_active": True}):
-        return jsonify({"error": "Invalid course"}), 400
-    
-    if registrations.find_one({'email': data['email'], 'course_id': course_id}):
-        return jsonify({"error": "Email already registered for this course"}), 400
-    
-    registration_data = {
-        'full_name': data['full_name'],
-        'email': data['email'],
-        'phone': data['phone'],
-        'course_id': course_id,
-        'course_title': courses_collection.find_one({"_id": course_id})['title'],
-        'registration_date': datetime.now(),
-        'status': 'pending'
-    }
-    
-    registrations.insert_one(registration_data)
-    return jsonify({"message": "Registration successful"}), 201
-
-
-
-# Admin Materials Routes
 @app.route('/admin/materials')
 def admin_materials():
     # try:
@@ -875,25 +852,43 @@ def admin_materials():
     #     flash('An error occurred while loading materials', 'error')
     #     return redirect(url_for('admin_dashboard'))
 
-
 @app.route('/admin/materials/<course_id>')
 def admin_material_details(course_id):
     try:
-        materials = DATA_MANAGER.get_materials()
+        materials = DATA_MANAGER.get_materials_by_course_id(course_id=course_id)
         
-        all_materials = list(materials.find({"_id": course_id}))
-        if not all_materials:
-            all_materials = {'materials': []}
+        if not materials:
+            materials = [{'name': 'New Course', 'materials': {}}]
         
         return render_template('admin/material_details.html',
                             selected_course=course_id,
-                            materials=all_materials[0])
+                            materials=materials[0])
     
     except Exception as e:
         current_app.logger.error(f"Error in admin_material_details: {str(e)}")
         flash('An error occurred while loading materials', 'error')
         return redirect(url_for('admin_materials'))
 
+@app.route('/admin/materials/delete', methods=['POST'])
+def delete_lesson():
+    try:
+        data = request.get_json()
+        course_id = data['course_id']
+        lesson_key = data['lesson_key']
+        
+        success = DATA_MANAGER.delete_lesson(course_id, lesson_key)
+        
+        return jsonify({
+            'success': success,
+            'message': 'Lesson deleted successfully' if success else 'Failed to delete lesson'
+        })
+    
+    except Exception as e:
+        current_app.logger.error(f"Error deleting lesson: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
 
 @app.route('/admin/materials/add', methods=['POST'])
 def add_material():
@@ -920,6 +915,7 @@ def add_material():
         return redirect(url_for('admin_materials', course=course_id))
     
     except Exception as e:
+
         current_app.logger.error(f"Error adding material: {str(e)}")
         flash('An error occurred while adding the material', 'error')
         return redirect(url_for('admin_materials'))
@@ -931,7 +927,7 @@ def update_materials():
         course_id = data['course_id']
         lesson_key = data['lesson_key']
         updated_data = data['updated_data']
-        
+        print(course_id, lesson_key, updated_data)
         success = DATA_MANAGER.update_material(course_id, lesson_key, updated_data)
         
         return jsonify({
@@ -968,31 +964,38 @@ def add_lesson():
         flash('An error occurred while adding the lesson', 'error')
         return redirect(url_for('admin_materials'))
 
-@app.route('/admin/materials/delete', methods=['POST'])
-@admin_required
-def delete_material():
-    try:
-        if not request.is_json:
-            return jsonify({"success": False, "error": "Invalid request format"}), 400
-            
-        data = request.get_json()
-        course_id = data.get('course_id')
-        material_index = data.get('material_index')
-        
-        if not course_id or material_index is None:
-            return jsonify({"success": False, "error": "Missing required fields"}), 400
-        
-        if DATA_MANAGER.delete_material(course_id, int(material_index)):
-            return jsonify({"success": True})
-        return jsonify({"success": False, "error": "Material not found"}), 404
+
+# API Endpoints
+@app.route('/api/courses', methods=['GET'])
+def api_courses():
+    courses_collection = DATA_MANAGER.get_courses()
+    courses = list(courses_collection.find({"is_active": True}, {'_id': 0}))
+    return jsonify(courses)
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    courses_collection = DATA_MANAGER.get_courses()
+    registrations = DATA_MANAGER.get_registrations()
+    data = request.json
+    course_id = data.get('course_id')
+    if not courses_collection.find_one({"_id": course_id, "is_active": True}):
+        return jsonify({"error": "Invalid course"}), 400
     
-    except ValueError:
-        return jsonify({"success": False, "error": "Invalid material index"}), 400
-    except Exception as e:
-        current_app.logger.error(f"Error deleting material: {str(e)}")
-        return jsonify({"success": False, "error": "Internal server error"}), 500
-
-
+    if registrations.find_one({'email': data['email'], 'course_id': course_id}):
+        return jsonify({"error": "Email already registered for this course"}), 400
+    
+    registration_data = {
+        'full_name': data['full_name'],
+        'email': data['email'],
+        'phone': data['phone'],
+        'course_id': course_id,
+        'course_title': courses_collection.find_one({"_id": course_id})['title'],
+        'registration_date': datetime.now(),
+        'status': 'pending'
+    }
+    
+    registrations.insert_one(registration_data)
+    return jsonify({"message": "Registration successful"}), 201
 
 
 if __name__ == '__main__':

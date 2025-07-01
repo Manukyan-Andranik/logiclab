@@ -11,3 +11,6 @@ static/images/.DS_Store
 util
 test.py
 static/.DS_Store
+emails.py
+forms.py
+materials_format.json
