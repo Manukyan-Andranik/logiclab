@@ -7,7 +7,107 @@
     --success-color: #28a745;
     --error-color: #dc3545;
     --warning-color: #ffc107;
-    --info-color: #17a2b8;
+    --info-color: #c0e4ea;
+}
+/* Login Page */
+.admin-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--primary-color);
+}
+
+.admin-login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.admin-login-box h1 {
+    color: var(--secondary-color);
+    margin-bottom: 30px;
+}
+
+.admin-login-box h1 i {
+    color: var(--primary-dark);
+    margin-right: 10px;
+}
+
+/* Forms */
+.admin-form {
+    background: white;
+    padding: 30px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group textarea {
+    min-height: 120px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group input {
+    width: auto;
+    margin-right: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-admin {
+    background: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.btn-admin:hover {
+    background: var(--primary-dark);
 }
 
 /* Admin Layout */

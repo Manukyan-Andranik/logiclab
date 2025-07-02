@@ -112,7 +112,7 @@
 
 .btn-add-url {
     background-color: var(--info-color);
-    color: white;
+    color: #333;
     padding: 8px 14px;
     font-size: 13px;
 }
@@ -182,7 +182,7 @@
     border-radius: 16px;
     width: 90%;
     max-width: 650px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,1);
     animation: modalFadeIn 0.3s ease;
 }
 
@@ -204,7 +204,7 @@
 }
 
 .close {
-    color: #6b7280;
+    color: #ffffff;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
@@ -223,7 +223,7 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #4b5563;
+    color: #ffffff;
 }
 
 .form-group input {
@@ -232,6 +232,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 14px;
+    max-width: 500px;
 }
 
 .url-entry {
