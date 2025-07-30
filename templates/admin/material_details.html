@@ -17,8 +17,8 @@
     <div class="lesson-block">
         <div class="lesson-title toggle-btn" onclick="toggleLesson(this)">
             <h3>
-                <i class="fas fa-chalkboard-teacher"></i> 
-                {{ lesson.tittle }} 
+                <i class="fas fa-chalkboard-teacher"></i>
+                {{ lesson.tittle }}
                 <span class="badge bg-light text-dark">{{ lesson_key }}</span>
             </h3>
             <i class="fas fa-chevron-down lesson-toggle-icon"></i>
@@ -27,13 +27,14 @@
         <div class="lesson-content">
             <form class="url-form" data-lesson-key="{{ lesson_key }}">
                 <input type="hidden" name="course_id" value="{{ materials._id }}">
-                
+
                 <div class="url-list">
                     <h4><i class="fas fa-file-powerpoint"></i> Presentations</h4>
                     <div class="url-container" data-field="presentations">
                         {% for url in lesson.presentations %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="presentations" value="{{ url }}" placeholder="Enter presentation URL">
+                            <input type="text" class="url-input" name="presentations" value="{{ url }}"
+                                placeholder="Enter presentation URL">
                             <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
                                 <i class="fas fa-trash"></i> Remove
                             </button>
@@ -50,7 +51,8 @@
                     <div class="url-container" data-field="code">
                         {% for url in lesson.code %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="code" value="{{ url }}" placeholder="Enter notebook URL">
+                            <input type="text" class="url-input" name="code" value="{{ url }}"
+                                placeholder="Enter notebook URL">
                             <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
                                 <i class="fas fa-trash"></i> Remove
                             </button>
@@ -67,7 +69,8 @@
                     <div class="url-container" data-field="other">
                         {% for url in lesson.other %}
                         <div class="url-item">
-                            <input type="text" class="url-input" name="other" value="{{ url }}" placeholder="Enter resource URL">
+                            <input type="text" class="url-input" name="other" value="{{ url }}"
+                                placeholder="Enter resource URL">
                             <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
                                 <i class="fas fa-trash"></i> Remove
                             </button>
@@ -86,16 +89,17 @@
                     </button>
                 </div>
 
+
+                <div class="lesson-actions">
+                    <button type="button" class="btn btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteLesson('{{ lesson_key }}')">
+                        <i class="fas fa-trash"></i> Delete Lesson
+                    </button>
+                </div>
             </form>
-            
-            <div class="lesson-actions">
-                <button type="button" class="btn btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">
-                    <i class="fas fa-save"></i> Save Changes
-                </button>
-                <button class="btn btn-danger" onclick="deleteLesson('{{ lesson_key }}')">
-                    <i class="fas fa-trash"></i> Delete Lesson
-                </button>
-            </div>
+
         </div>
     </div>
     {% else %}
@@ -118,20 +122,21 @@
             <h2><i class="fas fa-plus-circle"></i> Add New Lesson</h2>
             <span class="close" onclick="hideAddLessonModal()">&times;</span>
         </div>
-        
+
         <form id="add-lesson-form">
             <input type="hidden" name="course_id" value="{{ materials._id }}">
-            
+
             <div class="form-group">
                 <label for="lesson-title">Lesson Title *</label>
-                <input type="text" id="lesson-title" name="title" required placeholder="Introduction to Machine Learning">
+                <input type="text" id="lesson-title" name="title" required
+                    placeholder="Introduction to Machine Learning">
             </div>
-            
+
             <div class="form-group">
                 <label for="lesson-key">Lesson Key * (e.g. "lesson_1")</label>
                 <input type="text" id="lesson-key" name="lesson_key" required placeholder="lesson_1">
             </div>
-            
+
             <div class="form-group">
                 <label>Presentation URLs</label>
                 <div id="presentations-container">
@@ -146,7 +151,7 @@
                     <i class="fas fa-plus"></i> Add Presentation
                 </button>
             </div>
-            
+
             <div class="form-group">
                 <label>Code Notebook URLs</label>
                 <div id="code-container">
@@ -161,7 +166,7 @@
                     <i class="fas fa-plus"></i> Add Notebook
                 </button>
             </div>
-            
+
             <div class="form-group">
                 <label>Other Materials URLs</label>
                 <div id="other-container">
@@ -176,7 +181,7 @@
                     <i class="fas fa-plus"></i> Add Resource
                 </button>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="hideAddLessonModal()">
                     Cancel
@@ -194,7 +199,7 @@
     function toggleLesson(el) {
         const content = el.nextElementSibling;
         const icon = el.querySelector('.lesson-toggle-icon');
-        
+
         if (content.style.display === 'none' || !content.style.display) {
             content.style.display = 'block';
             content.style.animation = 'fadeIn 0.3s ease';
@@ -253,7 +258,7 @@
         const container = document.getElementById(containerId);
         const newEntry = document.createElement('div');
         newEntry.className = 'url-entry';
-        
+
         const fieldName = containerId.replace('-container', '');
         newEntry.innerHTML = `
             <input type="url" name="${fieldName}[]" placeholder="Enter ${fieldName.replace('_', ' ')} URL">
@@ -261,7 +266,7 @@
                 <i class="fas fa-trash"></i>
             </button>
         `;
-        
+
         container.appendChild(newEntry);
         newEntry.querySelector('input').focus();
     }
@@ -278,57 +283,57 @@
 
     // Form submission
     function submitAddLessonForm() {
-    const form = document.getElementById('add-lesson-form');
-    const formData = new FormData(form);
+        const form = document.getElementById('add-lesson-form');
+        const formData = new FormData(form);
 
-    const title = formData.get('title');
-    const lessonKey = formData.get('lesson_key');
-    const courseId = formData.get('course_id');
+        const title = formData.get('title');
+        const lessonKey = formData.get('lesson_key');
+        const courseId = formData.get('course_id');
 
-    if (!title || !lessonKey || !courseId) {
-        alert('Please fill in all required fields');
-        return;
-    }
-
-    const lessonData = {
-        tittle: title,
-        presentations: formData.getAll('presentations[]').map(url => url.trim()).filter(Boolean),
-        code: formData.getAll('code[]').map(url => url.trim()).filter(Boolean),
-        other: formData.getAll('other[]').map(url => url.trim()).filter(Boolean)
-    };
-
-    const submitBtn = form.querySelector('.btn-primary');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-    submitBtn.disabled = true;
-
-    fetch('/admin/materials/add_lesson', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            course_id: courseId,
-            lesson_key: lessonKey,
-            lesson_data: lessonData
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('Lesson added successfully!', 'success');
-            hideAddLessonModal();
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showToast('Error: ' + (data.message || 'Failed to add lesson'), 'error');
+        if (!title || !lessonKey || !courseId) {
+            alert('Please fill in all required fields');
+            return;
         }
-    })
-    .catch(error => {
-        showToast('Error: ' + error.message, 'error');
-    })
-    .finally(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
-}
+
+        const lessonData = {
+            tittle: title,
+            presentations: formData.getAll('presentations[]').map(url => url.trim()).filter(Boolean),
+            code: formData.getAll('code[]').map(url => url.trim()).filter(Boolean),
+            other: formData.getAll('other[]').map(url => url.trim()).filter(Boolean)
+        };
+
+        const submitBtn = form.querySelector('.btn-primary');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        submitBtn.disabled = true;
+
+        fetch('/admin/materials/add_lesson', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                course_id: courseId,
+                lesson_key: lessonKey,
+                lesson_data: lessonData
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Lesson added successfully!', 'success');
+                    hideAddLessonModal();
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Error: ' + (data.message || 'Failed to add lesson'), 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error: ' + error.message, 'error');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+    }
 
     // Save URLs for existing lessons
     function saveUrls(lessonKey) {
@@ -336,7 +341,7 @@
         const courseId = form.querySelector('input[name="course_id"]').value;
         const saveBtn = form.querySelector('.btn-save-urls');
         const originalText = saveBtn.innerHTML;
-        
+
         const data = {
             presentations: [],
             code: [],
@@ -357,7 +362,7 @@
         // Show loading state
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
-        
+
         // Send the update request
         fetch('/admin/materials/update', {
             method: 'POST',
@@ -370,21 +375,21 @@
                 updated_data: data
             })
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                showToast('Materials updated successfully!', 'success');
-            } else {
-                showToast('Error updating materials: ' + (result.message || 'Unknown error'), 'error');
-            }
-        })
-        .catch(error => {
-            showToast('Error updating materials: ' + error, 'error');
-        })
-        .finally(() => {
-            saveBtn.innerHTML = originalText;
-            saveBtn.disabled = false;
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showToast('Materials updated successfully!', 'success');
+                } else {
+                    showToast('Error updating materials: ' + (result.message || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error updating materials: ' + error, 'error');
+            })
+            .finally(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            });
     }
 
     function deleteLesson(lessonKey) {
@@ -393,7 +398,7 @@
             const originalText = deleteBtn.innerHTML;
             deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
             deleteBtn.disabled = true;
-            
+
             fetch('/admin/materials/delete', {
                 method: 'POST',
                 headers: {
@@ -404,22 +409,22 @@
                     lesson_key: lessonKey
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Lesson deleted successfully!', 'success');
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast("Error deleting lesson: " + data.message, 'error');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Lesson deleted successfully!', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showToast("Error deleting lesson: " + data.message, 'error');
+                        deleteBtn.innerHTML = originalText;
+                        deleteBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    showToast("Error: " + error, 'error');
                     deleteBtn.innerHTML = originalText;
                     deleteBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                showToast("Error: " + error, 'error');
-                deleteBtn.innerHTML = originalText;
-                deleteBtn.disabled = false;
-            });
+                });
         }
     }
 
@@ -432,7 +437,7 @@
             <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
         `;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => {
             toast.classList.add('show');
             setTimeout(() => {
@@ -445,9 +450,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize all lesson contents as hidden
         document.querySelectorAll('.lesson-content').forEach(el => el.style.display = 'none');
-        
+
         // Close modal when clicking outside
-        document.getElementById('add-lesson-modal').addEventListener('click', function(e) {
+        document.getElementById('add-lesson-modal').addEventListener('click', function (e) {
             if (e.target === this) {
                 hideAddLessonModal();
             }
