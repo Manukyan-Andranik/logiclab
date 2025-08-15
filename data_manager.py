@@ -279,37 +279,96 @@ class DataManager(TokenManager):
     def send_status_email(self, mail, to_email, student_name, course_name, new_status):
         try:
             subject = f"Your registration status for {course_name} has been updated"
-            
+
             status_messages = {
-                'pending': "Your registration is being reviewed.",
-                'confirmed': "Your registration has been confirmed! Welcome to the course.",
-                'rejected': "We're sorry, but your registration could not be accepted at this time.",
-                'completed': "Congratulations on completing the course! Well done!"
+                'pending': "Your registration is currently being reviewed by our team. We will notify you once a decision has been made. Thank you for your patience.",
+                'confirmed': "Great news! Your registration has been confirmed and you are now officially enrolled in the course. You will receive further details about course materials and schedule shortly.",
+                'rejected': "We regret to inform you that your registration could not be accepted at this time. This may be due to capacity limits or prerequisite requirements. Please feel free to contact us for more information about future opportunities.",
+                'completed': "Congratulations on successfully completing the course! We hope you found the experience valuable and wish you continued success in your learning journey.",
+                'cancelled': "Your registration has been cancelled as requested. If this was done in error or if you wish to re-enroll, please contact our support team.",
+                'waitlisted': "You have been placed on the waitlist for this course. We will notify you immediately if a spot becomes available.",
+                'expired': "Your registration has expired due to non-payment or lack of confirmation within the required timeframe. Please contact us if you wish to discuss re-enrollment options."
             }
-            
+
+            # Plain text version
             body = f"""
             Dear {student_name},
-            
+
             Your registration status for {course_name} has been updated to: {new_status.capitalize()}.
-            
-            {status_messages.get(new_status, '')}
-            
-            If you have any questions, please don't hesitate to contact us.
-            
+
+            {status_messages.get(new_status, 'Your registration status has been updated. Please contact us for more details.')}
+
+            If you have any questions or concerns, please don't hesitate to contact our support team at support@logiclab.am or call us during business hours.
+
             Best regards,
-            LogicLab Team
+            Logic Lab Team
             """
-            
+
+            # HTML version
+            html = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #f4f4f4; border-radius: 10px; border: 1px solid #e0e0e0;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #222; margin-bottom: 10px;">Logic Lab</h1>
+                        <hr style="border: 1px solid #FFD700; width: 50%;">
+                    </div>
+                    
+                    <h2 style="color: #222;">Հարգելի {student_name},</h2>
+                    
+                    <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FFD700;">
+                        <p style="margin-bottom: 15px;">
+                            Ձեր գրանցման կարգավիճակը <strong>{course_name}</strong> դասընթացի համար թարմացվել է՝ 
+                            <span style="color: #FFC000; font-weight: bold; font-size: 1.1em;">{new_status.capitalize()}</span>
+                        </p>
+                        
+                        <div style="background-color: #c0e4ea; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                            <p style="margin: 0; font-style: italic; color: #222;">
+                                {status_messages.get(new_status, 'Your registration status has been updated. Please contact us for more details.')}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #c0e4ea; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0;">
+                            <strong>Օգնության կարիք ունե՞ք:</strong> Եթե ունեք որևէ հարց կամ մտահոգություն, 
+                            խնդրում ենք կապ հաստատել մեր աջակցության թիմի հետ՝ 
+                            <a href="mailto:info.logic.laboratory@gmail.com" style="color: #FFC000;">info.logic.laboratory@gmail.com</a> 
+                            կամ զանգահարեք նշված հեռախոսահամարով:
+                        </p>
+                    </div>
+                    
+                    <br>
+                    <p style="margin-bottom: 5px;">Հարգանքով,</p>
+                    <p style="margin: 0;"><strong style="color: #222;">Logic Lab թիմ</strong></p>
+                </div>
+
+                <footer style="font-size: 13px; color: #666; margin-top: 40px;">
+                    <img src="https://res.cloudinary.com/dujmbcltl/image/upload/v1750706217/Untitled-1_hitauw.png" alt="LogicLab Logo" width="120" style="display: block; margin-bottom: 10px;"></img>
+                    <a href="https://maps.app.goo.gl/vgGPH78t6scVKVxT8" target="_blank">📍 Վանաձոր, Տիգրան Մեծ պողոտա 18</a><br>
+                    🌐 <a href="https://www.logiclab.am" target="_blank">www.logiclab.am</a><br>
+                    📧 info.logic.laboratory@gmail.com<br>
+                    📞 094 75 26 62
+                </footer>
+            </body>
+            </html>
+            """
+
             msg = Message(
                 subject=subject,
                 recipients=[to_email],
                 body=body
             )
+            msg.html = html
+
             mail.send(msg)
             return True
+
         except Exception as e:
+            print(f"Failed to send status email: {str(e)}")
             self.app.logger.error(f"Failed to send status email: {str(e)}")
             return False
+
 
 # Admin authentication decorator
 def admin_required(f):

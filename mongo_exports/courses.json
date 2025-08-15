@@ -1,0 +1,163 @@
+[
+    {
+        "_id": "machine_learning",
+        "title": "Machine Learning",
+        "duration": "5 ամիս",
+        "start_date": "2025-08-01",
+        "schedule": "Շաբաթական 2 դաս (4 ժամ)",
+        "instructor": [
+            "Անդրանիկ Մանուկյան",
+            "Տիգրան Իշխանյան"
+        ],
+        "capacity": 25,
+        "monthly_payment": 40000,
+        "total_payment": 200000,
+        "is_active": true,
+        "chapters": [
+            {
+                "title": "Դասընթացի նկարագրություն",
+                "content": [
+                    "Մաթեմատիկա (Mathematics)",
+                    "Python հիմունքներ",
+                    "Արհեստական բանականության հիմունքներ (AI basics)",
+                    "Մեքենայական ուսուցում (Machine Learning)"
+                ]
+            },
+            {
+                "title": "Ու՞մ համար է դասընթացը՝",
+                "content": [
+                    "Դպրոցականների՝ ովքեր վաղ տարիքից ուզում են ձեռք բերել մրցունակ մասնագիտություն",
+                    "Սկսնակ մասնագետների՝ ովքեր ուզում են խորացնել իրենց գիտելիքները ԱԲ-ի ոլորտում",
+                    "Մարդկանց ովքեր ուզւոմ են նոր ու ակտուալ մասնագիտություն ձեռք բերել"
+                ]
+            },
+            {
+                "title": "Ընդունելության մասին",
+                "content": [
+                    "Մինչև 100 % զեղչի հնարավորություն",
+                    "Ընդունելությունը քննությունով է ՝ մաթեմատիկա և python առարկաներից"
+                ]
+            }
+        ],
+        "portfolio": "https://github.com/Manukyan-Andranik",
+        "curriculum": "https://drive.google.com/file/d/1AgRBw-9sFkY9AGb0MAFmRK-t6GIHeCSk/view?usp=sharing",
+        "icon_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744572356/ml_icon_adep4v.png"
+    },
+    {
+        "_id": "ai_tools",
+        "title": "AI Գործիքներ",
+        "duration": "3 ամիս",
+        "start_date": "2025-08-01",
+        "schedule": "Շաբաթական 2 դաս (2 ժամ յուրաքանչյուր)",
+        "instructor": [
+            "Անդրանիկ Մանուկյան"
+        ],
+        "capacity": 25,
+        "monthly_payment": 40000,
+        "total_payment": 120000,
+        "is_active": true,
+        "chapters": [
+            {
+                "title": "Դասընթացի նկարագրություն",
+                "content": [
+                    "AI-ի գործիքների գործնական կիրառություն՝ առանց ծրագրավորման նախնական գիտելիքների",
+                    "Տեքստ, պատկեր, տեսանյութ, ձայն և ավտոմատացման գործիքներ",
+                    "Prompt engineering՝ ինչպես արդյունավետ խոսել AI-ի հետ",
+                    "AI-ի կիրառությունը բիզնեսում, ուսուցման մեջ և ստեղծարար նախագծերում"
+                ]
+            },
+            {
+                "title": "Ու՞մ համար է դասընթացը՝",
+                "content": [
+                    "Սկսնակների՝ ովքեր ցանկանում են կիրառել AI-ը իրենց առօրյայում կամ աշխատանքի մեջ",
+                    "Բովանդակության ստեղծողների, մարքեթինգի մասնագետների (SMM), ուսուցիչների և ուսանողների",
+                    "Նրանց համար, ովքեր ցանկանում են հասկանալ և կիրառել արդի AI գործիքներ՝ առանց կոդավորման"
+                ]
+            },
+            {
+                "title": "Ընդունելության մասին",
+                "content": [
+                    "Բաց է բոլոր ցանկացողների համար"
+                ]
+            }
+        ],
+        "portfolio": "https://github.com/Manukyan-Andranik",
+        "curriculum": "https://drive.google.com/file/d/1Cjs5dfuKSLzaPIbnX0pLMwNL7G1X22iE/view?usp=sharing",
+        "icon_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744572356/ml_icon_adep4v.png"
+    },
+    {
+        "_id": "3ds_max",
+        "title": "3D Մոդելավորում և Դիզայն",
+        "duration": "3 ամիս",
+        "start_date": "2025-07-01",
+        "schedule": "Շաբաթական 2 դաս (4 ժամ) ",
+        "instructor": [
+            "Արծրունի Խաչատրյան"
+        ],
+        "capacity": 25,
+        "monthly_payment": 20000,
+        "total_payment": 60000,
+        "is_active": true,
+        "chapters": [
+            {
+                "title": "Դասընթացի նկարագրություն",
+                "content": [
+                    "Դիզայն հասկացողություն",
+                    "Կոմպոզիցիա",
+                    "Հեռանկար",
+                    "Աքսոնոմետրիա",
+                    "3dsmax մոդելավորում",
+                    "Վիզուալիզացիա"
+                ]
+            },
+            {
+                "title": "Ու՞մ համար է դասընթացը՝",
+                "content": [
+                    "Ովքեր ցանկանում են ծանոթանալ և ճանաչել ժամանակի ամենապահանջված մասնագիտություններից մեկի հետ ՝ նույնիսկ եթե ոչ մի անգամ չեն առընչվել 3D աշխարհի ու դիզայնի հետ։",
+                    "Ուսանողներին ովքեր պատրաստվում են շարունակել իրենց մասնագիտական կրթությունը դիզանյի և ճարտարապետության ոլորտում։",
+                    "Ովքեր ցանկանում են ծանոթանալ 3D աշխարհի մասին, օգտագործելով գիտելիքները համակարգչային խաղերի, ֆիլմերի և նմանատիպ այլ ոլորտների համար։"
+                ]
+            }
+        ],
+        "portfolio": "https://www.behance.net/viewboxvisual",
+        "curriculum": "https://drive.google.com/file/d/1Yu5DzD-OnRJnAo5PilGv8_fDvXtUFGML/view?usp=sharing",
+        "icon_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744572344/cube_icon_fzxb45.png"
+    },
+    {
+        "_id": "photo",
+        "title": "Լուսանկարչություն",
+        "portfolio": "https://www.behance.net/haykobadalyan",
+        "duration": "1-3 ամիս",
+        "start_date": "2025-08-01",
+        "schedule": "Երկուշաբթի - Կիրակի",
+        "instructor": [
+            "Հայկ Բադալյան"
+        ],
+        "capacity": 8,
+        "monthly_payment": 20000,
+        "total_payment": 20000,
+        "is_active": true,
+        "chapters": [
+            {
+                "title": "Դասընթացի նկարագրությունը",
+                "content": [
+                    "Էքսպոզիցիա",
+                    "Կոմպոզիցիա",
+                    "Պատմություն պատմել լուսանկարի միջոցով",
+                    "Ժանրեր",
+                    "Ֆոտոշոփ"
+                ]
+            },
+            {
+                "title": "Ո՞ւմ համար է դասընթացը․",
+                "content": [
+                    "Մարդկանց, ովքեր ունեն մեծ սեր լուսանկարչության հանդեպ, սակայն երբեք հնարավորություն չեն ունեցել սովորել պրոֆեսիոնալ լուսանկարչություն։",
+                    "Մարդկանց, ովքեր ցանկանում են խորացնել իրենց գիտելիքները լուսանկարչության ոլորտում։",
+                    "Մարդկանց, ովքեր ցանկանում են իրենց հոբբին վերածել մասնագիտության։"
+                ]
+            }
+        ],
+        "icon_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744572411/photography-icon-png-0_u06cta.png",
+        "curriculum": "https://drive.google.com/file/d/1mBw-IWSOjU9Erq1LAotr66SX-LHO83Zs/view?usp=sharing"
+    }
+]

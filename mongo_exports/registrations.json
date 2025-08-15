@@ -1,0 +1,44 @@
+[
+    {
+        "_id": "682f5162537fa45ee56a9d1d",
+        "full_name": "Կարեն Պողոսյան",
+        "age": "16",
+        "class": "Վանաձորի թիվ 11 ավագ դպրոց 10 ԱԲ դասարան",
+        "convenient_dates": "Հիմա հստակ չեմ կարող պատասխանել",
+        "computer": "personal",
+        "email": "karenpoghosyan242@gmail.com",
+        "phone": "033-215474",
+        "course_id": "machine_learning",
+        "course_title": "Machine Learning",
+        "registration_date": "2025-05-22T16:31:30.290000",
+        "status": "confirmed"
+    },
+    {
+        "_id": "686515542912a30963ab65f6",
+        "full_name": "Աստղիկ Ստեփանյան",
+        "age": "29",
+        "class": "Վանաձորի պետական համալսարան, Գիտությունների ազգային ակադեմիա",
+        "convenient_dates": "Ցանկացած օր",
+        "computer": "personal",
+        "email": "stepanyanastghik8@gmail.com",
+        "phone": "094-945056",
+        "course_id": "photo",
+        "course_title": "Լուսանկարչություն",
+        "registration_date": "2025-07-02T11:17:40.657000",
+        "status": "confirmed"
+    },
+    {
+        "_id": "6891a347d56e1ff2f8d82290",
+        "full_name": "Սաթեն Էվոյան",
+        "age": "19",
+        "class": "ՎՊՀՔ",
+        "convenient_dates": "Երկուշաբթի, չորեքշաբթի",
+        "computer": "personal",
+        "email": "satenevoyan0@gmail.com",
+        "phone": "033-188363",
+        "course_id": "ai_tools",
+        "course_title": "AI Գործիքներ",
+        "registration_date": "2025-08-05T10:23:03.567000",
+        "status": "confirmed"
+    }
+]

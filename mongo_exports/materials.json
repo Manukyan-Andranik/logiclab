@@ -1,0 +1,55 @@
+[
+    {
+        "_id": "684c74015941052d740bb065",
+        "name": "Python ծրագրավորում",
+        "materials": [
+            {
+                "name": "Դաս 1 - Ներածություն Python-ում",
+                "google_drive_url": "https://colab.research.google.com/drive/1uOfCbWcCit1aqrinFixrdjTcND8xWF2-?usp=drive_link"
+            },
+            {
+                "name": "Դաս 2 - Տվյալների կառուցվածքներ",
+                "google_drive_url": "https://drive.google.com/file/d/1YOUR_FILE_ID_2/view"
+            }
+        ]
+    },
+    {
+        "_id": "684c741a5941052d740bb066",
+        "name": "Վեբ Ծրագրավորում",
+        "materials": [
+            {
+                "name": "Դաս 1 - HTML հիմունքներ",
+                "google_drive_url": "https://drive.google.com/file/d/1YOUR_FILE_ID_3/view"
+            },
+            {
+                "name": "Դաս 2 - CSS հիմունքներ",
+                "google_drive_url": "https://drive.google.com/file/d/1YOUR_FILE_ID_4/view"
+            }
+        ]
+    },
+    {
+        "_id": "machine_learning",
+        "name": "Machine Learning",
+        "materials": {
+            "lesson_1": {
+                "tittle": "Introduction to Math for ML",
+                "presentations": [
+                    "https://drive.google.com/file/d/192fT-O5-rjbvoXpXtLMIG9xfJOywM6ic/view?usp=sharing"
+                ],
+                "code": [],
+                "other": [
+                    "https://drive.google.com/file/d/1gSjuww8Q98F3_VQkwJJVVe143aNrsW4g/view?usp=sharing",
+                    "https://drive.google.com/file/d/19KLgKMYH0Xrkz7r0TgHvGlk4U5EKhCyJ/view?usp=sharing"
+                ]
+            },
+            "Codeing": {
+                "tittle": "Python Proactics",
+                "presentations": [],
+                "code": [],
+                "other": [
+                    "https://docs.google.com/spreadsheets/d/1fiZeON8l1FEr6OtjqFCFYSnJciw8_VFj2usJXJoD77Y/edit?usp=sharing"
+                ]
+            }
+        }
+    }
+]

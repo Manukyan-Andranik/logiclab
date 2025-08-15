@@ -2,6 +2,31 @@ import uuid
 import datetime
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+import secrets
+import hmac
+import hashlib
+import base64
+
+class ShortTokenManager:
+    def __init__(self, secret_key="logic"):
+        self.secret_key = secret_key.encode()
+
+    def _sign(self, msg: bytes) -> str:
+        sig = hmac.new(self.secret_key, msg, hashlib.sha1).digest()
+        return base64.urlsafe_b64encode(sig)[:4].decode()  # Very short signature
+
+    def generate_token(self, course_id: str) -> str:
+        cid = course_id[:2]  # Assume course ID is small
+        rand = secrets.token_hex(2)  # 4 chars
+        token_body = f"{cid}{rand}".encode()
+        sig = self._sign(token_body)
+        return f"{cid}{rand}{sig}"  # Example: 'ml4ab2P1ZQ'
+
+    def verify_token(self, token: str) -> bool:
+        body = token[:-4].encode()
+        expected_sig = self._sign(body)
+        return token[-4:] == expected_sig
+
 
 class User(UserMixin):
     pass

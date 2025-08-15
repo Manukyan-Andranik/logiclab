@@ -1,0 +1,229 @@
+[
+    {
+        "_id": "3ds_max_instructor",
+        "firstName": "Արծրունի",
+        "lastName": "Խաչատրյան",
+        "education": {
+            "institution": "Հայաստանի Գեղարվեստի Պետական Ակադեմիա",
+            "degree": "Բակալավր",
+            "fieldOfStudy": "Դիզայն"
+        },
+        "profession": "Դիզայներ",
+        "specialization": "3ds Max Instructor",
+        "workExperience": 4,
+        "skills": [
+            "3D Modeling",
+            "3D Visualization",
+            "Texturing",
+            "Lighting",
+            "Rendering",
+            "Architectural Design",
+            "Interior Design",
+            "Exterior Design"
+        ],
+        "softwareProficiency": [
+            "Autodesk 3ds Max",
+            "V-Ray",
+            "Corona Renderer",
+            "Adobe Photoshop",
+            "AutoCAD"
+        ],
+        "contacts": {
+            "phone": "+37498367419",
+            "linkedin": "https://www.linkedin.com/in/artsruni-khachatryan-79031724a",
+            "web": "https://www.instagram.com/viewbox_visual/profilecard/?igsh=MThycHpwamFjb3B5eg=="
+        },
+        "companies": [
+            {
+                "company": "Kulthome",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            },
+            {
+                "company": "Karpet",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            },
+            {
+                "company": "Tutto",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            },
+            {
+                "company": "Armat",
+                "type": "Design and Architecture Studio",
+                "role": "Designer"
+            }
+        ],
+        "photo_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744356557/3ds_max_instructor_q5ttat.png"
+    },
+    {
+        "_id": "machine_learning_instructor",
+        "firstName": "Անդրանիկ",
+        "lastName": "Մանուկյան",
+        "education": {
+            "institution": "FAST Foundation, Armenian Code Academy",
+            "fieldOfStudy": "Machine Learning Advenced, ML & DL, Տեղեկատվական անվտանգություն:"
+        },
+        "profession": "Machine Learning Engineer",
+        "specialization": "Machine Learning Instructor",
+        "workExperience": 4,
+        "skills": [
+            "Team Building",
+            "Project Management",
+            "Programing",
+            "OOP",
+            "Python",
+            "C++",
+            "Git/Github",
+            "Mathematics",
+            "Algorithms",
+            "Graph Theory",
+            "API"
+        ],
+        "softwareProficiency": [
+            "Python\r\nC++\r\nGit/Github\r\nSkLearn\r\nTensorflow\r\nPytorch"
+        ],
+        "contacts": {
+            "phone": "+37494752662",
+            "linkedin": "https://www.linkedin.com/in/manukyan-andranik-44bb4a250",
+            "web": "https://www.granat.am/vcard/it"
+        },
+        "companies": [
+            {
+                "company": "Maton Solutions",
+                "type": "Engineering",
+                "role": "ML and Back end Engineer"
+            },
+            {
+                "company": "FAST Foundation",
+                "type": "Artifical Intelligence instructor",
+                "role": "Artifical Intelligence instructor"
+            },
+            {
+                "company": "Granat Digital Agency",
+                "type": "IT Department Manager",
+                "role": "IT Department Manager, ML and Back end Engineer"
+            }
+        ],
+        "photo_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744356557/machine_learning_instructor_q1zdee.png"
+    },
+    {
+        "_id": "research_instructor",
+        "firstName": "Տիգրան",
+        "lastName": "Իշխանյան",
+        "education": {
+            "institution": "Université Bourgogne Franche-Comté, MIPT, Armenian Code Academy",
+            "degree": "PHD",
+            "fieldOfStudy": "Mathematical Physics, Optics, Applied Mathematics, Machine Learning"
+        },
+        "profession": "Research Scientist",
+        "specialization": "AI & ML Educator | Mathematical Consultant",
+        "workExperience": 11,
+        "skills": [
+            "Scientific Computing",
+            "Machine Learning",
+            "Python",
+            "Scikit-learn",
+            "TensorFlow",
+            "Algorithm Development",
+            "Symbolic Computation",
+            "Numerical Methods",
+            "Special Functions",
+            "Optimization",
+            "Differential Equations",
+            "FEM",
+            "Mathematical Modeling"
+        ],
+        "softwareProficiency": [
+            "C++",
+            "Python",
+            "Scikit-learn",
+            "TensorFlow",
+            "Keras",
+            "Wolfram Language",
+            "SageMath",
+            "Maple",
+            "Matlab"
+        ],
+        "contacts": {
+            "phone": "+37493483315",
+            "linkedin": "http://linkedin.com/in/tishkhanyan",
+            "web": "https://github.com/tishkhanyan"
+        },
+        "companies": [
+            {
+                "company": "Wolfram Research, Inc.",
+                "type": "Software/Research",
+                "role": "Scientific Researcher / Software Engineer"
+            },
+            {
+                "company": "FAST Foundation",
+                "type": "Education",
+                "role": "AI Educator"
+            },
+            {
+                "company": "Freelance",
+                "type": "Consulting",
+                "role": "Mathematical & AI Consultant"
+            },
+            {
+                "company": "Armenian Code Academy",
+                "type": "Education",
+                "role": "Teaching Assistant – Advanced Machine Learning"
+            },
+            {
+                "company": "Ernst & Young",
+                "type": "Research",
+                "role": "Research Analyst – EU4Digital DISC Initiative"
+            },
+            {
+                "company": "Université Bourgogne Franche-Comté / Institute for Physical Research",
+                "type": "Academia",
+                "role": "Researcher / PhD Candidate"
+            },
+            {
+                "company": "Institute for Problems in Mechanics",
+                "type": "Research",
+                "role": "Researcher / Student"
+            }
+        ],
+        "photo_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1745426766/1553200325723-removebg-preview_fhwtza.png"
+    },
+    {
+        "_id": "photographer_instructor",
+        "firstName": "Հայկ",
+        "lastName": "Բադալյան",
+        "education": {
+            "institution": "Tumo academy",
+            "degree": "Photographer",
+            "fieldOfStudy": " "
+        },
+        "profession": "Photographer",
+        "specialization": "Street, Portrait, and Documentary Photography",
+        "workExperience": 4,
+        "companies": [
+            {
+                "company": "TUMO Creative Technology Center",
+                "type": "Photography Workshop Leader",
+                "role": "2023-2025"
+            }
+        ],
+        "skills": [
+            "Photostory Photography",
+            "Reportage Photography",
+            "Photo series Photography"
+        ],
+        "softwareProficiency": [
+            "Photoshop\r\nLightroom\r\nPremiere Pro\r\nAdobe Bridge"
+        ],
+        "contacts": {
+            "phone": "++37498200591",
+            "linkedin": "https://www.linkedin.com/in/hayk-badalyan-5458b1303",
+            "web": "https://www.behance.net/haykobadalyan"
+        },
+        "photo_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744356558/photographer_instructor_ec2hmh.png",
+        "photo": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744356557/machine_learning_instructor_q1zdee.png",
+        "phot_url": "https://res.cloudinary.com/dujmbcltl/image/upload/v1744356557/machine_learning_instructor_q1zdee.png"
+    }
+]
