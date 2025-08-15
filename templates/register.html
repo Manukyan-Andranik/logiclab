@@ -27,20 +27,6 @@
                     <i class="fas fa-clock"></i> {{ course.duration }}
                     <i class="fas fa-calendar-week"></i> {{ course.schedule }}
                 </p>
-                <div class="flash-messages">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="flash-message flash-{{ category }}">
-                                    <span class="flash-text">{{ message }}</span>
-                                    <button class="flash-close" onclick="this.parentElement.remove()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                </div>
 
                 <!-- {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
