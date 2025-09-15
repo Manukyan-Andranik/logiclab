@@ -201,10 +201,30 @@ def user_logout():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @user_required
 def user_dashboard():
-    course_id="machine_learning"
-    materials = DATA_MANAGER.get_materials()
-    all_materials = list(materials.find({"_id": course_id}))
-    return render_template('users/profile.html', course_id = course_id, materials=all_materials[0])
+    try:
+        api_key = session.get('api_key')
+        decoded_key = DATA_MANAGER._decode_api_key(api_key, expiration_months=13)
+        course_id = decoded_key["data"]["course_id"]
+        materials = DATA_MANAGER.get_materials()
+        all_materials = list(materials.find({"_id": course_id}))
+        
+        # Handle case where no materials exist for the course
+        if all_materials:
+            materials_data = all_materials[0]
+        else:
+            # Create default materials structure
+            materials_data = {
+                '_id': course_id,
+                'name': 'Course Materials',
+                'materials': {},
+                'simple_materials': []
+            }
+        
+        return render_template('users/profile.html', course_id=course_id, materials=materials_data)
+    except Exception as e:
+        current_app.logger.error(f"Error in user dashboard: {str(e)}")
+        flash('An error occurred while loading your dashboard', 'error')
+        return redirect(url_for('user_login'))
 
 
 
@@ -837,35 +857,60 @@ def admin_visitor_details(ip):
 # Admin: Materials
 
 @app.route('/admin/materials')
+@admin_required
 def admin_materials():
-    # try:
-    # Get all courses and materials counts
-    courses = DATA_MANAGER.get_courses()
-    all_courses = list(courses.find({"is_active": True}))
-    selected_course_id = "machine_learning" # request.args.get('course', '')
-    materials = DATA_MANAGER.get_materials()
-    all_materials = list(materials.find({"_id": selected_course_id}))
+    try:
+        # Get all courses and materials counts
+        courses = DATA_MANAGER.get_courses()
+        all_courses = list(courses.find({"is_active": True}))
+        selected_course_id = request.args.get('course', 'machine_learning')
+        materials = DATA_MANAGER.get_materials()
+        all_materials = list(materials.find({"_id": selected_course_id}))
+        
+        # Get selected course object
+        selected_course = None
+        for course in all_courses:
+            if course['_id'] == selected_course_id:
+                selected_course = course
+                break
+        
+        if not selected_course:
+            selected_course = all_courses[0] if all_courses else None
+        
+        return render_template('admin/materials.html',
+                            all_courses=all_courses,
+                            selected_course=selected_course,
+                            materials=all_materials[0] if all_materials else {'materials': []})
     
-    return render_template('admin/materials.html',
-                        all_courses=all_courses,
-                        selected_course=all_courses[0],
-                        materials=all_materials if all_materials else {'materials': []})
-    
-    # except Exception as e:
-    #     current_app.logger.error(f"Error in admin_materials: {str(e)}")
-    #     flash('An error occurred while loading materials', 'error')
-    #     return redirect(url_for('admin_dashboard'))
+    except Exception as e:
+        current_app.logger.error(f"Error in admin_materials: {str(e)}")
+        flash('An error occurred while loading materials', 'error')
+        return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/materials/<course_id>')
+@admin_required
 def admin_material_details(course_id):
     try:
+        # Get course information
+        courses = DATA_MANAGER.get_courses()
+        course = courses.find_one({"_id": course_id})
+        
+        if not course:
+            flash('Course not found', 'error')
+            return redirect(url_for('admin_materials'))
+        
         materials = DATA_MANAGER.get_materials_by_course_id(course_id=course_id)
         
         if not materials:
-            materials = [{'name': 'New Course', 'materials': {}}]
+            # Create default material structure for new course
+            materials = [{
+                '_id': course_id,
+                'name': course.get('title', 'New Course'),
+                'materials': {}
+            }]
         
         return render_template('admin/material_details.html',
-                            selected_course=course_id,
+                            selected_course=course,
                             materials=materials[0])
     
     except Exception as e:
@@ -874,11 +919,24 @@ def admin_material_details(course_id):
         return redirect(url_for('admin_materials'))
 
 @app.route('/admin/materials/delete', methods=['POST'])
+@admin_required
 def delete_lesson():
     try:
         data = request.get_json()
-        course_id = data['course_id']
-        lesson_key = data['lesson_key']
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+            
+        course_id = data.get('course_id')
+        lesson_key = data.get('lesson_key')
+        
+        if not course_id or not lesson_key:
+            return jsonify({
+                'success': False,
+                'message': 'Course ID and lesson key are required'
+            }), 400
         
         success = DATA_MANAGER.delete_lesson(course_id, lesson_key)
         
@@ -895,6 +953,7 @@ def delete_lesson():
         }), 500
 
 @app.route('/admin/materials/add', methods=['POST'])
+@admin_required
 def add_material():
     try:
         course_id = request.form.get('course_id')
@@ -911,26 +970,41 @@ def add_material():
             "download_url": generate_download_url(google_drive_url)
         }
         
-        if DATA_MANAGER.add_material(course_id, material_data):
+        success, message = DATA_MANAGER.add_simple_material(course_id, material_data)
+        
+        if success:
             flash('Material added successfully!', 'success')
         else:
-            flash('Failed to add material', 'error')
+            flash(f'Failed to add material: {message}', 'error')
             
         return redirect(url_for('admin_materials', course=course_id))
     
     except Exception as e:
-
         current_app.logger.error(f"Error adding material: {str(e)}")
         flash('An error occurred while adding the material', 'error')
         return redirect(url_for('admin_materials'))
 
 @app.route('/admin/materials/update', methods=['POST'])
+@admin_required
 def update_materials():
     try:
         data = request.get_json()
-        course_id = data['course_id']
-        lesson_key = data['lesson_key']
-        updated_data = data['updated_data']
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+            
+        course_id = data.get('course_id')
+        lesson_key = data.get('lesson_key')
+        updated_data = data.get('updated_data')
+        
+        if not course_id or not lesson_key or not updated_data:
+            return jsonify({
+                'success': False,
+                'message': 'Course ID, lesson key, and updated data are required'
+            }), 400
+        
         success = DATA_MANAGER.update_material(course_id, lesson_key, updated_data)
         
         return jsonify({
@@ -946,6 +1020,7 @@ def update_materials():
         }), 500
 
 @app.route('/admin/materials/add_lesson', methods=['POST'])
+@admin_required
 def add_lesson():
     try:
         if request.is_json:
@@ -963,15 +1038,26 @@ def add_lesson():
                 'other': [url.strip() for url in request.form.getlist('other[]') if url.strip()]
             }
 
-        message, msg_type = DATA_MANAGER.add_material(course_id, lesson_key, lesson_data)
+        if not course_id or not lesson_key or not lesson_data:
+            error_message = "Course ID, lesson key, and lesson data are required"
+            if request.is_json:
+                return jsonify({'success': False, 'message': error_message}), 400
+            else:
+                flash(error_message, 'error')
+                return redirect(url_for('admin_materials'))
+
+        success, message = DATA_MANAGER.add_material(course_id, lesson_key, lesson_data)
 
         if request.is_json:
             return jsonify({
-                'success': msg_type == 'success',
+                'success': success,
                 'message': message
             })
 
-        flash(message, msg_type)
+        if success:
+            flash(message, 'success')
+        else:
+            flash(message, 'error')
         return redirect(url_for('admin_materials'))
 
     except Exception as e:
