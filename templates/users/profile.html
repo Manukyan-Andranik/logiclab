@@ -79,7 +79,7 @@
                                     <a href="{{ url }}" target="_blank" class="btn btn-view">
                                         <i class="fas fa-eye"></i> Դիտել
                                     </a>
-                                    {% set file_id = url.split('/drive/')[1].split('?')[0] %}
+                                    {% set file_id = url.split('/drive/')[0].split('?')[0] %}
                                     <a href="https://drive.google.com/uc?export=download&id={{ file_id }}" class="btn btn-download">
                                         <i class="fas fa-download"></i> Ներբեռնել
                                     </a>
