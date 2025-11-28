@@ -14,3 +14,12 @@ static/.DS_Store
 emails.py
 forms.py
 materials_format.json
+
+# ML Projects - Local file storage
+projects/
+sample_visualizations/
+
+# Sample generation scripts (optional - remove if you want to keep them)
+# insert_sample_ml_project.py
+# generate_sample_visualizations.py
+# create_sample_project_local.py

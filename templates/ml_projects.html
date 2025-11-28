@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}ML Projects - Logic Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ml_projects.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="ml-projects-hero">
+    <div class="container">
+        <h1 data-aos="fade-up"><i class="fas fa-brain"></i> Մեր Ուսանողների Նախագծերը</h1>
+    </div>
+</section>
+
+<section class="ml-projects-section">
+    <div class="container">
+        <!-- Filter Bar -->
+        <div class="filter-bar" data-aos="fade-up">
+            <form method="GET" class="filter-form">
+                <label for="course">
+                    <i class="fas fa-filter"></i> Ֆիլտրել ըստ դասընթացի:
+                </label>
+                <select id="course" name="course" onchange="this.form.submit()">
+                    <option value="">Բոլոր Դասընթացները</option>
+                    {% for course in courses %}
+                    <option value="{{ course._id }}" {{ 'selected' if selected_course == course._id }}>
+                        {{ course.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <!-- Projects Grid -->
+        {% if projects %}
+        <div class="projects-grid">
+            {% for project in projects %}
+            <article class="project-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+                
+                <div class="project-header">
+                    <h2>{{ project.title }}</h2>
+                    <div class="project-meta">
+                        <span class="student-name"><i class="fas fa-user"></i> {{ project.student_name }}</span>
+                    </div>
+                </div>
+
+                <div class="project-description">
+                    <p>{{ (project.description[:150] + '...') if project.description and project.description|length > 150 else (project.description or 'Նկարագրություն չկա') }}</p>
+                </div>
+
+                {% if project.metrics %}
+                <div class="project-metrics-preview">
+                    {% if project.metrics.accuracy %}
+                    <div class="metric-preview">
+                        <i class="fas fa-bullseye"></i>
+                        <span>{{ "%.1f"|format(project.metrics.accuracy * 100) }}%</span>
+                    </div>
+                    {% endif %}
+                    {% if project.visualizations %}
+                    <div class="metric-preview">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>{{ project.visualizations|length }} Վիզուալիզացիա</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if project.technologies %}
+                <div class="project-technologies">
+                    {% for tech in project.technologies[:5] %}
+                    <span class="tech-badge">{{ tech }}</span>
+                    {% endfor %}
+                    {% if project.technologies|length > 5 %}
+                    <span class="tech-badge">+{{ project.technologies|length - 5 }}</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="project-actions">
+                    <a href="{{ url_for('ml_project_detail', project_id=project._id) }}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Դիտել Portfolio
+                    </a>
+                    {% if project.github_url %}
+                    <a href="{{ project.github_url }}" target="_blank" class="btn btn-github">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" data-aos="fade-up">
+            <i class="fas fa-folder-open"></i>
+            <h3>Նախագծեր չկան</h3>
+            <p>Այս պահին նախագծեր չեն գտնվել: Վերադարձեք ավելի ուշ:</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+

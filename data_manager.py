@@ -75,6 +75,11 @@ class DataManager(TokenManager):
         db = self.get_db()
         return db.materials
 
+    def get_ml_projects(self):
+        """Get all ML projects"""
+        db = self.get_db()
+        return db.ml_projects
+
     def get_materials_by_course_id(self, course_id):
         all_materials = self.get_materials()
         materials = all_materials.find({"_id": course_id})
@@ -95,11 +100,18 @@ class DataManager(TokenManager):
                     "other": []
                 }
         Returns:
-            Tuple: (message, message_type)
+            Tuple: (success, message)
         """
         materials_collection = self.get_materials()
         
         try:
+            # Validate inputs
+            if not course_id or not lesson_key:
+                return (False, 'Course ID and lesson key are required')
+            
+            if not lesson_data or not isinstance(lesson_data, dict):
+                return (False, 'Lesson data must be a valid dictionary')
+            
             # Check if course material exists
             course_material = materials_collection.find_one({'_id': course_id})
             
@@ -107,59 +119,122 @@ class DataManager(TokenManager):
                 # Create new course material with this lesson
                 new_course_material = {
                     '_id': course_id,
-                    'name': lesson_data.get('course_name', 'Unnamed Course'),
+                    'name': lesson_data.get('name', 'Unnamed Course'),
                     'materials': {
                         lesson_key: lesson_data
                     }
                 }
                 materials_collection.insert_one(new_course_material)
-                return ('New course materials created with lesson added successfully', 'success')
+                return (True, 'New course materials created with lesson added successfully')
             
             # If course exists but has no materials structure yet
             if 'materials' not in course_material:
                 course_material['materials'] = {}
             
-            # Add or update the lesson
-            update_data = {
-                f"materials.{lesson_key}": lesson_data
-            }
+            # Check if lesson key already exists
+            if lesson_key in course_material.get('materials', {}):
+                # Update existing lesson
+                update_data = {
+                    f"materials.{lesson_key}": lesson_data
+                }
+                result = materials_collection.update_one(
+                    {"_id": course_id},
+                    {"$set": update_data}
+                )
+                if result.modified_count > 0:
+                    return (True, 'Lesson updated successfully')
+                else:
+                    return (True, 'No changes were made to the lesson')
+            else:
+                # Add new lesson without affecting existing ones
+                result = materials_collection.update_one(
+                    {"_id": course_id},
+                    {"$set": {f"materials.{lesson_key}": lesson_data}}
+                )
+                
+                if result.modified_count > 0 or result.upserted_id:
+                    return (True, 'Lesson added successfully')
+                else:
+                    return (True, 'No changes were made to the materials')
+                
+        except Exception as e:
+            self.app.logger.error(f"Error adding material: {str(e)}")
+            return (False, f'Error adding material: {str(e)}')
+
+    def add_simple_material(self, course_id, material_data):
+        """
+        Add a simple material (not a lesson) to course materials
+        
+        Args:
+            course_id: ID of the course
+            material_data: Dictionary containing material data
+        Returns:
+            Tuple: (success, message)
+        """
+        materials_collection = self.get_materials()
+        
+        try:
+            # Validate inputs
+            if not course_id:
+                return (False, 'Course ID is required')
             
-            # If we want to preserve existing name when adding lessons
-            if 'name' in course_material and 'name' in lesson_data:
-                del lesson_data['name']
+            if not material_data or not isinstance(material_data, dict):
+                return (False, 'Material data must be a valid dictionary')
             
+            # Check if course material exists
+            course_material = materials_collection.find_one({'_id': course_id})
+            
+            if not course_material:
+                # Create new course material
+                new_course_material = {
+                    '_id': course_id,
+                    'name': material_data.get('name', 'Unnamed Course'),
+                    'simple_materials': [material_data]
+                }
+                materials_collection.insert_one(new_course_material)
+                return (True, 'New course materials created with material added successfully')
+            
+            # Add to existing simple_materials array
             result = materials_collection.update_one(
                 {"_id": course_id},
-                {"$set": update_data}
+                {"$push": {"simple_materials": material_data}}
             )
             
             if result.modified_count > 0:
-                return ('Lesson added/updated successfully', 'success')
+                return (True, 'Material added successfully')
             else:
-                return ('No changes were made to the materials', 'info')
+                return (True, 'No changes were made to the materials')
                 
         except Exception as e:
-            return (f'Error adding material: {str(e)}', 'error')
+            self.app.logger.error(f"Error adding simple material: {str(e)}")
+            return (False, f'Error adding material: {str(e)}')
 
-    def update_material(self, course_id, material_index, updated_data):
+    def update_material(self, course_id, lesson_key, updated_data):
         """
-        Update an existing material
+        Update an existing lesson material
         Args:
             course_id: ID of the course
-            material_index: Index of the material in the materials array
+            lesson_key: Key of the lesson to update
             updated_data: Dictionary with updated fields
         """
         materials = self.get_materials()
-        update_fields = {}
         
-        for key, value in updated_data.items():
-            update_fields[f"materials.{material_index}.{key}"] = value
-        
-        result = materials.update_one(
-            {"_id": course_id},
-            {"$set": update_fields}
-        )
-        return result.modified_count > 0
+        try:
+            update_fields = {}
+            
+            for key, value in updated_data.items():
+                update_fields[f"materials.{lesson_key}.{key}"] = value
+            
+            result = materials.update_one(
+                {"_id": course_id},
+                {"$set": update_fields}
+            )
+            
+            return result.modified_count > 0
+            
+        except Exception as e:
+            self.app.logger.error(f"Error updating material: {str(e)}")
+            return False
 
     def delete_lesson(self, course_id, lesson_key):
         """
@@ -193,6 +268,150 @@ class DataManager(TokenManager):
         except Exception as e:
             self.app.logger.error(f"Error deleting lesson: {str(e)}")
             return False
+
+    # ========== ML Projects Management Methods ==========
+    
+    def add_ml_project(self, project_data):
+        """
+        Add a new ML project
+        
+        Args:
+            project_data: Dictionary containing project data with structure:
+                {
+                    "title": "Project Title",
+                    "student_name": "Student Name",
+                    "student_email": "email@example.com",
+                    "student_phone": "+374 XX XXX XXX",
+                    "course_id": "machine_learning",
+                    "description": "Project description",
+                    "github_url": "https://github.com/...",
+                    "demo_url": "https://...",
+                    "colab_notebook_url": "https://colab.research.google.com/...",
+                    "files": {
+                        "data": ["url1"],
+                        "materials": ["url1", "url2"],
+                        "models": ["url1"],
+                        "main_py": "url",
+                        "names_py": "url",
+                        "processor_py": "url",
+                        "requirements_txt": "url",
+                        "utils_py": "url"
+                    },
+                    "visualizations": [
+                        {
+                            "title": "Confusion Matrix",
+                            "image_url": "url",
+                            "description": "Model performance visualization"
+                        }
+                    ],
+                    "metrics": {
+                        "accuracy": 0.95,
+                        "precision": 0.93,
+                        "recall": 0.92,
+                        "f1_score": 0.92,
+                        "custom_metrics": {}
+                    },
+                    "technologies": ["Python", "Scikit-learn", "Pandas"],
+                    "created_at": datetime
+                }
+        Returns:
+            Tuple: (success, message, project_id)
+        """
+        ml_projects = self.get_ml_projects()
+        
+        try:
+            if not project_data or not isinstance(project_data, dict):
+                return (False, 'Project data must be a valid dictionary', None)
+            
+            # Validate required fields
+            required_fields = ['title', 'student_name', 'course_id']
+            for field in required_fields:
+                if field not in project_data or not project_data[field]:
+                    return (False, f'{field} is required', None)
+            
+            # Set created_at if not provided
+            if 'created_at' not in project_data:
+                project_data['created_at'] = datetime.now()
+            
+            # Set is_featured default to False
+            if 'is_featured' not in project_data:
+                project_data['is_featured'] = False
+            
+            # Insert the project
+            result = ml_projects.insert_one(project_data)
+            
+            return (True, 'Project added successfully', str(result.inserted_id))
+            
+        except Exception as e:
+            self.app.logger.error(f"Error adding ML project: {str(e)}")
+            return (False, f'Error adding project: {str(e)}', None)
+    
+    def update_ml_project(self, project_id, updated_data):
+        """
+        Update an existing ML project
+        
+        Args:
+            project_id: ID of the project to update
+            updated_data: Dictionary with updated fields
+        Returns:
+            Tuple: (success, message)
+        """
+        ml_projects = self.get_ml_projects()
+        
+        try:
+            from bson import ObjectId
+            
+            # Update modified_at timestamp
+            updated_data['modified_at'] = datetime.now()
+            
+            result = ml_projects.update_one(
+                {"_id": ObjectId(project_id)},
+                {"$set": updated_data}
+            )
+            
+            if result.modified_count > 0:
+                return (True, 'Project updated successfully')
+            else:
+                return (True, 'No changes were made')
+                
+        except Exception as e:
+            self.app.logger.error(f"Error updating ML project: {str(e)}")
+            return (False, f'Error updating project: {str(e)}')
+    
+    def delete_ml_project(self, project_id):
+        """
+        Delete an ML project
+        
+        Args:
+            project_id: ID of the project to delete
+        Returns:
+            Tuple: (success, message)
+        """
+        ml_projects = self.get_ml_projects()
+        
+        try:
+            from bson import ObjectId
+            
+            result = ml_projects.delete_one({"_id": ObjectId(project_id)})
+            
+            if result.deleted_count > 0:
+                return (True, 'Project deleted successfully')
+            else:
+                return (False, 'Project not found')
+                
+        except Exception as e:
+            self.app.logger.error(f"Error deleting ML project: {str(e)}")
+            return (False, f'Error deleting project: {str(e)}')
+    
+    def get_ml_project_by_id(self, project_id):
+        """Get a specific ML project by ID"""
+        ml_projects = self.get_ml_projects()
+        try:
+            from bson import ObjectId
+            return ml_projects.find_one({"_id": ObjectId(project_id)})
+        except Exception as e:
+            self.app.logger.error(f"Error getting ML project: {str(e)}")
+            return None
 
     # ========== Visits Management Methods ==========
 

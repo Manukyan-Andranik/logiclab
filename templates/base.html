@@ -24,6 +24,7 @@
                 <li><a href="{{ url_for('home') }}" id="home" class="{% if request.endpoint == 'home' %}active{% endif %}">Գլխավոր էջ</a></li>
                 <li><a href="{{ url_for('all_courses') }}" class="{% if request.endpoint == 'all_courses' %}active{% endif %}">Դասընթացներ</a></li>
                 <li><a href="{{ url_for('instructors') }}" class="{% if request.endpoint == 'instructors' %}active{% endif %}">Դասախոսներ</a></li>
+                <li><a href="{{ url_for('ml_projects') }}" class="{% if request.endpoint == 'ml_projects' %}active{% endif %}">Նախագծեր</a></li>
                 {% if session.get('user_logged_in') %}
                 <li><a href="{{ url_for('user_dashboard') }}" class="{% if request.endpoint == 'user_dashboard' %}active{% endif %}">Նյութեր</a></li>
                 {% else %}

@@ -1,3 +1,15 @@
+:root {
+    --primary-color: #FFD700;
+    --primary-dark: #FFC000;
+    --secondary-color: #333;
+    --light-color: #f4f4f4;
+    --dark-color: #222;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+    --white: #ffffff;
+}
+
 .admin-header {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: var(--white);
@@ -5,6 +17,32 @@
     border-radius: 16px;
     margin-bottom: 30px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: var(--white);
+    text-decoration: none;
 }
 
 .lesson-block {
@@ -204,7 +242,7 @@
 }
 
 .close {
-    color: #ffffff;
+    color: #666666;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
@@ -223,7 +261,7 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #ffffff;
+    color: #333333;
 }
 
 .form-group input {

@@ -1,0 +1,321 @@
+{% extends "admin/base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/ml_projects.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1><i class="fas fa-plus"></i> Add ML Project</h1>
+    <div>
+        <a href="{{ url_for('admin_ml_projects') }}" class="btn btn-admin">
+            <i class="fas fa-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+</div>
+
+<div class="form-container">
+    <form method="POST" class="admin-form" enctype="multipart/form-data">
+        <!-- Basic Information -->
+        <div class="form-section">
+            <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+            
+            <div class="form-group">
+                <label for="title">Project Title *</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="student_name">Student Name *</label>
+                    <input type="text" id="student_name" name="student_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="student_email">Student Email</label>
+                    <input type="email" id="student_email" name="student_email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="student_phone">Student Phone</label>
+                <input type="tel" id="student_phone" name="student_phone" placeholder="+374 XX XXX XXX">
+            </div>
+
+            <div class="form-group">
+                <label for="course_id">Course *</label>
+                <select id="course_id" name="course_id" required>
+                    <option value="">Select a course</option>
+                    {% for course in courses %}
+                    <option value="{{ course._id }}">{{ course.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="5"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="technologies">Technologies (comma-separated)</label>
+                <input type="text" id="technologies" name="technologies" placeholder="Python, Scikit-learn, Pandas, NumPy">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="is_featured" name="is_featured">
+                <label for="is_featured">Featured Project</label>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="form-section">
+            <h3><i class="fas fa-link"></i> Project Links</h3>
+            
+            <div class="form-group">
+                <label for="github_url">GitHub URL</label>
+                <input type="url" id="github_url" name="github_url" placeholder="https://github.com/username/project">
+            </div>
+
+            <div class="form-group">
+                <label for="demo_url">Demo URL</label>
+                <input type="url" id="demo_url" name="demo_url" placeholder="https://your-demo.com">
+            </div>
+
+            <div class="form-group">
+                <label for="colab_notebook_url">Google Colab Notebook URL</label>
+                <input type="url" id="colab_notebook_url" name="colab_notebook_url" placeholder="https://colab.research.google.com/drive/...">
+            </div>
+        </div>
+
+        <!-- Visualizations -->
+        <div class="form-section">
+            <h3><i class="fas fa-chart-bar"></i> Visualizations & Plots</h3>
+            <p class="form-help">Upload images: PNG, JPG, WebP (will be saved to materials folder)</p>
+            
+            <div id="visualizations-container" class="upload-container">
+                <div class="viz-upload-group">
+                    <div class="form-group">
+                        <label>Upload Image</label>
+                        <input type="file" name="visualizations[]" accept="image/*" onchange="previewImage(this)">
+                        <div class="image-preview"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="viz_titles[]" placeholder="e.g., Confusion Matrix">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (optional)</label>
+                        <input type="text" name="viz_descriptions[]" placeholder="Brief description">
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-add-field" onclick="addVizUpload()">
+                <i class="fas fa-plus"></i> Add Another Visualization
+            </button>
+        </div>
+
+        <!-- Metrics -->
+        <div class="form-section">
+            <h3><i class="fas fa-chart-line"></i> Performance Metrics</h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="accuracy">Accuracy (0-1)</label>
+                    <input type="number" id="accuracy" name="accuracy" step="0.01" min="0" max="1" placeholder="0.95">
+                </div>
+                <div class="form-group">
+                    <label for="precision">Precision (0-1)</label>
+                    <input type="number" id="precision" name="precision" step="0.01" min="0" max="1" placeholder="0.93">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="recall">Recall (0-1)</label>
+                    <input type="number" id="recall" name="recall" step="0.01" min="0" max="1" placeholder="0.92">
+                </div>
+                <div class="form-group">
+                    <label for="f1_score">F1 Score (0-1)</label>
+                    <input type="number" id="f1_score" name="f1_score" step="0.01" min="0" max="1" placeholder="0.92">
+                </div>
+            </div>
+
+            <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Custom Metrics</h4>
+            <div id="custom-metrics-container">
+                <div class="metric-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Metric Name</label>
+                            <input type="text" name="custom_metric_0_name" placeholder="e.g., AUC-ROC">
+                        </div>
+                        <div class="form-group">
+                            <label>Value</label>
+                            <input type="text" name="custom_metric_0_value" placeholder="0.98">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-add-field" onclick="addCustomMetric()">
+                <i class="fas fa-plus"></i> Add Custom Metric
+            </button>
+        </div>
+
+        <!-- Project Files -->
+        <div class="form-section">
+            <h3><i class="fas fa-folder"></i> Project Files</h3>
+            <p class="form-help">Upload files - they will be organized into folders automatically</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data Files (CSV, Excel, etc.)</label>
+                    <input type="file" name="data_files[]" multiple accept=".csv,.xlsx,.xls,.json">
+                    <small>Upload your datasets</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Model Files (.pkl, .h5, .pt)</label>
+                    <input type="file" name="model_files[]" multiple accept=".pkl,.h5,.pt,.pth,.joblib">
+                    <small>Upload trained models</small>
+                </div>
+            </div>
+
+            <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Python Code Files</h4>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="main_py">main.py</label>
+                    <input type="file" id="main_py" name="main_py" accept=".py">
+                </div>
+
+                <div class="form-group">
+                    <label for="processor_py">processor.py</label>
+                    <input type="file" id="processor_py" name="processor_py" accept=".py">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="names_py">names.py</label>
+                    <input type="file" id="names_py" name="names_py" accept=".py">
+                </div>
+
+                <div class="form-group">
+                    <label for="utils_py">utils.py</label>
+                    <input type="file" id="utils_py" name="utils_py" accept=".py">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="requirements_txt">requirements.txt</label>
+                <input type="file" id="requirements_txt" name="requirements_txt" accept=".txt">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save"></i> Save Project
+            </button>
+            <a href="{{ url_for('admin_ml_projects') }}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-help {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.viz-upload-group, .metric-group {
+    background: var(--light-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.upload-container input[type="file"] {
+    border: 2px dashed var(--primary-color);
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.image-preview {
+    margin-top: 1rem;
+}
+
+.image-preview img {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+small {
+    color: #666;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+</style>
+
+<script>
+function previewImage(input) {
+    const preview = input.parentElement.querySelector('.image-preview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function addVizUpload() {
+    const container = document.getElementById('visualizations-container');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'viz-upload-group';
+    newGroup.innerHTML = `
+        <div class="form-group">
+            <label>Upload Image</label>
+            <input type="file" name="visualizations[]" accept="image/*" onchange="previewImage(this)">
+            <div class="image-preview"></div>
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="viz_titles[]" placeholder="e.g., ROC Curve">
+        </div>
+        <div class="form-group">
+            <label>Description (optional)</label>
+            <input type="text" name="viz_descriptions[]" placeholder="Brief description">
+        </div>
+    `;
+    container.appendChild(newGroup);
+}
+
+let metricCount = 1;
+function addCustomMetric() {
+    const container = document.getElementById('custom-metrics-container');
+    const newMetric = document.createElement('div');
+    newMetric.className = 'metric-group';
+    newMetric.innerHTML = `
+        <div class="form-row">
+            <div class="form-group">
+                <label>Metric Name</label>
+                <input type="text" name="custom_metric_${metricCount}_name" placeholder="e.g., AUC-ROC">
+            </div>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="text" name="custom_metric_${metricCount}_value" placeholder="0.98">
+            </div>
+        </div>
+    `;
+    container.appendChild(newMetric);
+    metricCount++;
+}
+</script>
+{% endblock %}
+

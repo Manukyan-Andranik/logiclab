@@ -6,107 +6,130 @@
 {% endblock %}
 
 <div class="admin-header">
-    <h1><i class="fas fa-book-open"></i> Manage Course Materials: {{ materials.name }}</h1>
+    <h1><i class="fas fa-book-open"></i> Manage Course Materials: {{ selected_course.title }}</h1>
     <p class="text-light">Add, edit, and organize your course resources</p>
+    <a href="{{ url_for('admin_materials') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Materials
+    </a>
 </div>
 
 {% if materials %}
 <div class="course-materials">
-    {% if materials.materials %}
-    {% for lesson_key, lesson in materials.materials.items() %}
-    <div class="lesson-block">
-        <div class="lesson-title toggle-btn" onclick="toggleLesson(this)">
-            <h3>
-                <i class="fas fa-chalkboard-teacher"></i>
-                {{ lesson.tittle }}
-                <span class="badge bg-light text-dark">{{ lesson_key }}</span>
-            </h3>
-            <i class="fas fa-chevron-down lesson-toggle-icon"></i>
+    {% if materials.materials and materials.materials|length > 0 %}
+        {% for lesson_key, lesson in materials.materials.items() %}
+        <div class="lesson-block">
+            <div class="lesson-title toggle-btn" onclick="toggleLesson(this)">
+                <h3>
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    {{ lesson.tittle }}
+                    <span class="badge bg-light text-dark">{{ lesson_key }}</span>
+                </h3>
+                <i class="fas fa-chevron-down lesson-toggle-icon"></i>
+            </div>
+
+            <div class="lesson-content">
+                <form class="url-form" data-lesson-key="{{ lesson_key }}">
+                    <input type="hidden" name="course_id" value="{{ selected_course._id }}">
+
+                    <div class="url-list">
+                        <h4><i class="fas fa-file-powerpoint"></i> Presentations</h4>
+                        <div class="url-container" data-field="presentations">
+                            {% if lesson.presentations %}
+                                {% for url in lesson.presentations %}
+                                <div class="url-item">
+                                    <input type="text" class="url-input" name="presentations" value="{{ url }}"
+                                        placeholder="Enter presentation URL">
+                                    <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="url-item">
+                                    <input type="text" class="url-input" name="presentations" value="" placeholder="Enter presentation URL">
+                                    <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'presentations')">
+                            <i class="fas fa-plus"></i> Add Presentation
+                        </button>
+                    </div>
+
+                    <div class="url-list">
+                        <h4><i class="fas fa-code"></i> Code Notebooks</h4>
+                        <div class="url-container" data-field="code">
+                            {% if lesson.code %}
+                                {% for url in lesson.code %}
+                                <div class="url-item">
+                                    <input type="text" class="url-input" name="code" value="{{ url }}"
+                                        placeholder="Enter notebook URL">
+                                    <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="url-item">
+                                    <input type="text" class="url-input" name="code" value="" placeholder="Enter notebook URL">
+                                    <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'code')">
+                            <i class="fas fa-plus"></i> Add Notebook
+                        </button>
+                    </div>
+
+                    <div class="url-list">
+                        <h4><i class="fas fa-file-alt"></i> Other Materials</h4>
+                        <div class="url-container" data-field="other">
+                            {% if lesson.other %}
+                                {% for url in lesson.other %}
+                                <div class="url-item">
+                                    <input type="text" class="url-input" name="other" value="{{ url }}"
+                                        placeholder="Enter resource URL">
+                                    <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="url-item">
+                                    <input type="text" class="url-input" name="other" value="" placeholder="Enter resource URL">
+                                    <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'other')">
+                            <i class="fas fa-plus"></i> Add Resource
+                        </button>
+                    </div>
+
+
+                    <div class="lesson-actions">
+                        <button type="button" class="btn btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteLesson('{{ lesson_key }}')">
+                            <i class="fas fa-trash"></i> Delete Lesson
+                        </button>
+                    </div>
+                </form>
+
+            </div>
         </div>
-
-        <div class="lesson-content">
-            <form class="url-form" data-lesson-key="{{ lesson_key }}">
-                <input type="hidden" name="course_id" value="{{ materials._id }}">
-
-                <div class="url-list">
-                    <h4><i class="fas fa-file-powerpoint"></i> Presentations</h4>
-                    <div class="url-container" data-field="presentations">
-                        {% for url in lesson.presentations %}
-                        <div class="url-item">
-                            <input type="text" class="url-input" name="presentations" value="{{ url }}"
-                                placeholder="Enter presentation URL">
-                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'presentations')">
-                        <i class="fas fa-plus"></i> Add Presentation
-                    </button>
-                </div>
-
-                <div class="url-list">
-                    <h4><i class="fas fa-code"></i> Code Notebooks</h4>
-                    <div class="url-container" data-field="code">
-                        {% for url in lesson.code %}
-                        <div class="url-item">
-                            <input type="text" class="url-input" name="code" value="{{ url }}"
-                                placeholder="Enter notebook URL">
-                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'code')">
-                        <i class="fas fa-plus"></i> Add Notebook
-                    </button>
-                </div>
-
-                <div class="url-list">
-                    <h4><i class="fas fa-file-alt"></i> Other Materials</h4>
-                    <div class="url-container" data-field="other">
-                        {% for url in lesson.other %}
-                        <div class="url-item">
-                            <input type="text" class="url-input" name="other" value="{{ url }}"
-                                placeholder="Enter resource URL">
-                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                        {% else %}
-                        <div class="url-item">
-                            <input type="text" class="url-input" name="other" value="" placeholder="Enter resource URL">
-                            <button type="button" class="btn btn-remove-url" onclick="removeUrlField(this)">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <button type="button" class="btn btn-add-url" onclick="addUrlField(this, 'other')">
-                        <i class="fas fa-plus"></i> Add Resource
-                    </button>
-                </div>
-
-
-                <div class="lesson-actions">
-                    <button type="button" class="btn btn-save-urls" onclick="saveUrls('{{ lesson_key }}')">
-                        <i class="fas fa-save"></i> Save Changes
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteLesson('{{ lesson_key }}')">
-                        <i class="fas fa-trash"></i> Delete Lesson
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
+        {% endfor %}
     {% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> No lessons found for this course. Add your first lesson below.
-    </div>
-    {% endfor %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No lessons found for this course. Add your first lesson below.
+        </div>
     {% endif %}
 
     <button class="btn btn-admin" onclick="showAddLessonModal()">
@@ -124,7 +147,7 @@
         </div>
 
         <form id="add-lesson-form">
-            <input type="hidden" name="course_id" value="{{ materials._id }}">
+            <input type="hidden" name="course_id" value="{{ selected_course._id }}">
 
             <div class="form-group">
                 <label for="lesson-title">Lesson Title *</label>
@@ -405,7 +428,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    course_id: '{{ materials._id }}',
+                    course_id: '{{ selected_course._id }}',
                     lesson_key: lessonKey
                 })
             })

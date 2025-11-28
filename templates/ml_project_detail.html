@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - ML Projects{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ml_project_detail.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="project-hero">
+    <div class="container">
+        
+        <h1 data-aos="fade-up">{{ project.title }}</h1>
+        
+        <div class="project-meta" data-aos="fade-up" data-aos-delay="100">
+            <div class="meta-item">
+                <i class="fas fa-user"></i>
+                <span>{{ project.student_name }}</span>
+            </div>
+            {% if course %}
+            <div class="meta-item">
+                <i class="fas fa-book"></i>
+                <span>{{ course.title }}</span>
+            </div>
+            {% endif %}
+            {% if project.created_at %}
+            <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <span>{{ project.created_at.strftime('%B %Y') }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if project.technologies %}
+        <div class="tech-stack" data-aos="fade-up" data-aos-delay="200">
+            {% for tech in project.technologies %}
+            <span class="tech-pill">{{ tech }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="project-content">
+    <div class="container">
+        <div class="content-grid">
+            <!-- Main Column -->
+            <div class="main-column">
+                <!-- Description -->
+                {% if project.description %}
+                <div class="section-card" data-aos="fade-up">
+                    <h2><i class="fas fa-info-circle"></i> Նկարագրություն</h2>
+                    <p class="description-text">{{ project.description }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Interactive Model Testing -->
+                {% if project.colab_notebook_url %}
+                <div class="section-card interactive-section" data-aos="fade-up">
+                    <h2><i class="fas fa-flask"></i> Փորձարկեք Մոդելը</h2>
+                    <p>Սեղմեք ստորև՝ Google Colab-ում բացելու և փորձարկելու մոդելը իրական տվյալների վրա:</p>
+                    <a href="{{ project.colab_notebook_url }}" target="_blank" class="btn btn-colab">
+                        <i class="fab fa-google"></i> Բացել Google Colab-ում
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Visualizations Gallery -->
+                {% if project.visualizations %}
+                <div class="section-card" data-aos="fade-up">
+                    <h2><i class="fas fa-chart-bar"></i> Վիզուալիզացիաներ և Գրաֆիկներ</h2>
+                    <div class="visualizations-gallery">
+                        {% for viz in project.visualizations %}
+                        <div class="viz-item">
+                            {% set viz_url = url_for('serve_project_file', student_folder=project.student_folder, filename=viz.image_path) %}
+                            <a href="{{ viz_url }}" target="_blank">
+                                <img src="{{ viz_url }}" alt="{{ viz.title }}" loading="lazy">
+                                <div class="viz-overlay">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </div>
+                            </a>
+                            <div class="viz-info">
+                                <h4>{{ viz.title }}</h4>
+                                {% if viz.description %}
+                                <p>{{ viz.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Performance Metrics -->
+                {% if project.metrics %}
+                <div class="section-card" data-aos="fade-up">
+                    <h2><i class="fas fa-chart-line"></i> Արդյունավետության Ցուցանիշներ</h2>
+                    <div class="metrics-grid">
+                        {% if project.metrics.accuracy %}
+                        <div class="metric-card">
+                            <div class="metric-icon accuracy">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="metric-value">{{ "%.2f"|format(project.metrics.accuracy * 100) }}%</div>
+                            <div class="metric-label">Ճշգրտություն</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.metrics.precision %}
+                        <div class="metric-card">
+                            <div class="metric-icon precision">
+                                <i class="fas fa-crosshairs"></i>
+                            </div>
+                            <div class="metric-value">{{ "%.2f"|format(project.metrics.precision * 100) }}%</div>
+                            <div class="metric-label">Precision</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.metrics.recall %}
+                        <div class="metric-card">
+                            <div class="metric-icon recall">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="metric-value">{{ "%.2f"|format(project.metrics.recall * 100) }}%</div>
+                            <div class="metric-label">Recall</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.metrics.f1_score %}
+                        <div class="metric-card">
+                            <div class="metric-icon f1">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="metric-value">{{ "%.2f"|format(project.metrics.f1_score * 100) }}%</div>
+                            <div class="metric-label">F1 Score</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.metrics.custom_metrics %}
+                        {% for name, value in project.metrics.custom_metrics.items() %}
+                        <div class="metric-card">
+                            <div class="metric-icon custom">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="metric-value">
+                                {% if value is number %}
+                                    {{ "%.2f"|format(value) }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </div>
+                            <div class="metric-label">{{ name }}</div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Code Files with Syntax Highlighting -->
+                {% if code_files %}
+                <div class="section-card" data-aos="fade-up">
+                    <h2><i class="fas fa-code"></i> Նախագծի Կոդ</h2>
+                    <div class="code-tabs">
+                        <div class="tab-buttons">
+                            {% for filename in code_files.keys() %}
+                            <button class="tab-btn {% if loop.first %}active{% endif %}" 
+                                    onclick="showCode('{{ filename }}')">
+                                <i class="fab fa-python"></i> {{ filename }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        
+                        {% for filename, content in code_files.items() %}
+                        <div class="code-content {% if loop.first %}active{% endif %}" id="code-{{ filename }}">
+                            <div class="code-header">
+                                <span class="code-filename">{{ filename }}</span>
+                                <button class="btn-copy" onclick="copyCode('code-{{ filename }}-content')">
+                                    <i class="fas fa-copy"></i> Պատճենել
+                                </button>
+                            </div>
+                            <pre><code id="code-{{ filename }}-content" class="language-python">{{ content }}</code></pre>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Project Structure & Downloads -->
+                <div class="section-card" data-aos="fade-up">
+                    <h2><i class="fas fa-folder-tree"></i> Ներբեռնել Ֆայլեր</h2>
+                    <div class="file-explorer">
+                        {% if project.files.data %}
+                        <div class="folder-item">
+                            <div class="folder-header">
+                                <i class="fas fa-folder-open"></i>
+                                <span>data/</span>
+                            </div>
+                            <div class="folder-content">
+                                {% for file_path in project.files.data %}
+                                <a href="{{ url_for('serve_project_file', student_folder=project.student_folder, filename=file_path) }}" 
+                                   download class="file-item">
+                                    <i class="fas fa-file-csv"></i>
+                                    <span>{{ file_path.split('/')[-1] }}</span>
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.files.models %}
+                        <div class="folder-item">
+                            <div class="folder-header">
+                                <i class="fas fa-folder-open"></i>
+                                <span>models/</span>
+                            </div>
+                            <div class="folder-content">
+                                {% for file_path in project.files.models %}
+                                <a href="{{ url_for('serve_project_file', student_folder=project.student_folder, filename=file_path) }}" 
+                                   download class="file-item">
+                                    <i class="fas fa-cube"></i>
+                                    <span>{{ file_path.split('/')[-1] }}</span>
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% for code_name, file_path in project.files.items() %}
+                        {% if code_name in ['main_py', 'names_py', 'processor_py', 'utils_py', 'requirements_txt'] and file_path %}
+                        <a href="{{ url_for('serve_project_file', student_folder=project.student_folder, filename=file_path) }}" 
+                           download class="file-item">
+                            <i class="{% if 'py' in code_name %}fab fa-python{% else %}fas fa-file-alt{% endif %}"></i>
+                            <span>{{ file_path.split('/')[-1] }}</span>
+                            <i class="fas fa-download"></i>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar-column">
+                <!-- Quick Actions -->
+                <div class="sidebar-card sticky-card" data-aos="fade-left">
+                    <h3><i class="fas fa-link"></i> Արագ Հղումներ</h3>
+                    <div class="action-buttons">
+                        {% if project.github_url %}
+                        <a href="{{ project.github_url }}" target="_blank" class="sidebar-btn btn-github">
+                            <i class="fab fa-github"></i>
+                            <span>GitHub Repository</span>
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.demo_url %}
+                        <a href="{{ project.demo_url }}" target="_blank" class="sidebar-btn btn-demo">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>Live Demo</span>
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.colab_notebook_url %}
+                        <a href="{{ project.colab_notebook_url }}" target="_blank" class="sidebar-btn btn-colab-alt">
+                            <i class="fab fa-google"></i>
+                            <span>Google Colab</span>
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('ml_projects') }}" class="sidebar-btn btn-back">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Վերադառնալ</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Student Contact -->
+                {% if project.student_email or project.student_phone %}
+                <div class="sidebar-card" data-aos="fade-left" data-aos-delay="100">
+                    <h3><i class="fas fa-user"></i> Հեղինակ</h3>
+                    <div class="student-info">
+                        <p class="student-name">{{ project.student_name }}</p>
+                        {% if project.student_email %}
+                        <a href="mailto:{{ project.student_email }}" class="contact-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ project.student_email }}</span>
+                        </a>
+                        {% endif %}
+                        {% if project.student_phone %}
+                        <a href="tel:{{ project.student_phone }}" class="contact-link">
+                            <i class="fas fa-phone"></i>
+                            <span>{{ project.student_phone }}</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script>
+    // Syntax highlighting
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.querySelectorAll('pre code').forEach((el) => {
+            hljs.highlightElement(el);
+        });
+    });
+    
+    // Code tab switching
+    function showCode(filename) {
+        // Hide all code contents
+        document.querySelectorAll('.code-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Remove active from all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected code
+        document.getElementById('code-' + filename).classList.add('active');
+        
+        // Activate clicked button
+        event.target.closest('.tab-btn').classList.add('active');
+    }
+    
+    // Copy code to clipboard
+    function copyCode(elementId) {
+        const codeElement = document.getElementById(elementId);
+        const code = codeElement.textContent;
+        
+        navigator.clipboard.writeText(code).then(() => {
+            // Show feedback
+            const btn = event.target.closest('.btn-copy');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Պատճենված!';
+            btn.style.background = '#43e97b';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy code');
+        });
+    }
+</script>
+{% endblock %}
+

@@ -3,13 +3,44 @@ from bson import ObjectId
 from datetime import datetime
 from urllib.parse import quote_plus
 from flask_mail import Mail, Message
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app, send_from_directory
+from werkzeug.utils import secure_filename
 
 from utils import get_ids, find_by_id, load_env, is_valid_url, generate_download_url
 from data_manager import DataManager, admin_required, user_required
 
+# Allowed file extensions
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+ALLOWED_CODE_EXTENSIONS = {'py', 'ipynb', 'txt', 'md', 'json', 'csv'}
+ALLOWED_MODEL_EXTENSIONS = {'pkl', 'h5', 'pt', 'pth', 'joblib'}
+
+def allowed_file(filename, extensions):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in extensions
+
+def create_project_structure(student_name):
+    """Create folder structure: projects/student_name/project/"""
+    safe_name = secure_filename(student_name.replace(' ', '_'))
+    project_path = os.path.join(app.config['PROJECTS_FOLDER'], safe_name, 'project')
+    
+    # Create subdirectories
+    os.makedirs(os.path.join(project_path, 'materials'), exist_ok=True)
+    os.makedirs(os.path.join(project_path, 'data'), exist_ok=True)
+    os.makedirs(os.path.join(project_path, 'models'), exist_ok=True)
+    os.makedirs(os.path.join(project_path, 'code'), exist_ok=True)
+    
+    return safe_name, project_path
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# Configure upload folders
+PROJECTS_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'projects')
+app.config['PROJECTS_FOLDER'] = PROJECTS_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+
+# Ensure projects folder exists
+if not os.path.exists(PROJECTS_FOLDER):
+    os.makedirs(PROJECTS_FOLDER)
 
 # Load environment variables
 MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, DEFAULT_INSTRUCTOR_PHOTO = load_env()
@@ -65,6 +96,75 @@ def instructors():
     for id in instructor_ids:
         all_instructors[id] = find_by_id(instructors, id)
     return render_template("instructors.html", instructors=all_instructors)
+
+@app.route('/ml-projects')
+def ml_projects():
+    """Public-facing ML projects page"""
+    ml_projects_collection = DATA_MANAGER.get_ml_projects()
+    visits = DATA_MANAGER.get_visits()
+    courses_collection = DATA_MANAGER.get_courses()
+    
+    DATA_MANAGER.track_visit(visits)
+    
+    # Get all courses for filtering
+    all_courses = list(courses_collection.find({"is_active": True}))
+    
+    # Get filter parameters
+    course_filter = request.args.get('course')
+    
+    # Build query
+    query = {}
+    if course_filter:
+        query['course_id'] = course_filter
+    
+    # Get projects sorted by created_at (newest first)
+    projects = list(ml_projects_collection.find(query).sort('created_at', -1))
+    
+    return render_template('ml_projects.html', projects=projects, courses=all_courses, selected_course=course_filter)
+
+@app.route('/ml-projects/<project_id>')
+def ml_project_detail(project_id):
+    """Portfolio-style detail page for a specific ML project"""
+    visits = DATA_MANAGER.get_visits()
+    DATA_MANAGER.track_visit(visits)
+    
+    project = DATA_MANAGER.get_ml_project_by_id(project_id)
+    
+    if not project:
+        flash('Project not found', 'error')
+        return redirect(url_for('ml_projects'))
+    
+    # Get course information
+    courses_collection = DATA_MANAGER.get_courses()
+    course = courses_collection.find_one({"_id": project.get('course_id')})
+    
+    # Read code files if they exist
+    code_files = {}
+    if project.get('files'):
+        student_folder = project.get('student_folder')
+        if student_folder:
+            code_dir = os.path.join(app.config['PROJECTS_FOLDER'], student_folder, 'project', 'code')
+            for code_file in ['main.py', 'names.py', 'processor.py', 'utils.py', 'requirements.txt']:
+                file_path = os.path.join(code_dir, code_file)
+                if os.path.exists(file_path):
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            code_files[code_file] = f.read()
+                    except Exception as e:
+                        current_app.logger.error(f"Error reading {code_file}: {str(e)}")
+    
+    return render_template('ml_project_detail.html', project=project, course=course, code_files=code_files)
+
+# Route to serve project files (images, code, data)
+@app.route('/projects/<student_folder>/<path:filename>')
+def serve_project_file(student_folder, filename):
+    """Serve files from project folders"""
+    try:
+        project_root = os.path.join(app.config['PROJECTS_FOLDER'], student_folder, 'project')
+        return send_from_directory(project_root, filename)
+    except Exception as e:
+        current_app.logger.error(f"Error serving file: {str(e)}")
+        return "File not found", 404
 
 @app.route('/all_courses')
 def all_courses():
@@ -201,7 +301,7 @@ def user_logout():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @user_required
 def user_dashboard():
-    try:
+    # try:
         api_key = session.get('api_key')
         decoded_key = DATA_MANAGER._decode_api_key(api_key, expiration_months=13)
         course_id = decoded_key["data"]["course_id"]
@@ -221,10 +321,10 @@ def user_dashboard():
             }
         
         return render_template('users/profile.html', course_id=course_id, materials=materials_data)
-    except Exception as e:
-        current_app.logger.error(f"Error in user dashboard: {str(e)}")
-        flash('An error occurred while loading your dashboard', 'error')
-        return redirect(url_for('user_login'))
+    # except Exception as e:
+    #     current_app.logger.error(f"Error in user dashboard: {str(e)}")
+    #     flash('An error occurred while loading your dashboard', 'error')
+    #     return redirect(url_for('user_login'))
 
 
 
@@ -1068,6 +1168,293 @@ def add_lesson():
         else:
             flash('An error occurred while adding the lesson', 'error')
             return redirect(url_for('admin_materials'))
+
+# Admin: ML Projects
+@app.route('/admin/ml-projects')
+@admin_required
+def admin_ml_projects():
+    """Admin page to manage ML projects"""
+    try:
+        ml_projects_collection = DATA_MANAGER.get_ml_projects()
+        courses_collection = DATA_MANAGER.get_courses()
+        
+        # Get all courses for filtering
+        all_courses = list(courses_collection.find({"is_active": True}))
+        
+        # Get filter parameters
+        course_filter = request.args.get('course')
+        
+        # Build query
+        query = {}
+        if course_filter:
+            query['course_id'] = course_filter
+        
+        # Get all projects sorted by created_at (newest first)
+        all_projects = list(ml_projects_collection.find(query).sort('created_at', -1))
+        
+        return render_template('admin/ml_projects.html', 
+                             projects=all_projects, 
+                             courses=all_courses,
+                             selected_course=course_filter)
+    
+    except Exception as e:
+        current_app.logger.error(f"Error in admin_ml_projects: {str(e)}")
+        flash('An error occurred while loading ML projects', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/ml-projects/add', methods=['GET', 'POST'])
+@admin_required
+def admin_add_ml_project():
+    """Add a new ML project with file uploads"""
+    courses_collection = DATA_MANAGER.get_courses()
+    
+    if request.method == 'POST':
+        try:
+            student_name = request.form.get('student_name')
+            if not student_name:
+                flash('Student name is required', 'error')
+                return redirect(url_for('admin_add_ml_project'))
+            
+            # Create project folder structure
+            student_folder, project_path = create_project_structure(student_name)
+            
+            # Handle visualization uploads
+            visualizations = []
+            viz_files = request.files.getlist('visualizations[]')
+            viz_titles = request.form.getlist('viz_titles[]')
+            viz_descs = request.form.getlist('viz_descriptions[]')
+            
+            for idx, viz_file in enumerate(viz_files):
+                if viz_file and viz_file.filename and allowed_file(viz_file.filename, ALLOWED_IMAGE_EXTENSIONS):
+                    filename = secure_filename(viz_file.filename)
+                    viz_path = os.path.join(project_path, 'materials', filename)
+                    viz_file.save(viz_path)
+                    
+                    visualizations.append({
+                        'title': viz_titles[idx] if idx < len(viz_titles) else filename,
+                        'image_path': f'materials/{filename}',
+                        'description': viz_descs[idx] if idx < len(viz_descs) else ''
+                    })
+            
+            # Handle data file uploads
+            data_files = []
+            data_uploads = request.files.getlist('data_files[]')
+            for data_file in data_uploads:
+                if data_file and data_file.filename:
+                    filename = secure_filename(data_file.filename)
+                    data_path = os.path.join(project_path, 'data', filename)
+                    data_file.save(data_path)
+                    data_files.append(f'data/{filename}')
+            
+            # Handle model file uploads
+            model_files = []
+            model_uploads = request.files.getlist('model_files[]')
+            for model_file in model_uploads:
+                if model_file and model_file.filename:
+                    filename = secure_filename(model_file.filename)
+                    model_path = os.path.join(project_path, 'models', filename)
+                    model_file.save(model_path)
+                    model_files.append(f'models/{filename}')
+            
+            # Handle code file uploads
+            code_files = {}
+            for code_name in ['main_py', 'names_py', 'processor_py', 'utils_py', 'requirements_txt']:
+                code_file = request.files.get(code_name)
+                if code_file and code_file.filename:
+                    # Map form field names to actual filenames
+                    actual_filename = code_name.replace('_', '.')
+                    filename = secure_filename(actual_filename)
+                    code_path = os.path.join(project_path, 'code', filename)
+                    code_file.save(code_path)
+                    code_files[code_name] = f'code/{filename}'
+            
+            # Collect metrics data
+            metrics = {}
+            if request.form.get('accuracy'):
+                metrics['accuracy'] = float(request.form.get('accuracy', 0))
+            if request.form.get('precision'):
+                metrics['precision'] = float(request.form.get('precision', 0))
+            if request.form.get('recall'):
+                metrics['recall'] = float(request.form.get('recall', 0))
+            if request.form.get('f1_score'):
+                metrics['f1_score'] = float(request.form.get('f1_score', 0))
+            
+            # Custom metrics
+            custom_metrics = {}
+            custom_index = 0
+            while f'custom_metric_{custom_index}_name' in request.form:
+                metric_name = request.form.get(f'custom_metric_{custom_index}_name')
+                metric_value = request.form.get(f'custom_metric_{custom_index}_value')
+                
+                if metric_name and metric_value:
+                    try:
+                        custom_metrics[metric_name] = float(metric_value)
+                    except ValueError:
+                        custom_metrics[metric_name] = metric_value
+                custom_index += 1
+            
+            if custom_metrics:
+                metrics['custom_metrics'] = custom_metrics
+            
+            # Collect project data
+            project_data = {
+                'title': request.form.get('title'),
+                'student_name': student_name,
+                'student_email': request.form.get('student_email'),
+                'student_phone': request.form.get('student_phone'),
+                'student_folder': student_folder,  # Store folder reference
+                'course_id': request.form.get('course_id'),
+                'description': request.form.get('description', ''),
+                'github_url': request.form.get('github_url', ''),
+                'demo_url': request.form.get('demo_url', ''),
+                'colab_notebook_url': request.form.get('colab_notebook_url', ''),
+                'technologies': [tech.strip() for tech in request.form.get('technologies', '').split(',') if tech.strip()],
+                'is_featured': request.form.get('is_featured') == 'on',
+                'visualizations': visualizations,
+                'metrics': metrics,
+                'files': {
+                    'data': data_files,
+                    'materials': [],  # Additional materials
+                    'models': model_files,
+                    **code_files
+                }
+            }
+            
+            # Validate required fields
+            if not all([project_data['title'], project_data['student_name'], project_data['course_id']]):
+                flash('Title, Student Name, and Course are required', 'error')
+                return redirect(url_for('admin_add_ml_project'))
+            
+            success, message, project_id = DATA_MANAGER.add_ml_project(project_data)
+            
+            if success:
+                flash(message, 'success')
+                return redirect(url_for('admin_ml_projects'))
+            else:
+                flash(message, 'error')
+                
+        except Exception as e:
+            current_app.logger.error(f"Error adding ML project: {str(e)}")
+            flash('An error occurred while adding the project', 'error')
+    
+    all_courses = list(courses_collection.find({"is_active": True}))
+    return render_template('admin/add_ml_project.html', courses=all_courses)
+
+@app.route('/admin/ml-projects/edit/<project_id>', methods=['GET', 'POST'])
+@admin_required
+def admin_edit_ml_project(project_id):
+    """Edit an existing ML project"""
+    courses_collection = DATA_MANAGER.get_courses()
+    
+    project = DATA_MANAGER.get_ml_project_by_id(project_id)
+    if not project:
+        flash('Project not found', 'error')
+        return redirect(url_for('admin_ml_projects'))
+    
+    if request.method == 'POST':
+        try:
+            # Collect visualizations data
+            visualizations = []
+            viz_index = 0
+            while f'viz_{viz_index}_title' in request.form:
+                viz_title = request.form.get(f'viz_{viz_index}_title')
+                viz_url = request.form.get(f'viz_{viz_index}_url')
+                viz_desc = request.form.get(f'viz_{viz_index}_description', '')
+                
+                if viz_title and viz_url:
+                    visualizations.append({
+                        'title': viz_title,
+                        'image_url': viz_url,
+                        'description': viz_desc
+                    })
+                viz_index += 1
+            
+            # Collect metrics data
+            metrics = {}
+            if request.form.get('accuracy'):
+                metrics['accuracy'] = float(request.form.get('accuracy', 0))
+            if request.form.get('precision'):
+                metrics['precision'] = float(request.form.get('precision', 0))
+            if request.form.get('recall'):
+                metrics['recall'] = float(request.form.get('recall', 0))
+            if request.form.get('f1_score'):
+                metrics['f1_score'] = float(request.form.get('f1_score', 0))
+            
+            # Custom metrics
+            custom_metrics = {}
+            custom_index = 0
+            while f'custom_metric_{custom_index}_name' in request.form:
+                metric_name = request.form.get(f'custom_metric_{custom_index}_name')
+                metric_value = request.form.get(f'custom_metric_{custom_index}_value')
+                
+                if metric_name and metric_value:
+                    try:
+                        custom_metrics[metric_name] = float(metric_value)
+                    except ValueError:
+                        custom_metrics[metric_name] = metric_value
+                custom_index += 1
+            
+            if custom_metrics:
+                metrics['custom_metrics'] = custom_metrics
+            
+            updated_data = {
+                'title': request.form.get('title'),
+                'student_name': request.form.get('student_name'),
+                'student_email': request.form.get('student_email'),
+                'student_phone': request.form.get('student_phone'),
+                'course_id': request.form.get('course_id'),
+                'description': request.form.get('description', ''),
+                'github_url': request.form.get('github_url', ''),
+                'demo_url': request.form.get('demo_url', ''),
+                'colab_notebook_url': request.form.get('colab_notebook_url', ''),
+                'technologies': [tech.strip() for tech in request.form.get('technologies', '').split(',') if tech.strip()],
+                'is_featured': request.form.get('is_featured') == 'on',
+                'visualizations': visualizations,
+                'metrics': metrics,
+                'files': {
+                    'data': [url.strip() for url in request.form.getlist('data_files[]') if url.strip()],
+                    'materials': [url.strip() for url in request.form.getlist('materials_files[]') if url.strip()],
+                    'models': [url.strip() for url in request.form.getlist('models_files[]') if url.strip()],
+                    'main_py': request.form.get('main_py', ''),
+                    'names_py': request.form.get('names_py', ''),
+                    'processor_py': request.form.get('processor_py', ''),
+                    'requirements_txt': request.form.get('requirements_txt', ''),
+                    'utils_py': request.form.get('utils_py', '')
+                }
+            }
+            
+            success, message = DATA_MANAGER.update_ml_project(project_id, updated_data)
+            
+            if success:
+                flash(message, 'success')
+                return redirect(url_for('admin_edit_ml_project', project_id=project_id))
+            else:
+                flash(message, 'error')
+                
+        except Exception as e:
+            current_app.logger.error(f"Error updating ML project: {str(e)}")
+            flash('An error occurred while updating the project', 'error')
+    
+    all_courses = list(courses_collection.find({"is_active": True}))
+    return render_template('admin/edit_ml_project.html', project=project, courses=all_courses)
+
+@app.route('/admin/ml-projects/delete/<project_id>', methods=['POST'])
+@admin_required
+def admin_delete_ml_project(project_id):
+    """Delete an ML project"""
+    try:
+        success, message = DATA_MANAGER.delete_ml_project(project_id)
+        
+        if success:
+            flash(message, 'success')
+        else:
+            flash(message, 'error')
+            
+    except Exception as e:
+        current_app.logger.error(f"Error deleting ML project: {str(e)}")
+        flash('An error occurred while deleting the project', 'error')
+    
+    return redirect(url_for('admin_ml_projects'))
 
 
 # API Endpoints

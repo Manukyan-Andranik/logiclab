@@ -201,69 +201,38 @@
     </header>
 
     <div class="courses-grid">
-        <!-- Machine Learning Course -->
-        <div class="course-card ml">
+        {% for course in all_courses %}
+        <div class="course-card {{ course._id.split('_')[0] if course._id else 'default' }}">
             <div class="course-card-header">
                 <div class="course-icon">
-                    <i class="fas fa-brain"></i>
+                    {% if 'machine' in course._id or 'ml' in course._id %}
+                        <i class="fas fa-brain"></i>
+                    {% elif 'ai' in course._id %}
+                        <i class="fas fa-robot"></i>
+                    {% elif '3d' in course._id or 'modeling' in course._id %}
+                        <i class="fas fa-cube"></i>
+                    {% elif 'photo' in course._id %}
+                        <i class="fas fa-camera"></i>
+                    {% else %}
+                        <i class="fas fa-book"></i>
+                    {% endif %}
                 </div>
             </div>
             <div class="course-card-body">
-                <h3>Machine Learning</h3>
-                <p>Learn the fundamentals of ML algorithms and applications</p>
-                <a href="materials/machine_learning" class="btn-view-course">
+                <h3>{{ course.title }}</h3>
+                <p>{{ course.curriculum[:100] + '...' if course.curriculum else 'Course materials and resources' }}</p>
+                <a href="{{ url_for('admin_material_details', course_id=course._id) }}" class="btn-view-course">
                     <i class="fas fa-book-open"></i> View Materials
                 </a>
             </div>
         </div>
-
-        <!-- AI Tools Course -->
-        <div class="course-card ai">
-            <div class="course-card-header">
-                <div class="course-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-            </div>
-            <div class="course-card-body">
-                <h3>AI Tools</h3>
-                <p>Master modern AI tools and frameworks</p>
-                <a href="materials/ai_tools" class="btn-view-course">
-                    <i class="fas fa-book-open"></i> View Materials
-                </a>
-            </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-book-open fa-3x"></i>
+            <h3>No Courses Available</h3>
+            <p>No active courses found. Please add courses first.</p>
         </div>
-
-        <!-- 3D Modeling Course -->
-        <div class="course-card modeling">
-            <div class="course-card-header">
-                <div class="course-icon">
-                    <i class="fas fa-cube"></i>
-                </div>
-            </div>
-            <div class="course-card-body">
-                <h3>3D Modeling</h3>
-                <p>Create stunning 3D models and animations</p>
-                <a href="materials/3d_modeling" class="btn-view-course">
-                    <i class="fas fa-book-open"></i> View Materials
-                </a>
-            </div>
-        </div>
-
-        <!-- Photography Course -->
-        <div class="course-card photo">
-            <div class="course-card-header">
-                <div class="course-icon">
-                    <i class="fas fa-camera"></i>
-                </div>
-            </div>
-            <div class="course-card-body">
-                <h3>Photography</h3>
-                <p>Capture professional-quality photos</p>
-                <a href="materials/photography" class="btn-view-course">
-                    <i class="fas fa-book-open"></i> View Materials
-                </a>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

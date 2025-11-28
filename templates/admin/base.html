@@ -39,6 +39,9 @@
                     <li class="{{ 'active' if request.endpoint == 'admin_students' }}">
                         <a href="{{ url_for('admin_students') }}"><i class="fas fa-users"></i> Students</a>
                     </li>
+                    <li class="{{ 'active' if request.endpoint == 'admin_ml_projects' }}">
+                        <a href="{{ url_for('admin_ml_projects') }}"><i class="fas fa-brain"></i> ML Projects</a>
+                    </li>
                     <li>
                         <a href="{{ url_for('admin_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </li>

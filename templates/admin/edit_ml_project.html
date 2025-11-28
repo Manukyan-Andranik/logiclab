@@ -1,0 +1,386 @@
+{% extends "admin/base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/ml_projects.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1><i class="fas fa-edit"></i> Edit ML Project</h1>
+    <div>
+        <a href="{{ url_for('admin_ml_projects') }}" class="btn btn-admin">
+            <i class="fas fa-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+</div>
+
+<div class="form-container">
+    <form method="POST" class="admin-form">
+        <!-- Basic Information -->
+        <div class="form-section">
+            <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+            
+            <div class="form-group">
+                <label for="title">Project Title *</label>
+                <input type="text" id="title" name="title" value="{{ project.title }}" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="student_name">Student Name *</label>
+                    <input type="text" id="student_name" name="student_name" value="{{ project.student_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="student_email">Student Email</label>
+                    <input type="email" id="student_email" name="student_email" value="{{ project.student_email or '' }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="student_phone">Student Phone</label>
+                <input type="tel" id="student_phone" name="student_phone" value="{{ project.student_phone or '' }}" placeholder="+374 XX XXX XXX">
+            </div>
+
+            <div class="form-group">
+                <label for="course_id">Course *</label>
+                <select id="course_id" name="course_id" required>
+                    <option value="">Select a course</option>
+                    {% for course in courses %}
+                    <option value="{{ course._id }}" {{ 'selected' if course._id == project.course_id }}>
+                        {{ course.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="5">{{ project.description or '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="technologies">Technologies (comma-separated)</label>
+                <input type="text" id="technologies" name="technologies" 
+                       value="{{ project.technologies|join(', ') if project.technologies else '' }}" 
+                       placeholder="Python, Scikit-learn, Pandas, NumPy">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="is_featured" name="is_featured" {{ 'checked' if project.is_featured }}>
+                <label for="is_featured">Featured Project</label>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="form-section">
+            <h3><i class="fas fa-link"></i> Project Links</h3>
+            
+            <div class="form-group">
+                <label for="github_url">GitHub URL</label>
+                <input type="url" id="github_url" name="github_url" 
+                       value="{{ project.github_url or '' }}" 
+                       placeholder="https://github.com/username/project">
+            </div>
+
+            <div class="form-group">
+                <label for="demo_url">Demo URL</label>
+                <input type="url" id="demo_url" name="demo_url" 
+                       value="{{ project.demo_url or '' }}" 
+                       placeholder="https://your-demo.com">
+            </div>
+
+            <div class="form-group">
+                <label for="colab_notebook_url">Google Colab Notebook URL</label>
+                <input type="url" id="colab_notebook_url" name="colab_notebook_url" 
+                       value="{{ project.colab_notebook_url or '' }}" 
+                       placeholder="https://colab.research.google.com/drive/...">
+            </div>
+        </div>
+
+        <!-- Visualizations -->
+        <div class="form-section">
+            <h3><i class="fas fa-chart-bar"></i> Visualizations & Plots</h3>
+            <p class="form-help">Add images of charts, confusion matrices, plots saved in materials folder</p>
+            
+            <div id="visualizations-container">
+                {% if project.visualizations %}
+                    {% for viz in project.visualizations %}
+                    <div class="viz-group">
+                        <div class="form-group">
+                            <label>Visualization Title</label>
+                            <input type="text" name="viz_{{ loop.index0 }}_title" value="{{ viz.title }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL (Google Drive)</label>
+                            <input type="url" name="viz_{{ loop.index0 }}_url" value="{{ viz.image_url }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Description (optional)</label>
+                            <input type="text" name="viz_{{ loop.index0 }}_description" value="{{ viz.description or '' }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="viz-group">
+                    <div class="form-group">
+                        <label>Visualization Title</label>
+                        <input type="text" name="viz_0_title" placeholder="e.g., Confusion Matrix">
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL (Google Drive)</label>
+                        <input type="url" name="viz_0_url" placeholder="Google Drive image URL">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (optional)</label>
+                        <input type="text" name="viz_0_description" placeholder="Brief description">
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <button type="button" class="btn-add-field" onclick="addVisualization()">
+                <i class="fas fa-plus"></i> Add Visualization
+            </button>
+        </div>
+
+        <!-- Metrics -->
+        <div class="form-section">
+            <h3><i class="fas fa-chart-line"></i> Performance Metrics</h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="accuracy">Accuracy (0-1)</label>
+                    <input type="number" id="accuracy" name="accuracy" step="0.01" min="0" max="1" 
+                           value="{{ project.metrics.accuracy if project.metrics and project.metrics.accuracy else '' }}" 
+                           placeholder="0.95">
+                </div>
+                <div class="form-group">
+                    <label for="precision">Precision (0-1)</label>
+                    <input type="number" id="precision" name="precision" step="0.01" min="0" max="1" 
+                           value="{{ project.metrics.precision if project.metrics and project.metrics.precision else '' }}" 
+                           placeholder="0.93">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="recall">Recall (0-1)</label>
+                    <input type="number" id="recall" name="recall" step="0.01" min="0" max="1" 
+                           value="{{ project.metrics.recall if project.metrics and project.metrics.recall else '' }}" 
+                           placeholder="0.92">
+                </div>
+                <div class="form-group">
+                    <label for="f1_score">F1 Score (0-1)</label>
+                    <input type="number" id="f1_score" name="f1_score" step="0.01" min="0" max="1" 
+                           value="{{ project.metrics.f1_score if project.metrics and project.metrics.f1_score else '' }}" 
+                           placeholder="0.92">
+                </div>
+            </div>
+
+            <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Custom Metrics</h4>
+            <div id="custom-metrics-container">
+                {% if project.metrics and project.metrics.custom_metrics %}
+                    {% for name, value in project.metrics.custom_metrics.items() %}
+                    <div class="metric-group">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Metric Name</label>
+                                <input type="text" name="custom_metric_{{ loop.index0 }}_name" value="{{ name }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Value</label>
+                                <input type="text" name="custom_metric_{{ loop.index0 }}_value" value="{{ value }}">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="metric-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Metric Name</label>
+                            <input type="text" name="custom_metric_0_name" placeholder="e.g., AUC-ROC">
+                        </div>
+                        <div class="form-group">
+                            <label>Value</label>
+                            <input type="text" name="custom_metric_0_value" placeholder="0.98">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <button type="button" class="btn-add-field" onclick="addCustomMetric()">
+                <i class="fas fa-plus"></i> Add Custom Metric
+            </button>
+        </div>
+
+        <!-- Project Files -->
+        <div class="form-section">
+            <h3><i class="fas fa-folder"></i> Project Files</h3>
+            
+            <div class="form-group">
+                <label>Data Files (Google Drive URLs)</label>
+                <div id="data-files">
+                    {% if project.files and project.files.data %}
+                        {% for url in project.files.data %}
+                        <input type="url" name="data_files[]" class="dynamic-input" value="{{ url }}">
+                        {% endfor %}
+                    {% else %}
+                        <input type="url" name="data_files[]" class="dynamic-input" placeholder="Google Drive URL for CSV file">
+                    {% endif %}
+                </div>
+                <button type="button" class="btn-add-field" onclick="addField('data-files', 'data_files[]')">
+                    <i class="fas fa-plus"></i> Add Data File
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Materials Files</label>
+                <div id="materials-files">
+                    {% if project.files and project.files.materials %}
+                        {% for url in project.files.materials %}
+                        <input type="url" name="materials_files[]" class="dynamic-input" value="{{ url }}">
+                        {% endfor %}
+                    {% else %}
+                        <input type="url" name="materials_files[]" class="dynamic-input" placeholder="Google Drive URL">
+                    {% endif %}
+                </div>
+                <button type="button" class="btn-add-field" onclick="addField('materials-files', 'materials_files[]')">
+                    <i class="fas fa-plus"></i> Add Material
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Model Files</label>
+                <div id="models-files">
+                    {% if project.files and project.files.models %}
+                        {% for url in project.files.models %}
+                        <input type="url" name="models_files[]" class="dynamic-input" value="{{ url }}">
+                        {% endfor %}
+                    {% else %}
+                        <input type="url" name="models_files[]" class="dynamic-input" placeholder="Google Drive URL for model.pkl">
+                    {% endif %}
+                </div>
+                <button type="button" class="btn-add-field" onclick="addField('models-files', 'models_files[]')">
+                    <i class="fas fa-plus"></i> Add Model File
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="main_py">main.py URL</label>
+                <input type="url" id="main_py" name="main_py" 
+                       value="{{ project.files.main_py if project.files and project.files.main_py else '' }}" 
+                       placeholder="Google Drive URL for main.py">
+            </div>
+
+            <div class="form-group">
+                <label for="names_py">names.py URL</label>
+                <input type="url" id="names_py" name="names_py" 
+                       value="{{ project.files.names_py if project.files and project.files.names_py else '' }}" 
+                       placeholder="Google Drive URL for names.py">
+            </div>
+
+            <div class="form-group">
+                <label for="processor_py">processor.py URL</label>
+                <input type="url" id="processor_py" name="processor_py" 
+                       value="{{ project.files.processor_py if project.files and project.files.processor_py else '' }}" 
+                       placeholder="Google Drive URL for processor.py">
+            </div>
+
+            <div class="form-group">
+                <label for="utils_py">utils.py URL</label>
+                <input type="url" id="utils_py" name="utils_py" 
+                       value="{{ project.files.utils_py if project.files and project.files.utils_py else '' }}" 
+                       placeholder="Google Drive URL for utils.py">
+            </div>
+
+            <div class="form-group">
+                <label for="requirements_txt">requirements.txt URL</label>
+                <input type="url" id="requirements_txt" name="requirements_txt" 
+                       value="{{ project.files.requirements_txt if project.files and project.files.requirements_txt else '' }}" 
+                       placeholder="Google Drive URL for requirements.txt">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-admin">
+                <i class="fas fa-save"></i> Update Project
+            </button>
+            <a href="{{ url_for('admin_ml_projects') }}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-help {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.viz-group, .metric-group {
+    background: var(--light-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+</style>
+
+<script>
+function addField(containerId, inputName) {
+    const container = document.getElementById(containerId);
+    const newInput = document.createElement('input');
+    newInput.type = 'url';
+    newInput.name = inputName;
+    newInput.className = 'dynamic-input';
+    newInput.placeholder = 'Google Drive URL';
+    container.appendChild(newInput);
+}
+
+let vizCount = {{ project.visualizations|length if project.visualizations else 1 }};
+function addVisualization() {
+    const container = document.getElementById('visualizations-container');
+    const newViz = document.createElement('div');
+    newViz.className = 'viz-group';
+    newViz.innerHTML = `
+        <div class="form-group">
+            <label>Visualization Title</label>
+            <input type="text" name="viz_${vizCount}_title" placeholder="e.g., Confusion Matrix">
+        </div>
+        <div class="form-group">
+            <label>Image URL (Google Drive)</label>
+            <input type="url" name="viz_${vizCount}_url" placeholder="Google Drive image URL">
+        </div>
+        <div class="form-group">
+            <label>Description (optional)</label>
+            <input type="text" name="viz_${vizCount}_description" placeholder="Brief description">
+        </div>
+    `;
+    container.appendChild(newViz);
+    vizCount++;
+}
+
+let metricCount = {{ project.metrics.custom_metrics|length if project.metrics and project.metrics.custom_metrics else 1 }};
+function addCustomMetric() {
+    const container = document.getElementById('custom-metrics-container');
+    const newMetric = document.createElement('div');
+    newMetric.className = 'metric-group';
+    newMetric.innerHTML = `
+        <div class="form-row">
+            <div class="form-group">
+                <label>Metric Name</label>
+                <input type="text" name="custom_metric_${metricCount}_name" placeholder="e.g., AUC-ROC">
+            </div>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="text" name="custom_metric_${metricCount}_value" placeholder="0.98">
+            </div>
+        </div>
+    `;
+    container.appendChild(newMetric);
+    metricCount++;
+}
+</script>
+{% endblock %}
+
