@@ -131,6 +131,184 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
+/* Collapsible Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light-color);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* Toggle Button */
+.toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-btn:active {
+    transform: translateY(0);
+}
+
+.toggle-btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.toggle-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--secondary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.toggle-btn i {
+    transition: transform 0.4s ease;
+    font-size: 0.8rem;
+}
+
+.toggle-btn.collapsed i {
+    transform: rotate(180deg);
+}
+
+.toggle-text {
+    font-weight: 500;
+}
+
+/* Attention-grabbing animation for long content */
+.toggle-btn.attention {
+    animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+    }
+}
+
+/* Collapsible Content */
+.description-content {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, margin-top 0.4s ease;
+    opacity: 1;
+    margin-top: 0;
+    position: relative;
+    scroll-behavior: smooth;
+}
+
+.description-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: -1rem;
+    overflow: hidden;
+}
+
+.description-content.expanded {
+    max-height: none;
+    overflow: visible;
+}
+
+.description-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, var(--white) 0%, rgba(255, 255, 255, 0.9) 50%, transparent 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 1;
+}
+
+.description-content.collapsed::after {
+    opacity: 1;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.description-content.collapsed .scroll-indicator {
+    opacity: 1;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-3px);
+    }
+}
+
+.description-text {
+    line-height: 1.7;
+    color: var(--text-color);
+    white-space: pre-line;
+    font-size: 1rem;
+}
+
 .section-card h2 {
     font-size: 1.75rem;
     color: var(--secondary-color);
@@ -781,23 +959,58 @@
     .project-hero h1 {
         font-size: 1.75rem;
     }
-    
+
     .tech-pill {
         font-size: 0.85rem;
         padding: 0.5rem 1rem;
     }
-    
+
     .metrics-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .metric-value {
         font-size: 1.75rem;
     }
-    
+
     .featured-badge-large {
         font-size: 0.75rem;
         padding: 0.4rem 0.8rem;
+    }
+
+    /* Collapsible section mobile styles */
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .toggle-btn {
+        align-self: stretch;
+        justify-content: center;
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .description-content {
+        max-height: 400px; /* Adjusted for mobile */
+    }
+
+    .description-content.collapsed {
+        max-height: 0;
+    }
+
+    .scroll-indicator {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.6rem;
+        bottom: 15px;
+    }
+
+    /* Better mobile touch targets */
+    .toggle-btn, .scroll-indicator {
+        min-height: 44px; /* iOS touch target minimum */
+        min-width: 44px;
     }
 }
 

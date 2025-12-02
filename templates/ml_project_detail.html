@@ -52,8 +52,19 @@
                 <!-- Description -->
                 {% if project.description %}
                 <div class="section-card" data-aos="fade-up">
-                    <h2><i class="fas fa-info-circle"></i> Նկարագրություն</h2>
-                    <p class="description-text">{{ project.description }}</p>
+                    <div class="section-header">
+                        <h2><i class="fas fa-info-circle"></i> Նկարագրություն</h2>
+                        <button class="toggle-btn" id="description-toggle"
+                                aria-controls="description-content"
+                                aria-label="Ցույց տալ կամ թաքցնել ամբողջ նկարագրությունը">
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                            <span class="toggle-text">Ցույց տալ</span>
+                        </button>
+                    </div>
+                    <div class="description-content" id="description-content"
+                         aria-labelledby="description-toggle">
+                        <div class="description-text">{{ project.description }}</div>
+                    </div>
                 </div>
                 {% endif %}
 
@@ -340,14 +351,14 @@
     function copyCode(elementId) {
         const codeElement = document.getElementById(elementId);
         const code = codeElement.textContent;
-        
+
         navigator.clipboard.writeText(code).then(() => {
             // Show feedback
             const btn = event.target.closest('.btn-copy');
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-check"></i> Պատճենված!';
             btn.style.background = '#43e97b';
-            
+
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
                 btn.style.background = '';
@@ -356,6 +367,143 @@
             console.error('Failed to copy:', err);
             alert('Failed to copy code');
         });
+    }
+
+    // Collapsible description functionality with enhanced UX
+    const toggleBtn = document.getElementById('description-toggle');
+    const content = document.getElementById('description-content');
+    const sectionCard = content.closest('.section-card');
+
+    if (toggleBtn && content) {
+        const toggleText = toggleBtn.querySelector('.toggle-text');
+        const toggleIcon = toggleBtn.querySelector('i');
+
+        // Check if description is long (more than 300 characters)
+        const descriptionText = content.querySelector('.description-text');
+        const isLongDescription = descriptionText && descriptionText.textContent.length > 300;
+
+        // Add scroll indicator
+        const scrollIndicator = document.createElement('div');
+        scrollIndicator.className = 'scroll-indicator';
+        scrollIndicator.innerHTML = '<i class="fas fa-chevron-down"></i> Կարդալ ավելին';
+        content.appendChild(scrollIndicator);
+
+        if (isLongDescription) {
+            // Initially collapse long descriptions
+            content.classList.add('collapsed');
+            toggleBtn.classList.add('collapsed', 'attention');
+            toggleText.textContent = 'Ցույց տալ ամբողջը';
+            toggleBtn.setAttribute('aria-expanded', 'false');
+
+            // Remove attention animation after first interaction
+            toggleBtn.addEventListener('click', function removeAttention() {
+                toggleBtn.classList.remove('attention');
+                toggleBtn.removeEventListener('click', removeAttention);
+            }, { once: true });
+
+            // Add click handler with enhanced UX
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const isCollapsed = content.classList.contains('collapsed');
+
+                // Add loading state
+                toggleBtn.classList.add('loading');
+                toggleBtn.disabled = true;
+
+                // Store original text
+                const originalText = toggleText.textContent;
+
+                if (isCollapsed) {
+                    // Expand content
+                    content.classList.remove('collapsed');
+                    content.classList.add('expanded');
+                    toggleBtn.classList.remove('collapsed');
+                    toggleText.textContent = 'Թաքցնել';
+                    toggleBtn.setAttribute('aria-expanded', 'true');
+
+                    // Smooth scroll to show expanded content
+                    setTimeout(() => {
+                        const rect = content.getBoundingClientRect();
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const targetY = rect.top + scrollTop - 120; // 120px offset from top
+
+                        window.scrollTo({
+                            top: targetY,
+                            behavior: 'smooth'
+                        });
+                    }, 150);
+
+                } else {
+                    // Collapse content
+                    content.classList.add('collapsed');
+                    content.classList.remove('expanded');
+                    toggleBtn.classList.add('collapsed');
+                    toggleText.textContent = 'Ցույց տալ ամբողջը';
+                    toggleBtn.setAttribute('aria-expanded', 'false');
+
+                    // Scroll back to section header
+                    setTimeout(() => {
+                        sectionCard.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                            inline: 'nearest'
+                        });
+                    }, 100);
+                }
+
+                // Remove loading state after animation
+                setTimeout(() => {
+                    toggleBtn.classList.remove('loading');
+                    toggleBtn.disabled = false;
+                }, 600);
+            });
+
+            // Add keyboard support
+            toggleBtn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleBtn.click();
+                }
+            });
+
+            // Add scroll indicator click handler
+            scrollIndicator.addEventListener('click', function() {
+                toggleBtn.click();
+            });
+
+            // Auto-hide scroll indicator when user scrolls
+            let scrollTimeout;
+            content.addEventListener('scroll', function() {
+                if (!content.classList.contains('collapsed')) {
+                    scrollIndicator.style.opacity = '0';
+
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        const isNearBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 50;
+                        if (!isNearBottom) {
+                            scrollIndicator.style.opacity = '1';
+                        }
+                    }, 150);
+                }
+            });
+
+            // Show scroll indicator when expanded
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        const isExpanded = !content.classList.contains('collapsed');
+                        scrollIndicator.style.display = isExpanded ? 'block' : 'none';
+                    }
+                });
+            });
+            observer.observe(content, { attributes: true });
+
+        } else {
+            // Hide toggle button and indicator for short descriptions
+            toggleBtn.style.display = 'none';
+            scrollIndicator.style.display = 'none';
+        }
     }
 </script>
 {% endblock %}
